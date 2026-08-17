@@ -1,5 +1,4 @@
-import { useMemo, useState } from "react";
-import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { useRouter } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ScreenContainer } from "@/components/screen-container";
@@ -16,39 +15,12 @@ const colors = {
   border: "#D4E0E5",
 };
 
-type FormState = { name: string; title: string; subtitle: string; body: string };
-const emptyForm: FormState = { name: "", title: "", subtitle: "", body: "" };
-
 export default function TemplatesScreen() {
   const router = useRouter();
-  const { templates, saveTemplate, removeTemplate } = useNotificationStore();
-  const [form, setForm] = useState<FormState>(emptyForm);
-  const [editingId, setEditingId] = useState<string>();
-
-  const canSave = useMemo(() => form.name.trim().length > 0 && form.body.trim().length > 0, [form]);
-
-  const update = (key: keyof FormState, value: string) => setForm((current) => ({ ...current, [key]: value }));
-
-  const handleSave = async () => {
-    if (!canSave) {
-      Alert.alert("Complete o modelo", "Informe o nome do modelo e a mensagem. O título pode ficar vazio: nesse caso, usaremos o nome do modelo.");
-      return;
-    }
-    try {
-      const notificationTitle = form.title.trim() || form.name.trim();
-      await saveTemplate({ name: form.name.trim(), title: notificationTitle, subtitle: form.subtitle.trim(), body: form.body.trim() }, editingId);
-      setForm(emptyForm);
-      setEditingId(undefined);
-      Alert.alert("Modelo salvo", "O modelo está disponível na lista e ficará salvo neste iPhone.");
-    } catch (error) {
-      const detail = error instanceof Error ? error.message : "Não foi possível gravar o modelo no armazenamento local.";
-      Alert.alert("Não foi possível salvar", detail);
-    }
-  };
+  const { templates, removeTemplate } = useNotificationStore();
 
   const handleEdit = (template: NotificationTemplate) => {
-    setEditingId(template.id);
-    setForm({ name: template.name, title: template.title, subtitle: template.subtitle, body: template.body });
+    router.push({ pathname: "/", params: { templateId: template.id, templateName: template.name, templateTitle: template.title, templateSubtitle: template.subtitle, templateBody: template.body } });
   };
 
   const handleUse = (template: NotificationTemplate) => {
@@ -102,24 +74,13 @@ export default function TemplatesScreen() {
               </View>
             </View>
             <View style={styles.hero}>
-              <Text style={styles.heroTitle}>Salve uma notificação para usar de novo.</Text>
-              <Text style={styles.heroBody}>Crie modelos prontos e preencha a tela Compor em um toque.</Text>
+              <Text style={styles.heroTitle}>Seus modelos salvos, sempre à mão.</Text>
+              <Text style={styles.heroBody}>A lista é alimentada pelas predefinições que você salva na aba Compor.</Text>
             </View>
-            <View style={styles.formCard}>
-              <View style={styles.sectionRow}><Text style={styles.sectionTitle}>{editingId ? "Editar modelo" : "Novo modelo"}</Text>{editingId ? <Pressable onPress={() => { setEditingId(undefined); setForm(emptyForm); }}><Text style={styles.cancelText}>Cancelar</Text></Pressable> : null}</View>
-              <TextInput value={form.name} onChangeText={(value) => update("name", value)} placeholder="Nome do modelo" placeholderTextColor="#8A969C" style={styles.input} maxLength={40} />
-              <TextInput value={form.title} onChangeText={(value) => update("title", value)} placeholder="Título da notificação (opcional)" placeholderTextColor="#8A969C" style={styles.input} maxLength={40} />
-              <TextInput value={form.subtitle} onChangeText={(value) => update("subtitle", value)} placeholder="Subtítulo (opcional)" placeholderTextColor="#8A969C" style={styles.input} maxLength={80} />
-              <TextInput value={form.body} onChangeText={(value) => update("body", value)} placeholder="Mensagem" placeholderTextColor="#8A969C" style={[styles.input, styles.bodyInput]} multiline maxLength={140} />
-              <Pressable onPress={handleSave} style={({ pressed }) => [styles.saveButton, canSave ? styles.saveReady : styles.saveDisabled, pressed && styles.pressed]}>
-                <MaterialIcons name={editingId ? "check" : "bookmark-add"} size={23} color={colors.white} />
-                <Text style={styles.saveText}>{editingId ? "Atualizar modelo" : "Salvar modelo"}</Text>
-              </Pressable>
-            </View>
-            <View style={styles.listHeading}><Text style={styles.sectionTitle}>Seus modelos</Text><Text style={styles.count}>{templates.length}</Text></View>
+            <View style={styles.listHeading}><Text style={styles.sectionTitle}>Modelos salvos</Text><Text style={styles.count}>{templates.length}</Text></View>
           </>
         }
-        ListEmptyComponent={<View style={styles.empty}><MaterialIcons name="bookmark-border" size={40} color={colors.teal} /><Text style={styles.emptyTitle}>Nenhum modelo salvo</Text><Text style={styles.emptyBody}>Crie seu primeiro modelo acima para reutilizar notificações.</Text></View>}
+        ListEmptyComponent={<View style={styles.empty}><MaterialIcons name="bookmark-border" size={40} color={colors.teal} /><Text style={styles.emptyTitle}>Nenhum modelo salvo</Text><Text style={styles.emptyBody}>Salve uma predefinição na aba Compor para vê-la aqui.</Text></View>}
       />
     </ScreenContainer>
   );
@@ -135,16 +96,7 @@ const styles = StyleSheet.create({
   hero: { backgroundColor: colors.navy, borderRadius: 24, padding: 22, marginBottom: 18 },
   heroTitle: { color: colors.white, fontSize: 22, fontWeight: "900" },
   heroBody: { color: "#D8E4EA", fontSize: 15, lineHeight: 21, marginTop: 8 },
-  formCard: { backgroundColor: colors.white, borderRadius: 22, borderWidth: 1, borderColor: colors.border, padding: 16, marginBottom: 22 },
-  sectionRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
   sectionTitle: { color: colors.ink, fontSize: 21, fontWeight: "900" },
-  cancelText: { color: colors.teal, fontWeight: "800" },
-  input: { minHeight: 50, borderRadius: 15, borderWidth: 1, borderColor: colors.border, paddingHorizontal: 15, color: colors.ink, fontSize: 16, marginBottom: 10, backgroundColor: "#FCFDFD" },
-  bodyInput: { minHeight: 82, textAlignVertical: "top", paddingTop: 14 },
-  saveButton: { minHeight: 52, borderRadius: 17, flexDirection: "row", gap: 8, alignItems: "center", justifyContent: "center" },
-  saveReady: { backgroundColor: colors.teal },
-  saveDisabled: { backgroundColor: colors.tealLight },
-  saveText: { color: colors.white, fontWeight: "900", fontSize: 16 },
   listHeading: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 10 },
   count: { color: colors.teal, fontWeight: "900", fontSize: 16 },
   templateCard: { backgroundColor: colors.white, borderRadius: 19, borderWidth: 1, borderColor: colors.border, padding: 14, marginBottom: 12, flexDirection: "row", alignItems: "center" },

@@ -34,15 +34,16 @@ export default function ComposeScreen() {
   const [isEmitting, setIsEmitting] = useState(false);
   const { selectedImage, emit, saveTemplate } = useNotificationStore();
   const router = useRouter();
-  const params = useLocalSearchParams<{ templateTitle?: string; templateSubtitle?: string; templateBody?: string }>();
+  const params = useLocalSearchParams<{ templateId?: string; templateName?: string; templateTitle?: string; templateSubtitle?: string; templateBody?: string }>();
   const canEmit = title.trim().length > 0 && body.trim().length > 0;
   const canSaveModel = modelName.trim().length > 0 && body.trim().length > 0;
 
   useEffect(() => {
+    if (typeof params.templateName === "string") setModelName(params.templateName);
     if (typeof params.templateTitle === "string") setTitle(params.templateTitle);
     if (typeof params.templateSubtitle === "string") setSubtitle(params.templateSubtitle);
     if (typeof params.templateBody === "string") setBody(params.templateBody);
-  }, [params.templateBody, params.templateSubtitle, params.templateTitle]);
+  }, [params.templateBody, params.templateName, params.templateSubtitle, params.templateTitle]);
 
   const handleSaveModel = async () => {
     const trimmedName = modelName.trim();
@@ -57,9 +58,9 @@ export default function ComposeScreen() {
         title: title.trim() || trimmedName,
         subtitle: subtitle.trim(),
         body: trimmedBody,
-      });
+      }, typeof params.templateId === "string" ? params.templateId : undefined);
       setModelName("");
-      Alert.alert("Modelo salvo", "A predefinição foi adicionada à aba Modelos.");
+      Alert.alert(params.templateId ? "Modelo atualizado" : "Modelo salvo", params.templateId ? "As alterações foram atualizadas na aba Modelos." : "A predefinição foi adicionada à aba Modelos.");
     } catch (error) {
       const detail = error instanceof Error ? error.message : "Não foi possível salvar o modelo neste iPhone.";
       Alert.alert("Não foi possível salvar", detail);
