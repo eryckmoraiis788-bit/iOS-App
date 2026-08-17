@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import * as FileSystem from "expo-file-system/legacy";
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Alert, Linking, Platform } from "react-native";
 
 export type NotificationTemplate = {
@@ -44,12 +44,45 @@ type Store = {
   clearHistory: () => Promise<void>;
   saveTemplate: (input: Omit<NotificationTemplate, "id" | "createdAt" | "updatedAt">, id?: string) => Promise<NotificationTemplate>;
   removeTemplate: (template: NotificationTemplate) => Promise<void>;
+  refreshTemplates: () => Promise<void>;
 };
 
 const STORAGE_KEY = "notification-ios-records-v1";
 const TEMPLATES_KEY = "notification-ios-templates-v1";
 const IMAGE_KEY = "notification-ios-image-v1";
 const HAPTICS_KEY = "notification-ios-haptics-v1";
+
+function normalizeTemplates(raw: unknown): NotificationTemplate[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((item, index) => {
+    if (!item || typeof item !== "object") return [];
+    const candidate = item as Partial<NotificationTemplate>;
+    const name = typeof candidate.name === "string" ? candidate.name.trim() : "";
+    const body = typeof candidate.body === "string" ? candidate.body : "";
+    if (!name || !body) return [];
+    const now = new Date().toISOString();
+    return [{
+      id: typeof candidate.id === "string" && candidate.id ? candidate.id : `template-recovered-${index}`,
+      name,
+      title: typeof candidate.title === "string" ? candidate.title : name,
+      subtitle: typeof candidate.subtitle === "string" ? candidate.subtitle : "",
+      body,
+      createdAt: typeof candidate.createdAt === "string" ? candidate.createdAt : now,
+      updatedAt: typeof candidate.updatedAt === "string" ? candidate.updatedAt : now,
+    }];
+  });
+}
+
+async function readTemplatesSafely(): Promise<NotificationTemplate[]> {
+  try {
+    const stored = await AsyncStorage.getItem(TEMPLATES_KEY);
+    if (!stored) return [];
+    return normalizeTemplates(JSON.parse(stored));
+  } catch (error) {
+    console.error("[templates] failed to read local data", error);
+    return [];
+  }
+}
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -78,24 +111,30 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
   const [records, setRecords] = useState<NotificationRecord[]>([]);
   const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
   const templatesRef = useRef<NotificationTemplate[]>([]);
+  const templatesLoadedRef = useRef(false);
+  const templatesLoadPromiseRef = useRef<Promise<void> | null>(null);
+  const templatesWriteInProgressRef = useRef(false);
   const [selectedImage, setSelectedImageState] = useState<string>();
   const [hapticsEnabled, setHapticsState] = useState(true);
   const [permission, setPermission] = useState<Notifications.PermissionStatus | "unknown">("unknown");
 
+  const refreshTemplates = useCallback(async () => {
+    if (templatesWriteInProgressRef.current) return;
+    const parsedTemplates = await readTemplatesSafely();
+    templatesRef.current = parsedTemplates;
+    templatesLoadedRef.current = true;
+    setTemplates(parsedTemplates);
+  }, []);
+
   useEffect(() => {
-    void (async () => {
-      const [storedRecords, storedTemplates, storedImage, storedHaptics] = await Promise.all([
+    templatesLoadPromiseRef.current = (async () => {
+      const [storedRecords, storedImage, storedHaptics] = await Promise.all([
         AsyncStorage.getItem(STORAGE_KEY),
-        AsyncStorage.getItem(TEMPLATES_KEY),
         AsyncStorage.getItem(IMAGE_KEY),
         AsyncStorage.getItem(HAPTICS_KEY),
       ]);
       if (storedRecords) setRecords(JSON.parse(storedRecords));
-      if (storedTemplates) {
-        const parsedTemplates = JSON.parse(storedTemplates) as NotificationTemplate[];
-        templatesRef.current = parsedTemplates;
-        setTemplates(parsedTemplates);
-      }
+      await refreshTemplates();
       if (storedImage) setSelectedImageState(storedImage);
       if (storedHaptics !== null) setHapticsState(storedHaptics !== "false");
       await refreshPermission();
@@ -188,6 +227,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
   };
 
   const saveTemplate = async (input: Omit<NotificationTemplate, "id" | "createdAt" | "updatedAt">, id?: string) => {
+    if (!templatesLoadedRef.current && templatesLoadPromiseRef.current) await templatesLoadPromiseRef.current;
     const now = new Date().toISOString();
     const currentTemplates = templatesRef.current;
     const existing = id ? currentTemplates.find((item) => item.id === id) : undefined;
@@ -198,17 +238,31 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
       updatedAt: now,
     };
     const next = existing ? currentTemplates.map((item) => item.id === template.id ? template : item) : [template, ...currentTemplates];
-    templatesRef.current = next;
-    setTemplates(next);
-    await AsyncStorage.setItem(TEMPLATES_KEY, JSON.stringify(next));
-    return template;
+    templatesWriteInProgressRef.current = true;
+    try {
+      templatesRef.current = next;
+      setTemplates(next);
+      await AsyncStorage.setItem(TEMPLATES_KEY, JSON.stringify(next));
+      const persistedTemplates = await readTemplatesSafely();
+      if (!persistedTemplates.some((item) => item.id === template.id)) {
+        throw new Error("O iPhone não confirmou a gravação do modelo.");
+      }
+      return template;
+    } finally {
+      templatesWriteInProgressRef.current = false;
+    }
   };
 
   const removeTemplate = async (template: NotificationTemplate) => {
     const next = templatesRef.current.filter((item) => item.id !== template.id);
     templatesRef.current = next;
     setTemplates(next);
-    await AsyncStorage.setItem(TEMPLATES_KEY, JSON.stringify(next));
+    try {
+      await AsyncStorage.setItem(TEMPLATES_KEY, JSON.stringify(next));
+    } catch (error) {
+      console.error("[templates] failed to remove local item", error);
+      throw new Error("Não foi possível atualizar os modelos salvos.");
+    }
   };
 
   const setSelectedImage = async (uri?: string) => {
@@ -222,7 +276,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     await AsyncStorage.setItem(HAPTICS_KEY, String(value));
   };
 
-  const value = useMemo(() => ({ templates, records, selectedImage, hapticsEnabled, permission, setSelectedImage, setHapticsEnabled, refreshPermission, requestPermission, emit, schedule, cancel, remove, clearHistory, saveTemplate, removeTemplate }), [templates, records, selectedImage, hapticsEnabled, permission]);
+  const value = useMemo(() => ({ templates, records, selectedImage, hapticsEnabled, permission, setSelectedImage, setHapticsEnabled, refreshPermission, requestPermission, emit, schedule, cancel, remove, clearHistory, saveTemplate, removeTemplate, refreshTemplates }), [templates, records, selectedImage, hapticsEnabled, permission]);
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 
