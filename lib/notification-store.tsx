@@ -107,10 +107,11 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
 
   const buildContent = async (input: { title: string; subtitle: string; body: string; imageUri?: string }) => {
     const attachments = await prepareAttachment(input.imageUri);
+    const subtitle = input.subtitle.trim();
     return {
       title: input.title,
-      subtitle: input.subtitle || undefined,
       body: input.body,
+      ...(subtitle ? { subtitle } : {}),
       ...(attachments ? { attachments } : {}),
       data: { imageUri: input.imageUri ?? null },
     } as Notifications.NotificationContentInput;
