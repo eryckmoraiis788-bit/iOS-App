@@ -162,13 +162,13 @@ export default function ComposeScreen() {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Emitir notificação"
-        disabled={!canEmit || isEmitting}
+        accessibilityState={{ disabled: !canEmit || isEmitting }}
         onPress={handleEmit}
         style={({ pressed }) => [
           styles.primaryButton,
           canEmit ? styles.primaryButtonReady : styles.primaryButtonDisabled,
           pressed && canEmit && styles.pressed,
-          isEmitting && styles.disabledButton,
+          isEmitting && styles.emittingButton,
         ]}
       >
         <MaterialIcons name={isEmitting ? "hourglass-empty" : "notifications-none"} size={28} color={colors.white} />
@@ -254,5 +254,5 @@ const styles = StyleSheet.create({
   primaryButtonDisabled: { backgroundColor: "#A9D2CF", borderColor: "#A9D2CF", shadowOpacity: 0, elevation: 0 },
   primaryText: { color: colors.white, fontSize: 19, fontWeight: "900" },
   pressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
-  disabledButton: { opacity: 0.72 },
+  emittingButton: { opacity: 0.72 },
 });
