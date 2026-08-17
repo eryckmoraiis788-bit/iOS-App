@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const colors = {
   bg: "#EAF4F8",
@@ -12,7 +12,15 @@ const colors = {
 
 export default function ComposeScreen() {
   return (
-    <View style={styles.screen}>
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.screen}
+      showsVerticalScrollIndicator
+      alwaysBounceVertical
+      bounces
+      nestedScrollEnabled
+      contentInsetAdjustmentBehavior="never"
+    >
       <View style={styles.header}>
         <View>
           <Text style={styles.eyebrow}>COMPOSITOR</Text>
@@ -68,12 +76,13 @@ export default function ComposeScreen() {
       <Pressable style={styles.primaryButton}>
         <Text style={styles.primaryText}>Emitir notificação</Text>
       </Pressable>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.bg, padding: 20, gap: 18 },
+  scroll: { flex: 1, backgroundColor: colors.bg },
+  screen: { flexGrow: 1, backgroundColor: colors.bg, padding: 20, paddingBottom: 170, gap: 18 },
   header: { flexDirection: "row", alignItems: "center", paddingTop: 8 },
   eyebrow: { color: colors.teal, letterSpacing: 3, fontSize: 12, fontWeight: "800" },
   heading: { color: colors.ink, fontSize: 32, lineHeight: 38, fontWeight: "900" },
