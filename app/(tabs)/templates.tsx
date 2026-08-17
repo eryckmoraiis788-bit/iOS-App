@@ -25,17 +25,18 @@ export default function TemplatesScreen() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editingId, setEditingId] = useState<string>();
 
-  const canSave = useMemo(() => form.name.trim().length > 0 && form.title.trim().length > 0 && form.body.trim().length > 0, [form]);
+  const canSave = useMemo(() => form.name.trim().length > 0 && form.body.trim().length > 0, [form]);
 
   const update = (key: keyof FormState, value: string) => setForm((current) => ({ ...current, [key]: value }));
 
   const handleSave = async () => {
     if (!canSave) {
-      Alert.alert("Complete o modelo", "Informe o nome do modelo, o título e a mensagem.");
+      Alert.alert("Complete o modelo", "Informe o nome do modelo e a mensagem. O título pode ficar vazio: nesse caso, usaremos o nome do modelo.");
       return;
     }
     try {
-      await saveTemplate({ name: form.name.trim(), title: form.title.trim(), subtitle: form.subtitle.trim(), body: form.body.trim() }, editingId);
+      const notificationTitle = form.title.trim() || form.name.trim();
+      await saveTemplate({ name: form.name.trim(), title: notificationTitle, subtitle: form.subtitle.trim(), body: form.body.trim() }, editingId);
       setForm(emptyForm);
       setEditingId(undefined);
       Alert.alert("Modelo salvo", "O modelo está disponível na lista e ficará salvo neste iPhone.");
@@ -107,7 +108,7 @@ export default function TemplatesScreen() {
             <View style={styles.formCard}>
               <View style={styles.sectionRow}><Text style={styles.sectionTitle}>{editingId ? "Editar modelo" : "Novo modelo"}</Text>{editingId ? <Pressable onPress={() => { setEditingId(undefined); setForm(emptyForm); }}><Text style={styles.cancelText}>Cancelar</Text></Pressable> : null}</View>
               <TextInput value={form.name} onChangeText={(value) => update("name", value)} placeholder="Nome do modelo" placeholderTextColor="#8A969C" style={styles.input} maxLength={40} />
-              <TextInput value={form.title} onChangeText={(value) => update("title", value)} placeholder="Título da notificação" placeholderTextColor="#8A969C" style={styles.input} maxLength={40} />
+              <TextInput value={form.title} onChangeText={(value) => update("title", value)} placeholder="Título da notificação (opcional)" placeholderTextColor="#8A969C" style={styles.input} maxLength={40} />
               <TextInput value={form.subtitle} onChangeText={(value) => update("subtitle", value)} placeholder="Subtítulo (opcional)" placeholderTextColor="#8A969C" style={styles.input} maxLength={80} />
               <TextInput value={form.body} onChangeText={(value) => update("body", value)} placeholder="Mensagem" placeholderTextColor="#8A969C" style={[styles.input, styles.bodyInput]} multiline maxLength={140} />
               <Pressable onPress={handleSave} style={({ pressed }) => [styles.saveButton, canSave ? styles.saveReady : styles.saveDisabled, pressed && styles.pressed]}>
