@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { ActivityIndicator, Alert, Animated, Easing, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useNotificationStore, type NotificationTemplate } from "@/lib/notification-store";
 
 const colors = {
@@ -35,6 +35,7 @@ export default function ComposeScreen() {
   const [isSavingModel, setIsSavingModel] = useState(false);
   const [editingTemplateId, setEditingTemplateId] = useState<string>();
   const [pendingDelete, setPendingDelete] = useState<NotificationTemplate | null>(null);
+  const [isConfirmingEmit, setIsConfirmingEmit] = useState(false);
   const [feedback, setFeedback] = useState<"saved" | "emitted" | "save-error" | "emit-error" | null>(null);
   const feedbackOpacity = useRef(new Animated.Value(0)).current;
   const feedbackScale = useRef(new Animated.Value(0.82)).current;
@@ -118,19 +119,12 @@ export default function ComposeScreen() {
       Alert.alert("Preencha a notificação", "Informe o nome exibido e a mensagem antes de emitir.");
       return;
     }
-    Alert.alert(
-      "Enviar esta notificação?",
-      `${trimmedTitle}\n\n${trimmedBody}`,
-      [
-        { text: "Cancelar", style: "cancel" },
-        { text: "Enviar agora", style: "default", onPress: confirmEmit },
-      ],
-      { cancelable: true },
-    );
+    setIsConfirmingEmit(true);
   };
 
   const confirmEmit = async () => {
     if (isEmitting) return;
+    setIsConfirmingEmit(false);
     const trimmedTitle = title.trim();
     const trimmedBody = body.trim();
     setIsEmitting(true);
@@ -338,6 +332,50 @@ export default function ComposeScreen() {
       </View>
     </ScrollView>
 
+    <Modal
+      visible={isConfirmingEmit}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+      onRequestClose={() => { if (!isEmitting) setIsConfirmingEmit(false); }}
+    >
+      <View style={styles.confirmOverlay}>
+        <View style={styles.confirmModal} accessibilityViewIsModal>
+          <View style={styles.confirmModalIcon}>
+            <MaterialIcons name="notifications-none" size={29} color={colors.teal} />
+          </View>
+          <Text style={styles.confirmModalTitle}>Enviar esta notificação?</Text>
+          <Text style={styles.confirmModalSubtitle}>Confira os dados antes de enviar para o iPhone.</Text>
+          <View style={styles.confirmModalPreview}>
+            <Text style={styles.confirmModalPreviewTitle} numberOfLines={1}>{title.trim()}</Text>
+            {!!subtitle.trim() && <Text style={styles.confirmModalPreviewSubtitle} numberOfLines={1}>{subtitle.trim()}</Text>}
+            <Text style={styles.confirmModalPreviewBody} numberOfLines={3}>{body.trim()}</Text>
+          </View>
+          <View style={styles.confirmModalActions}>
+            <Pressable
+              onPress={() => setIsConfirmingEmit(false)}
+              disabled={isEmitting}
+              style={({ pressed }) => [styles.confirmModalCancel, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Cancelar envio"
+            >
+              <Text style={styles.confirmModalCancelText}>Cancelar</Text>
+            </Pressable>
+            <Pressable
+              onPress={confirmEmit}
+              disabled={isEmitting}
+              style={({ pressed }) => [styles.confirmModalSend, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel={isEmitting ? "Enviando notificação" : "Enviar agora"}
+            >
+              {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="send" size={18} color={colors.white} />}
+              <Text style={styles.confirmModalSendText}>{isEmitting ? "Enviando…" : "Enviar agora"}</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </Modal>
+
     </>
   );
 }
@@ -366,6 +404,21 @@ function Field({ label, value, placeholder, maxLength, onChangeText, multiline =
 const styles = StyleSheet.create({
   scroll: { flex: 1, backgroundColor: colors.bg },
   content: { flexGrow: 1, padding: 20, paddingBottom: 180, gap: 18 },
+
+  confirmOverlay: { flex: 1, backgroundColor: "rgba(11, 28, 39, 0.58)", alignItems: "center", justifyContent: "center", paddingHorizontal: 20 },
+  confirmModal: { width: "100%", maxWidth: 390, backgroundColor: colors.white, borderRadius: 26, padding: 22, shadowColor: "#071B2A", shadowOpacity: 0.25, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 12 },
+  confirmModalIcon: { width: 54, height: 54, borderRadius: 18, backgroundColor: "#E7F4F2", alignItems: "center", justifyContent: "center", marginBottom: 16 },
+  confirmModalTitle: { color: colors.ink, fontSize: 23, lineHeight: 28, fontWeight: "900", marginBottom: 6 },
+  confirmModalSubtitle: { color: colors.muted, fontSize: 15, lineHeight: 21, marginBottom: 17 },
+  confirmModalPreview: { backgroundColor: "#F1F7F7", borderRadius: 17, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 18, borderWidth: 1, borderColor: "#E2EEEE" },
+  confirmModalPreviewTitle: { color: colors.ink, fontSize: 17, fontWeight: "900", marginBottom: 4 },
+  confirmModalPreviewSubtitle: { color: colors.teal, fontSize: 14, fontWeight: "700", marginBottom: 6 },
+  confirmModalPreviewBody: { color: colors.ink, fontSize: 15, lineHeight: 21 },
+  confirmModalActions: { flexDirection: "row", gap: 10 },
+  confirmModalCancel: { flex: 1, minHeight: 52, borderRadius: 15, backgroundColor: "#EDF2F4", borderWidth: 1, borderColor: colors.border, alignItems: "center", justifyContent: "center" },
+  confirmModalCancelText: { color: colors.ink, fontSize: 15, fontWeight: "800" },
+  confirmModalSend: { flex: 1.25, minHeight: 52, borderRadius: 15, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
+  confirmModalSendText: { color: colors.white, fontSize: 15, fontWeight: "900" },
 
   successToast: { flexDirection: "row", alignItems: "center", gap: 11, backgroundColor: colors.navy, borderRadius: 18, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: "#2F566C", shadowColor: "#102F49", shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
   successToastIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.green, alignItems: "center", justifyContent: "center" },
