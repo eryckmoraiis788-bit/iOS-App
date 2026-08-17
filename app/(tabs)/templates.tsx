@@ -34,9 +34,15 @@ export default function TemplatesScreen() {
       Alert.alert("Complete o modelo", "Informe o nome do modelo, o título e a mensagem.");
       return;
     }
-    await saveTemplate({ name: form.name.trim(), title: form.title.trim(), subtitle: form.subtitle.trim(), body: form.body.trim() }, editingId);
-    setForm(emptyForm);
-    setEditingId(undefined);
+    try {
+      await saveTemplate({ name: form.name.trim(), title: form.title.trim(), subtitle: form.subtitle.trim(), body: form.body.trim() }, editingId);
+      setForm(emptyForm);
+      setEditingId(undefined);
+      Alert.alert("Modelo salvo", "O modelo está disponível na lista e ficará salvo neste iPhone.");
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : "Não foi possível gravar o modelo no armazenamento local.";
+      Alert.alert("Não foi possível salvar", detail);
+    }
   };
 
   const handleEdit = (template: NotificationTemplate) => {

@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import * as FileSystem from "expo-file-system/legacy";
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Alert, Linking, Platform } from "react-native";
 
 export type NotificationTemplate = {
@@ -77,6 +77,7 @@ const StoreContext = createContext<Store | null>(null);
 export function NotificationStoreProvider({ children }: { children: ReactNode }) {
   const [records, setRecords] = useState<NotificationRecord[]>([]);
   const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
+  const templatesRef = useRef<NotificationTemplate[]>([]);
   const [selectedImage, setSelectedImageState] = useState<string>();
   const [hapticsEnabled, setHapticsState] = useState(true);
   const [permission, setPermission] = useState<Notifications.PermissionStatus | "unknown">("unknown");
@@ -90,7 +91,11 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
         AsyncStorage.getItem(HAPTICS_KEY),
       ]);
       if (storedRecords) setRecords(JSON.parse(storedRecords));
-      if (storedTemplates) setTemplates(JSON.parse(storedTemplates));
+      if (storedTemplates) {
+        const parsedTemplates = JSON.parse(storedTemplates) as NotificationTemplate[];
+        templatesRef.current = parsedTemplates;
+        setTemplates(parsedTemplates);
+      }
       if (storedImage) setSelectedImageState(storedImage);
       if (storedHaptics !== null) setHapticsState(storedHaptics !== "false");
       await refreshPermission();
@@ -184,21 +189,24 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
 
   const saveTemplate = async (input: Omit<NotificationTemplate, "id" | "createdAt" | "updatedAt">, id?: string) => {
     const now = new Date().toISOString();
-    const existing = id ? templates.find((item) => item.id === id) : undefined;
+    const currentTemplates = templatesRef.current;
+    const existing = id ? currentTemplates.find((item) => item.id === id) : undefined;
     const template: NotificationTemplate = {
       ...input,
       id: existing?.id ?? `template-${Date.now()}`,
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
     };
-    const next = existing ? templates.map((item) => item.id === template.id ? template : item) : [template, ...templates];
+    const next = existing ? currentTemplates.map((item) => item.id === template.id ? template : item) : [template, ...currentTemplates];
+    templatesRef.current = next;
     setTemplates(next);
     await AsyncStorage.setItem(TEMPLATES_KEY, JSON.stringify(next));
     return template;
   };
 
   const removeTemplate = async (template: NotificationTemplate) => {
-    const next = templates.filter((item) => item.id !== template.id);
+    const next = templatesRef.current.filter((item) => item.id !== template.id);
+    templatesRef.current = next;
     setTemplates(next);
     await AsyncStorage.setItem(TEMPLATES_KEY, JSON.stringify(next));
   };
