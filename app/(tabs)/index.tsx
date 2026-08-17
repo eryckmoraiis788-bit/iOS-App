@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   previewBody: { color: "#D8E4EA", fontSize: 15, lineHeight: 20, marginTop: 3 },
   primaryButton: { minHeight: 64, borderRadius: 22, borderWidth: 1.5, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10 },
   primaryButtonReady: { backgroundColor: "#168F86", borderColor: "#0E8278", shadowColor: "#0E8278", shadowOpacity: 0.28, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 4 },
-  primaryButtonDisabled: { backgroundColor: "#A9D2CF", borderColor: "#A9D2CF", shadowOpacity: 0, elevation: 0 },
+  primaryButtonDisabled: { backgroundColor: "#7ECBC4", borderColor: "#70BFB8", shadowOpacity: 0, elevation: 0, opacity: 1 },
   primaryText: { color: colors.white, fontSize: 19, fontWeight: "900" },
   pressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
   emittingButton: { opacity: 0.72 },
