@@ -335,20 +335,22 @@ export default function ComposeScreen() {
     <Modal visible={isConfirmingEmit} transparent animationType="fade" onRequestClose={() => setIsConfirmingEmit(false)}>
       <View style={styles.modalBackdrop}>
         <View style={styles.confirmModal}>
-          <View style={styles.modalIcon}><MaterialIcons name="notifications-none" size={27} color={colors.teal} /></View>
-          <Text style={styles.modalTitle}>Enviar esta notificação?</Text>
-          <Text style={styles.modalBody}>Confira os dados antes de enviar para o iPhone.</Text>
-          <View style={styles.modalPreview}>
-            <Text style={styles.modalPreviewTitle} numberOfLines={1}>{title.trim()}</Text>
-            {!!subtitle.trim() && <Text style={styles.modalPreviewSubtitle} numberOfLines={1}>{subtitle.trim()}</Text>}
-            <Text style={styles.modalPreviewMessage} numberOfLines={3}>{body.trim()}</Text>
-          </View>
+          <ScrollView style={styles.modalContentScroll} contentContainerStyle={styles.modalContent} bounces={false} showsVerticalScrollIndicator={false}>
+            <View style={styles.modalIcon}><MaterialIcons name="notifications-none" size={27} color={colors.teal} /></View>
+            <Text style={styles.modalTitle} allowFontScaling={false}>Enviar esta notificação?</Text>
+            <Text style={styles.modalBody} allowFontScaling={false}>Confira os dados antes de enviar para o iPhone.</Text>
+            <View style={styles.modalPreview}>
+              <Text style={styles.modalPreviewTitle} numberOfLines={1} allowFontScaling={false}>{title.trim()}</Text>
+              {!!subtitle.trim() && <Text style={styles.modalPreviewSubtitle} numberOfLines={1} allowFontScaling={false}>{subtitle.trim()}</Text>}
+              <Text style={styles.modalPreviewMessage} numberOfLines={3} allowFontScaling={false}>{body.trim()}</Text>
+            </View>
+          </ScrollView>
           <View style={styles.modalActions}>
-            <Pressable onPress={() => setIsConfirmingEmit(false)} disabled={isEmitting} style={({ pressed }) => [styles.modalButton, styles.modalCancel, pressed && styles.pressed]} accessibilityRole="button"><Text style={styles.modalCancelText}>Cancelar</Text></Pressable>
             <Pressable onPress={confirmEmit} disabled={isEmitting} style={({ pressed }) => [styles.modalButton, styles.modalConfirm, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel={isEmitting ? "Enviando notificação" : "Enviar agora"}>
               {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="send" size={18} color={colors.white} />}
-              <Text style={styles.modalConfirmText}>{isEmitting ? "Enviando…" : "Enviar agora"}</Text>
+              <Text style={styles.modalConfirmText} allowFontScaling={false}>{isEmitting ? "Enviando…" : "Enviar agora"}</Text>
             </Pressable>
+            <Pressable onPress={() => setIsConfirmingEmit(false)} disabled={isEmitting} style={({ pressed }) => [styles.modalButton, styles.modalCancel, pressed && styles.pressed]} accessibilityRole="button"><Text style={styles.modalCancelText} allowFontScaling={false}>Cancelar</Text></Pressable>
           </View>
         </View>
       </View>
@@ -381,8 +383,10 @@ function Field({ label, value, placeholder, maxLength, onChangeText, multiline =
 const styles = StyleSheet.create({
   scroll: { flex: 1, backgroundColor: colors.bg },
   content: { flexGrow: 1, padding: 20, paddingBottom: 180, gap: 18 },
-  modalBackdrop: { flex: 1, backgroundColor: "rgba(8, 24, 36, 0.56)", alignItems: "center", justifyContent: "center", padding: 22 },
-  confirmModal: { width: "100%", maxWidth: 390, backgroundColor: colors.white, borderRadius: 24, padding: 22, shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 10 },
+  modalBackdrop: { flex: 1, backgroundColor: "rgba(8, 24, 36, 0.56)", alignItems: "center", justifyContent: "center", padding: 18 },
+  confirmModal: { width: "100%", maxWidth: 390, maxHeight: "84%", backgroundColor: colors.white, borderRadius: 24, padding: 18, shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 10 },
+  modalContentScroll: { flexShrink: 1 },
+  modalContent: { paddingBottom: 12 },
   modalIcon: { width: 48, height: 48, borderRadius: 16, backgroundColor: "#E7F4F2", alignItems: "center", justifyContent: "center", marginBottom: 14 },
   modalTitle: { color: colors.ink, fontSize: 21, fontWeight: "800", marginBottom: 6 },
   modalBody: { color: colors.muted, fontSize: 14, lineHeight: 20, marginBottom: 16 },
@@ -390,8 +394,8 @@ const styles = StyleSheet.create({
   modalPreviewTitle: { color: colors.ink, fontSize: 16, fontWeight: "800", marginBottom: 4 },
   modalPreviewSubtitle: { color: colors.muted, fontSize: 13, marginBottom: 6 },
   modalPreviewMessage: { color: colors.ink, fontSize: 14, lineHeight: 20 },
-  modalActions: { flexDirection: "row", gap: 10 },
-  modalButton: { flex: 1, minHeight: 48, borderRadius: 14, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
+  modalActions: { gap: 10, paddingTop: 4 },
+  modalButton: { width: "100%", minHeight: 50, borderRadius: 14, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
   modalCancel: { backgroundColor: "#EEF3F5", borderWidth: 1, borderColor: colors.border },
   modalConfirm: { backgroundColor: colors.teal },
   modalCancelText: { color: colors.ink, fontSize: 15, fontWeight: "700" },
