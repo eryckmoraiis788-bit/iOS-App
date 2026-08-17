@@ -30,17 +30,41 @@ export default function ComposeScreen() {
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [body, setBody] = useState("");
+  const [modelName, setModelName] = useState("");
   const [isEmitting, setIsEmitting] = useState(false);
-  const { selectedImage, emit } = useNotificationStore();
+  const { selectedImage, emit, saveTemplate } = useNotificationStore();
   const router = useRouter();
   const params = useLocalSearchParams<{ templateTitle?: string; templateSubtitle?: string; templateBody?: string }>();
   const canEmit = title.trim().length > 0 && body.trim().length > 0;
+  const canSaveModel = modelName.trim().length > 0 && body.trim().length > 0;
 
   useEffect(() => {
     if (typeof params.templateTitle === "string") setTitle(params.templateTitle);
     if (typeof params.templateSubtitle === "string") setSubtitle(params.templateSubtitle);
     if (typeof params.templateBody === "string") setBody(params.templateBody);
   }, [params.templateBody, params.templateSubtitle, params.templateTitle]);
+
+  const handleSaveModel = async () => {
+    const trimmedName = modelName.trim();
+    const trimmedBody = body.trim();
+    if (!trimmedName || !trimmedBody) {
+      Alert.alert("Complete o modelo", "Informe o nome do modelo e a mensagem. O título pode ficar vazio.");
+      return;
+    }
+    try {
+      await saveTemplate({
+        name: trimmedName,
+        title: title.trim() || trimmedName,
+        subtitle: subtitle.trim(),
+        body: trimmedBody,
+      });
+      setModelName("");
+      Alert.alert("Modelo salvo", "A predefinição foi adicionada à aba Modelos.");
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : "Não foi possível salvar o modelo neste iPhone.";
+      Alert.alert("Não foi possível salvar", detail);
+    }
+  };
 
   const handleEmit = async () => {
     if (isEmitting) return;
@@ -128,16 +152,26 @@ export default function ComposeScreen() {
         <MaterialIcons name="chevron-right" size={30} color={colors.muted} />
       </Pressable>
 
-      <Pressable onPress={() => router.push("/templates")} style={({ pressed }) => [styles.modelLinkCard, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Abrir modelos salvos">
-        <View style={styles.optionIcon}>
+      <View style={styles.modelsHeading}>
+        <View>
+          <Text style={styles.sectionTitle}>Modelos predefinidos</Text>
+          <Text style={styles.sectionLabel}>SALVE PARA USAR DE NOVO</Text>
+        </View>
+        <Pressable onPress={() => router.push("/templates")} accessibilityRole="button" accessibilityLabel="Abrir modelos salvos" hitSlop={8}>
           <MaterialIcons name="bookmark-border" size={31} color={colors.teal} />
+        </Pressable>
+      </View>
+
+      <View style={styles.modelsCard}>
+        <View style={styles.modelRow}>
+          <TextInput value={modelName} onChangeText={setModelName} placeholder="Nome do modelo..." placeholderTextColor="#87949C" style={styles.modelInput} maxLength={40} />
+          <Pressable onPress={handleSaveModel} style={({ pressed }) => [styles.saveButton, canSaveModel ? styles.saveReady : styles.saveDisabled, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Salvar modelo">
+            <MaterialIcons name="bookmark" size={23} color={colors.white} />
+            <Text style={styles.saveText}>Salvar</Text>
+          </Pressable>
         </View>
-        <View style={styles.flexCopy}>
-          <Text style={styles.cardTitle}>Modelos salvos</Text>
-          <Text style={styles.cardBody}>Abra a aba Modelos para criar ou usar uma notificação pronta.</Text>
-        </View>
-        <MaterialIcons name="chevron-right" size={30} color={colors.muted} />
-      </Pressable>
+        <Text style={styles.modelHint}>Salve aqui e encontre a predefinição na aba Modelos.</Text>
+      </View>
 
       <View style={styles.previewHeading}>
         <Text style={styles.sectionTitle}>Pré-visualização</Text>
@@ -232,7 +266,15 @@ const styles = StyleSheet.create({
   textArea: { minHeight: 110, paddingTop: 15 },
   optionCard: { backgroundColor: colors.white, borderRadius: 25, borderWidth: 1, borderColor: colors.border, padding: 20, flexDirection: "row", gap: 15, alignItems: "center" },
   optionIcon: { width: 60, height: 60, borderRadius: 19, backgroundColor: "#EEF8F5", alignItems: "center", justifyContent: "center" },
-  modelLinkCard: { backgroundColor: colors.white, borderRadius: 25, borderWidth: 1, borderColor: colors.border, padding: 18, flexDirection: "row", gap: 15, alignItems: "center" },
+  modelsHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  modelsCard: { backgroundColor: colors.white, borderRadius: 25, padding: 20, borderWidth: 1, borderColor: colors.border, gap: 14 },
+  modelRow: { flexDirection: "row", gap: 14, alignItems: "center" },
+  modelInput: { flex: 1, height: 58, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingHorizontal: 16, color: colors.ink, fontSize: 17, backgroundColor: "#FCFCFC" },
+  saveButton: { height: 58, paddingHorizontal: 19, borderRadius: 18, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
+  saveReady: { backgroundColor: colors.teal },
+  saveDisabled: { backgroundColor: "#A9D2CF" },
+  saveText: { color: colors.white, fontSize: 17, fontWeight: "900" },
+  modelHint: { color: colors.muted, fontSize: 15 },
   previewHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   nowLabel: { color: colors.muted, letterSpacing: 2, fontSize: 11, fontWeight: "800" },
   greenDot: { color: colors.green, fontSize: 16 },
