@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert, FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -24,7 +24,7 @@ export default function ComposeScreen() {
     Alert.alert("Notificação emitida", "Ela foi enviada para o iOS e registrada no histórico.");
   };
   return <ScreenContainer containerClassName="bg-[#EAF4F8]" edges={["top", "left", "right"]}>
-    <FlatList data={["compose"]} keyExtractor={(item) => item} renderItem={() => null} ListHeaderComponent={() => (<View style={[styles.content, { paddingBottom: Math.max(insets.bottom + 138, 166) }]}>
+    <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 138, 166) }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator alwaysBounceVertical bounces nestedScrollEnabled keyboardDismissMode="on-drag" directionalLockEnabled={false} contentInsetAdjustmentBehavior="never">
       <View style={styles.header}><View style={styles.appMark}><Image source={appIcon} style={styles.brandImage} /></View><View><Text style={styles.eyebrow}>COMPOSITOR</Text><Text style={styles.heading}>Criar notificação</Text></View><View style={styles.dot} /></View>
       <View style={styles.hero}><View style={styles.heroIcon}><IconSymbol name="bell.fill" size={28} color="#FFFFFF" /></View><Text style={styles.heroEyebrow}>PRONTA PARA CHEGAR</Text><Text style={styles.heroTitle}>Uma mensagem, no momento certo.</Text><Text style={styles.heroBody}>Escreva uma notificação clara e veja como ela ficará antes de emitir.</Text></View>
       <View style={styles.readyCard}><View style={styles.readyIcon}><IconSymbol name="check-circle" size={27} color={colors.teal} /></View><View style={{ flex: 1 }}><Text style={styles.cardTitle}>Notificações prontas</Text><Text style={styles.cardBody}>Você pode emitir uma notificação a qualquer momento.</Text></View><IconSymbol name="chevron.right" size={25} color={colors.muted} /></View>
@@ -36,7 +36,7 @@ export default function ComposeScreen() {
       <View style={styles.previewHeader}><Text style={styles.sectionTitle}>Pré-visualização</Text><Text style={styles.now}><Text style={styles.greenDot}>●</Text> AGORA</Text></View>
       <View style={styles.previewOuter}><View style={styles.preview}><View style={styles.previewIcon}>{selectedImage ? <Image source={{ uri: selectedImage }} style={styles.brandImage} /> : <Image source={appIcon} style={styles.brandImage} />}</View><View style={{ flex: 1 }}><View style={styles.previewTop}><Text style={styles.previewTitle}>{title || "Nome exibido"}</Text><Text style={styles.previewTime}>agora</Text></View><Text style={styles.previewSubtitle}>{subtitle || "O assunto aparecerá aqui antes do envio."}</Text><Text style={styles.previewBody}>{body || "A mensagem da notificação aparecerá aqui."}</Text></View></View></View>
       <Pressable onPress={send} style={({ pressed }) => [styles.primaryButton, pressed && { opacity: .82, transform: [{ scale: .98 }] }]}><IconSymbol name="bell.fill" size={24} color="#FFFFFF" /><Text style={styles.primaryText}>Emitir notificação</Text></Pressable>
-    </View>)} style={styles.scroll} contentContainerStyle={{ paddingBottom: 1 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator scrollEnabled alwaysBounceVertical bounces nestedScrollEnabled keyboardDismissMode="on-drag" directionalLockEnabled={false} contentInsetAdjustmentBehavior="never" />
+    </ScrollView>
   </ScreenContainer>;
 }
 
