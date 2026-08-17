@@ -1,50 +1,47 @@
-import { useState } from "react";
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
-import * as Haptics from "expo-haptics";
-import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useNotificationStore } from "@/lib/notification-store";
-
-const colors = { bg: "#EAF4F8", ink: "#121B24", muted: "#667580", teal: "#0E8278", navy: "#102F49", white: "#FFFFFF", border: "#D4E0E5", soft: "#A9D7D4" };
-const appIcon = require("@/assets/images/icon.png");
 
 export default function ComposeScreen() {
-  const router = useRouter();
-  const insets = useSafeAreaInsets();
-  const { selectedImage, emit, hapticsEnabled } = useNotificationStore();
-  const [title, setTitle] = useState("");
-  const [subtitle, setSubtitle] = useState("");
-  const [body, setBody] = useState("");
-  const send = async () => {
-    if (!title.trim() || !body.trim()) { Alert.alert("Preencha a notificação", "Informe pelo menos o nome exibido e a mensagem."); return; }
-    await emit({ title: title.trim(), subtitle: subtitle.trim(), body: body.trim(), imageUri: selectedImage });
-    if (hapticsEnabled) await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    Alert.alert("Notificação emitida", "Ela foi enviada para o iOS e registrada no histórico.");
-  };
-  return <ScreenContainer containerClassName="bg-[#EAF4F8]" edges={["top", "left", "right"]}>
-    <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 138, 166) }]} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator alwaysBounceVertical bounces nestedScrollEnabled keyboardDismissMode="on-drag" directionalLockEnabled={false} contentInsetAdjustmentBehavior="never">
-      <View style={styles.header}><View style={styles.appMark}><Image source={appIcon} style={styles.brandImage} /></View><View><Text style={styles.eyebrow}>COMPOSITOR</Text><Text style={styles.heading}>Criar notificação</Text></View><View style={styles.dot} /></View>
-      <View style={styles.hero}><View style={styles.heroIcon}><IconSymbol name="bell.fill" size={28} color="#FFFFFF" /></View><Text style={styles.heroEyebrow}>PRONTA PARA CHEGAR</Text><Text style={styles.heroTitle}>Uma mensagem, no momento certo.</Text><Text style={styles.heroBody}>Escreva uma notificação clara e veja como ela ficará antes de emitir.</Text></View>
-      <View style={styles.readyCard}><View style={styles.readyIcon}><IconSymbol name="check-circle" size={27} color={colors.teal} /></View><View style={{ flex: 1 }}><Text style={styles.cardTitle}>Notificações prontas</Text><Text style={styles.cardBody}>Você pode emitir uma notificação a qualquer momento.</Text></View><IconSymbol name="chevron.right" size={25} color={colors.muted} /></View>
-      <Text style={styles.sectionTitle}>Conteúdo <Text style={styles.sectionLabel}>PERSONALIZE</Text></Text>
-      <View style={styles.formCard}><Field label="Nome exibido" value={title} onChangeText={setTitle} placeholder="Ex.: Inter" maxLength={40} /><Field label="Subtítulo (Opcional)" value={subtitle} onChangeText={setSubtitle} placeholder="Ex.: Transação confirmada" maxLength={80} /><Field label="Mensagem" value={body} onChangeText={setBody} placeholder="Ex.: Pix recebido" maxLength={140} multiline /></View>
-      <Pressable onPress={() => router.push("/icon")} style={({ pressed }) => [styles.optionCard, pressed && { opacity: 0.76 }]}><View style={styles.optionIcon}>{selectedImage ? <Image source={{ uri: selectedImage }} style={styles.optionImage} /> : <Image source={appIcon} style={styles.optionImage} />}</View><View style={{ flex: 1 }}><Text style={styles.cardTitle}>Imagem da notificação</Text><Text style={styles.cardBody}>{selectedImage ? "Imagem escolhida para a pré-visualização." : "Escolha uma imagem para o preview."}</Text></View><IconSymbol name="chevron.right" size={25} color={colors.muted} /></Pressable>
-      <View style={styles.modelsHeader}><View><Text style={styles.sectionTitle}>Modelos predefinidos</Text><Text style={styles.sectionLabel}>SALVE PARA USAR DE NOVO</Text></View><Text style={styles.bookmark}>♡</Text></View>
-      <View style={styles.modelsCard}><TextInput placeholder="Nome do modelo (opcional)" placeholderTextColor="#87949C" style={styles.modelInput} editable={false} /><View style={styles.modelSave}><Text style={styles.modelSaveText}>▣  Salvar</Text></View><Text style={styles.modelHint}>Seus modelos salvos aparecerão aqui.</Text></View>
-      <View style={styles.previewHeader}><Text style={styles.sectionTitle}>Pré-visualização</Text><Text style={styles.now}><Text style={styles.greenDot}>●</Text> AGORA</Text></View>
-      <View style={styles.previewOuter}><View style={styles.preview}><View style={styles.previewIcon}>{selectedImage ? <Image source={{ uri: selectedImage }} style={styles.brandImage} /> : <Image source={appIcon} style={styles.brandImage} />}</View><View style={{ flex: 1 }}><View style={styles.previewTop}><Text style={styles.previewTitle}>{title || "Nome exibido"}</Text><Text style={styles.previewTime}>agora</Text></View><Text style={styles.previewSubtitle}>{subtitle || "O assunto aparecerá aqui antes do envio."}</Text><Text style={styles.previewBody}>{body || "A mensagem da notificação aparecerá aqui."}</Text></View></View></View>
-      <Pressable onPress={send} style={({ pressed }) => [styles.primaryButton, pressed && { opacity: .82, transform: [{ scale: .98 }] }]}><IconSymbol name="bell.fill" size={24} color="#FFFFFF" /><Text style={styles.primaryText}>Emitir notificação</Text></Pressable>
-    </ScrollView>
-  </ScreenContainer>;
-}
-
-function Field({ label, value, onChangeText, placeholder, maxLength, multiline = false }: { label: string; value: string; onChangeText: (value: string) => void; placeholder: string; maxLength: number; multiline?: boolean }) {
-  return <View style={styles.field}><View style={styles.fieldHeader}><Text style={styles.fieldLabel}>{label}</Text><Text style={styles.counter}>{value.length}/{maxLength}</Text></View><TextInput value={value} onChangeText={onChangeText} placeholder={placeholder} placeholderTextColor="#B7C0C5" maxLength={maxLength} multiline={multiline} textAlignVertical={multiline ? "top" : "center"} style={[styles.input, multiline && styles.textArea]} /></View>;
+  return (
+    <ScreenContainer containerClassName="bg-[#EAF4F8]" edges={["top", "left", "right"]}>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+        <View style={styles.header}>
+          <Text style={styles.eyebrow}>COMPOSITOR</Text>
+          <Text style={styles.heading}>Criar notificação</Text>
+        </View>
+        <View style={styles.hero}>
+          <Text style={styles.heroEyebrow}>PRONTA PARA CHEGAR</Text>
+          <Text style={styles.heroTitle}>Uma mensagem, no momento certo.</Text>
+          <Text style={styles.heroBody}>Escreva uma notificação clara e veja como ela ficará antes de emitir.</Text>
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Conteúdo</Text>
+          <TextInput placeholder="Nome exibido" style={styles.input} />
+          <TextInput placeholder="Subtítulo (Opcional)" style={styles.input} />
+          <TextInput placeholder="Mensagem" multiline style={[styles.input, styles.textArea]} />
+        </View>
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Pré-visualização</Text>
+          <Text style={styles.body}>A mensagem da notificação aparecerá aqui.</Text>
+        </View>
+      </ScrollView>
+    </ScreenContainer>
+  );
 }
 
 const styles = StyleSheet.create({
   scroll: { flex: 1 },
-  content: { padding: 20, gap: 18 }, header: { flexDirection: "row", alignItems: "center", gap: 12, paddingTop: 8 }, appMark: { width: 52, height: 52, borderRadius: 16, backgroundColor: "#F28A00", alignItems: "center", justifyContent: "center" }, eyebrow: { color: colors.teal, letterSpacing: 3, fontSize: 12, fontWeight: "800" }, heading: { color: colors.ink, fontSize: 32, lineHeight: 38, fontWeight: "900" }, dot: { width: 14, height: 14, borderRadius: 7, backgroundColor: "#3CA77A", marginLeft: "auto" }, hero: { backgroundColor: colors.navy, borderRadius: 34, padding: 28, gap: 11 }, heroIcon: { width: 68, height: 68, borderRadius: 22, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center" }, heroEyebrow: { color: "#B5E2E0", letterSpacing: 3, fontSize: 13, fontWeight: "800" }, heroTitle: { color: colors.white, fontSize: 28, lineHeight: 35, fontWeight: "900" }, heroBody: { color: "#C6D7E1", fontSize: 18, lineHeight: 27 }, readyCard: { backgroundColor: colors.white, borderRadius: 26, borderWidth: 1, borderColor: colors.border, padding: 20, flexDirection: "row", gap: 15, alignItems: "center" }, readyIcon: { width: 55, height: 55, borderRadius: 18, backgroundColor: "#EEF8F5", alignItems: "center", justifyContent: "center" }, cardTitle: { color: colors.ink, fontSize: 18, fontWeight: "800" }, cardBody: { color: colors.muted, fontSize: 16, lineHeight: 22, marginTop: 4 }, sectionTitle: { color: colors.ink, fontSize: 25, fontWeight: "900" }, sectionLabel: { color: colors.muted, fontSize: 11, letterSpacing: 2 }, formCard: { backgroundColor: colors.white, borderRadius: 25, padding: 20, borderWidth: 1, borderColor: colors.border }, field: { paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: colors.border }, fieldHeader: { flexDirection: "row", justifyContent: "space-between", marginBottom: 8 }, fieldLabel: { color: colors.ink, fontSize: 16, fontWeight: "800" }, counter: { color: colors.muted, fontSize: 13 }, input: { borderWidth: 1, borderColor: colors.border, borderRadius: 18, minHeight: 54, paddingHorizontal: 16, color: colors.ink, fontSize: 17, backgroundColor: "#FCFCFC" }, textArea: { minHeight: 105, paddingTop: 14 }, optionCard: { backgroundColor: colors.white, borderRadius: 25, borderWidth: 1, borderColor: colors.border, padding: 20, flexDirection: "row", gap: 15, alignItems: "center" }, optionIcon: { width: 58, height: 58, borderRadius: 19, backgroundColor: "#EEF8F5", padding: 9 }, optionImage: { width: "100%", height: "100%", borderRadius: 12 }, modelsHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" }, bookmark: { color: colors.teal, fontSize: 30 }, modelsCard: { backgroundColor: colors.white, borderRadius: 25, padding: 20, borderWidth: 1, borderColor: colors.border, gap: 14 }, modelInput: { height: 54, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingHorizontal: 16, color: colors.muted, fontSize: 17, backgroundColor: "#FCFCFC" }, modelSave: { height: 54, borderRadius: 18, backgroundColor: "#B6DAD7", alignItems: "center", justifyContent: "center" }, modelSaveText: { color: colors.white, fontSize: 17, fontWeight: "900" }, modelHint: { color: colors.muted, fontSize: 15 }, previewHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" }, now: { color: colors.muted, letterSpacing: 2, fontSize: 11, fontWeight: "800" }, greenDot: { color: "#3CA77A", fontSize: 16 }, previewOuter: { backgroundColor: colors.navy, borderRadius: 28, padding: 12 }, preview: { borderWidth: 1, borderColor: "#506A7A", borderRadius: 23, padding: 17, flexDirection: "row", gap: 13 }, previewIcon: { width: 48, height: 48, borderRadius: 15, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center" }, previewTop: { flexDirection: "row", justifyContent: "space-between", gap: 5 }, previewTitle: { color: colors.white, fontSize: 18, fontWeight: "800", flex: 1 }, previewTime: { color: "#C6D7E1", fontSize: 13 }, previewSubtitle: { color: "#D8E4EA", fontSize: 16, lineHeight: 21, marginTop: 4 }, previewBody: { color: "#D8E4EA", fontSize: 15, lineHeight: 20, marginTop: 3 }, primaryButton: { minHeight: 64, borderRadius: 22, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10 }, primaryText: { color: colors.white, fontSize: 19, fontWeight: "900" }, brandImage: { width: "100%", height: "100%", borderRadius: 16 }
+  content: { padding: 20, paddingBottom: 180, gap: 18 },
+  header: { paddingTop: 8 },
+  eyebrow: { color: "#0E8278", letterSpacing: 3, fontSize: 12, fontWeight: "800" },
+  heading: { color: "#121B24", fontSize: 32, lineHeight: 38, fontWeight: "900" },
+  hero: { backgroundColor: "#102F49", borderRadius: 28, padding: 24, gap: 10 },
+  heroEyebrow: { color: "#B5E2E0", letterSpacing: 3, fontSize: 12, fontWeight: "800" },
+  heroTitle: { color: "#FFFFFF", fontSize: 26, lineHeight: 33, fontWeight: "900" },
+  heroBody: { color: "#C6D7E1", fontSize: 17, lineHeight: 25 },
+  card: { backgroundColor: "#FFFFFF", borderRadius: 24, padding: 20, borderWidth: 1, borderColor: "#D4E0E5", gap: 14 },
+  cardTitle: { color: "#121B24", fontSize: 22, fontWeight: "900" },
+  input: { borderWidth: 1, borderColor: "#D4E0E5", borderRadius: 16, minHeight: 54, paddingHorizontal: 16, color: "#121B24", fontSize: 17 },
+  textArea: { minHeight: 100, paddingTop: 14, textAlignVertical: "top" },
+  body: { color: "#667580", fontSize: 16, lineHeight: 22 },
 });
