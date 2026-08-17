@@ -353,23 +353,25 @@ export default function ComposeScreen() {
           </View>
           <View style={styles.confirmModalActions}>
             <Pressable
-              onPress={() => setIsConfirmingEmit(false)}
-              disabled={isEmitting}
-              style={({ pressed }) => [styles.confirmModalCancel, pressed && styles.pressed]}
-              accessibilityRole="button"
-              accessibilityLabel="Cancelar envio"
-            >
-              <Text style={styles.confirmModalCancelText}>Cancelar</Text>
-            </Pressable>
-            <Pressable
               onPress={confirmEmit}
               disabled={isEmitting}
               style={({ pressed }) => [styles.confirmModalSend, pressed && styles.pressed]}
               accessibilityRole="button"
               accessibilityLabel={isEmitting ? "Enviando notificação" : "Enviar agora"}
+              testID="confirm-send-button"
             >
               {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="send" size={18} color={colors.white} />}
               <Text style={styles.confirmModalSendText}>{isEmitting ? "Enviando…" : "Enviar agora"}</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setIsConfirmingEmit(false)}
+              disabled={isEmitting}
+              style={({ pressed }) => [styles.confirmModalCancel, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Cancelar envio"
+              testID="confirm-cancel-button"
+            >
+              <Text style={styles.confirmModalCancelText}>Cancelar</Text>
             </Pressable>
           </View>
         </View>
@@ -406,7 +408,7 @@ const styles = StyleSheet.create({
   content: { flexGrow: 1, padding: 20, paddingBottom: 180, gap: 18 },
 
   confirmOverlay: { flex: 1, backgroundColor: "rgba(11, 28, 39, 0.58)", alignItems: "center", justifyContent: "center", paddingHorizontal: 20 },
-  confirmModal: { width: "100%", maxWidth: 390, backgroundColor: colors.white, borderRadius: 26, padding: 22, shadowColor: "#071B2A", shadowOpacity: 0.25, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 12 },
+  confirmModal: { width: "100%", maxWidth: 390, maxHeight: "90%", backgroundColor: colors.white, borderRadius: 26, padding: 22, shadowColor: "#071B2A", shadowOpacity: 0.25, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 12 },
   confirmModalIcon: { width: 54, height: 54, borderRadius: 18, backgroundColor: "#E7F4F2", alignItems: "center", justifyContent: "center", marginBottom: 16 },
   confirmModalTitle: { color: colors.ink, fontSize: 23, lineHeight: 28, fontWeight: "900", marginBottom: 6 },
   confirmModalSubtitle: { color: colors.muted, fontSize: 15, lineHeight: 21, marginBottom: 17 },
@@ -414,10 +416,10 @@ const styles = StyleSheet.create({
   confirmModalPreviewTitle: { color: colors.ink, fontSize: 17, fontWeight: "900", marginBottom: 4 },
   confirmModalPreviewSubtitle: { color: colors.teal, fontSize: 14, fontWeight: "700", marginBottom: 6 },
   confirmModalPreviewBody: { color: colors.ink, fontSize: 15, lineHeight: 21 },
-  confirmModalActions: { flexDirection: "row", gap: 10 },
-  confirmModalCancel: { flex: 1, minHeight: 52, borderRadius: 15, backgroundColor: "#EDF2F4", borderWidth: 1, borderColor: colors.border, alignItems: "center", justifyContent: "center" },
+  confirmModalActions: { flexDirection: "column", width: "100%", gap: 10, flexShrink: 0, minHeight: 114 },
+  confirmModalCancel: { width: "100%", minHeight: 50, flexShrink: 0, borderRadius: 15, backgroundColor: "#EDF2F4", borderWidth: 1, borderColor: colors.border, alignItems: "center", justifyContent: "center" },
   confirmModalCancelText: { color: colors.ink, fontSize: 15, fontWeight: "800" },
-  confirmModalSend: { flex: 1.25, minHeight: 52, borderRadius: 15, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
+  confirmModalSend: { width: "100%", minHeight: 54, flexShrink: 0, borderRadius: 15, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
   confirmModalSendText: { color: colors.white, fontSize: 15, fontWeight: "900" },
 
   successToast: { flexDirection: "row", alignItems: "center", gap: 11, backgroundColor: colors.navy, borderRadius: 18, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: "#2F566C", shadowColor: "#102F49", shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
