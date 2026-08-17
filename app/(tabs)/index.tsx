@@ -32,6 +32,7 @@ export default function ComposeScreen() {
   const [body, setBody] = useState("");
   const [modelName, setModelName] = useState("");
   const [isEmitting, setIsEmitting] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
   const { selectedImage, emit, saveTemplate } = useNotificationStore();
   const router = useRouter();
   const params = useLocalSearchParams<{ templateId?: string; templateName?: string; templateTitle?: string; templateSubtitle?: string; templateBody?: string }>();
@@ -49,7 +50,7 @@ export default function ComposeScreen() {
     const trimmedName = modelName.trim();
     const trimmedBody = body.trim();
     if (!trimmedName || !trimmedBody) {
-      Alert.alert("Complete o modelo", "Informe o nome do modelo e a mensagem. O título pode ficar vazio.");
+      setSaveMessage("Informe o nome do modelo e a mensagem antes de salvar.");
       return;
     }
     try {
@@ -59,11 +60,11 @@ export default function ComposeScreen() {
         subtitle: subtitle.trim(),
         body: trimmedBody,
       }, typeof params.templateId === "string" ? params.templateId : undefined);
+      setSaveMessage(params.templateId ? "Modelo atualizado e disponível na aba Modelos." : "Modelo salvo e disponível na aba Modelos.");
       setModelName("");
-      Alert.alert(params.templateId ? "Modelo atualizado" : "Modelo salvo", params.templateId ? "As alterações foram atualizadas na aba Modelos." : "A predefinição foi adicionada à aba Modelos.");
     } catch (error) {
       const detail = error instanceof Error ? error.message : "Não foi possível salvar o modelo neste iPhone.";
-      Alert.alert("Não foi possível salvar", detail);
+      setSaveMessage(detail);
     }
   };
 
@@ -165,13 +166,14 @@ export default function ComposeScreen() {
 
       <View style={styles.modelsCard}>
         <View style={styles.modelRow}>
-          <TextInput value={modelName} onChangeText={setModelName} placeholder="Nome do modelo..." placeholderTextColor="#87949C" style={styles.modelInput} maxLength={40} />
+          <TextInput value={modelName} onChangeText={(value) => { setModelName(value); setSaveMessage(""); }} placeholder="Nome do modelo..." placeholderTextColor="#87949C" style={styles.modelInput} maxLength={40} />
           <Pressable onPress={handleSaveModel} style={({ pressed }) => [styles.saveButton, canSaveModel ? styles.saveReady : styles.saveDisabled, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Salvar modelo">
             <MaterialIcons name="bookmark" size={23} color={colors.white} />
             <Text style={styles.saveText}>Salvar</Text>
           </Pressable>
         </View>
         <Text style={styles.modelHint}>Salve aqui e encontre a predefinição na aba Modelos.</Text>
+        {!!saveMessage && <Text style={styles.saveMessage}>{saveMessage}</Text>}
       </View>
 
       <View style={styles.previewHeading}>
@@ -276,6 +278,7 @@ const styles = StyleSheet.create({
   saveDisabled: { backgroundColor: "#A9D2CF" },
   saveText: { color: colors.white, fontSize: 17, fontWeight: "900" },
   modelHint: { color: colors.muted, fontSize: 15 },
+  saveMessage: { color: colors.teal, fontSize: 14, fontWeight: "800" },
   previewHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   nowLabel: { color: colors.muted, letterSpacing: 2, fontSize: 11, fontWeight: "800" },
   greenDot: { color: colors.green, fontSize: 16 },
