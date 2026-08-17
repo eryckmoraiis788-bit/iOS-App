@@ -165,7 +165,16 @@ export default function ComposeScreen() {
           <Text style={styles.sectionTitle}>Modelos predefinidos</Text>
           <Text style={styles.sectionLabel}>SALVE PARA USAR DE NOVO</Text>
         </View>
-        <MaterialIcons name="bookmark-border" size={31} color={colors.teal} />
+        <Pressable
+          onPress={handleSaveModel}
+          hitSlop={14}
+          accessibilityRole="button"
+          accessibilityLabel="Salvar modelo predefinido"
+          testID="save-template-header-button"
+          style={({ pressed }) => [styles.bookmarkAction, pressed && styles.pressed]}
+        >
+          <MaterialIcons name="bookmark-border" size={27} color={colors.teal} />
+        </Pressable>
       </View>
 
       <View style={styles.modelsCard}>
@@ -279,10 +288,10 @@ const styles = StyleSheet.create({
   scroll: { flex: 1, backgroundColor: colors.bg },
   content: { flexGrow: 1, padding: 20, paddingBottom: 180, gap: 18 },
   header: { flexDirection: "row", alignItems: "center", paddingTop: 8, gap: 12 },
-  headerLogo: { width: 72, height: 72, borderRadius: 22 },
+  headerLogo: { width: 64, height: 64, borderRadius: 20 },
   headerCopy: { flex: 1 },
-  eyebrow: { color: colors.teal, letterSpacing: 2.6, fontSize: 11, fontWeight: "800" },
-  heading: { color: colors.ink, fontSize: 22, lineHeight: 27, fontWeight: "900" },
+  eyebrow: { color: colors.teal, letterSpacing: 2.3, fontSize: 10, fontWeight: "800" },
+  heading: { color: colors.ink, fontSize: 18, lineHeight: 22, fontWeight: "900" },
   statusDot: { width: 14, height: 14, borderRadius: 7, backgroundColor: colors.green },
   hero: { backgroundColor: colors.navy, borderRadius: 34, padding: 28, gap: 12 },
   heroRow: { flexDirection: "row", alignItems: "center", gap: 18 },
@@ -307,7 +316,8 @@ const styles = StyleSheet.create({
   textArea: { minHeight: 110, paddingTop: 15 },
   optionCard: { backgroundColor: colors.white, borderRadius: 25, borderWidth: 1, borderColor: colors.border, padding: 20, flexDirection: "row", gap: 15, alignItems: "center" },
   optionIcon: { width: 60, height: 60, borderRadius: 19, backgroundColor: "#EEF8F5", alignItems: "center", justifyContent: "center" },
-  modelsHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingTop: 2 },
+  modelsHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  bookmarkAction: { width: 48, height: 48, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "#EEF8F5", paddingTop: 2 },
   modelsCard: { backgroundColor: colors.white, borderRadius: 25, padding: 20, borderWidth: 1, borderColor: colors.border, gap: 14, shadowColor: "#B8C8CF", shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
   modelRow: { flexDirection: "row", gap: 10, alignItems: "center", width: "100%" },
   modelInput: { flex: 1, flexShrink: 1, minWidth: 0, height: 58, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingHorizontal: 14, color: colors.ink, fontSize: 16, backgroundColor: "#FCFCFC" },
