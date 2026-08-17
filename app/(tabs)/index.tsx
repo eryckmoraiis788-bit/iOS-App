@@ -32,19 +32,23 @@ export default function ComposeScreen() {
   const [modelName, setModelName] = useState("");
   const [isEmitting, setIsEmitting] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
+  const [isSavingModel, setIsSavingModel] = useState(false);
   const [editingTemplateId, setEditingTemplateId] = useState<string>();
   const [pendingDelete, setPendingDelete] = useState<NotificationTemplate | null>(null);
   const { selectedImage, emit, templates, saveTemplate, removeTemplate } = useNotificationStore();
   const canEmit = title.trim().length > 0 && body.trim().length > 0;
   const canSaveModel = body.trim().length > 0;
 
-  const handleSaveModel = async () => {
+  const handleSaveModel = async (): Promise<boolean> => {
+    if (isSavingModel) return false;
+    setIsSavingModel(true);
     const trimmedName = modelName.trim();
     const trimmedBody = body.trim();
     const resolvedName = trimmedName || title.trim() || "Modelo sem nome";
     if (!trimmedBody) {
       setSaveMessage("Informe a mensagem antes de salvar o modelo.");
-      return;
+      setIsSavingModel(false);
+      return false;
     }
     try {
       await saveTemplate({
@@ -56,9 +60,13 @@ export default function ComposeScreen() {
       setSaveMessage(editingTemplateId ? "Modelo atualizado nesta tela." : "Modelo salvo nesta tela.");
       setModelName("");
       setEditingTemplateId(undefined);
+      setIsSavingModel(false);
+      return true;
     } catch (error) {
       const detail = error instanceof Error ? error.message : "Não foi possível salvar o modelo neste iPhone.";
       setSaveMessage(detail);
+      setIsSavingModel(false);
+      return false;
     }
   };
 
@@ -72,6 +80,10 @@ export default function ComposeScreen() {
     }
     setIsEmitting(true);
     try {
+      if (modelName.trim()) {
+        const saved = await handleSaveModel();
+        if (!saved) return;
+      }
       const emitted = await emit({ title: trimmedTitle, subtitle: subtitle.trim(), body: trimmedBody, imageUri: selectedImage });
       if (emitted) Alert.alert("Notificação emitida", "A notificação foi enviada para o iPhone.");
     } catch (error) {
@@ -159,7 +171,7 @@ export default function ComposeScreen() {
       <View style={styles.modelsCard}>
         <View style={styles.modelRow}>
           <TextInput value={modelName} onChangeText={(value) => { setModelName(value); setSaveMessage(""); }} placeholder="Nome do modelo (opcional)" placeholderTextColor="#87949C" style={styles.modelInput} maxLength={40} />
-          <Pressable onPress={handleSaveModel} style={({ pressed }) => [styles.saveButton, canSaveModel ? styles.saveReady : styles.saveDisabled, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Salvar modelo">
+          <Pressable onPress={() => { void handleSaveModel(); }} hitSlop={12} style={({ pressed }) => [styles.saveButton, canSaveModel ? styles.saveReady : styles.saveDisabled, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Salvar modelo" testID="save-template-button">
             <MaterialIcons name="bookmark" size={23} color={colors.white} />
             <Text style={styles.saveText}>Salvar</Text>
           </Pressable>
@@ -266,11 +278,11 @@ function Field({ label, value, placeholder, maxLength, onChangeText, multiline =
 const styles = StyleSheet.create({
   scroll: { flex: 1, backgroundColor: colors.bg },
   content: { flexGrow: 1, padding: 20, paddingBottom: 180, gap: 18 },
-  header: { flexDirection: "row", alignItems: "center", paddingTop: 8, gap: 14 },
-  headerLogo: { width: 80, height: 80, borderRadius: 24 },
+  header: { flexDirection: "row", alignItems: "center", paddingTop: 8, gap: 12 },
+  headerLogo: { width: 72, height: 72, borderRadius: 22 },
   headerCopy: { flex: 1 },
-  eyebrow: { color: colors.teal, letterSpacing: 3, fontSize: 13, fontWeight: "800" },
-  heading: { color: colors.ink, fontSize: 32, lineHeight: 38, fontWeight: "900" },
+  eyebrow: { color: colors.teal, letterSpacing: 2.6, fontSize: 11, fontWeight: "800" },
+  heading: { color: colors.ink, fontSize: 27, lineHeight: 33, fontWeight: "900" },
   statusDot: { width: 14, height: 14, borderRadius: 7, backgroundColor: colors.green },
   hero: { backgroundColor: colors.navy, borderRadius: 34, padding: 28, gap: 12 },
   heroRow: { flexDirection: "row", alignItems: "center", gap: 18 },
