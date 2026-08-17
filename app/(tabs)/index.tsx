@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useNotificationStore, type NotificationTemplate } from "@/lib/notification-store";
 
 const colors = {
@@ -35,9 +35,46 @@ export default function ComposeScreen() {
   const [isSavingModel, setIsSavingModel] = useState(false);
   const [editingTemplateId, setEditingTemplateId] = useState<string>();
   const [pendingDelete, setPendingDelete] = useState<NotificationTemplate | null>(null);
+  const [isConfirmingEmit, setIsConfirmingEmit] = useState(false);
+  const [feedback, setFeedback] = useState<"saved" | "emitted" | "save-error" | "emit-error" | null>(null);
+  const feedbackOpacity = useRef(new Animated.Value(0)).current;
+  const feedbackScale = useRef(new Animated.Value(0.82)).current;
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { selectedImage, emit, templates, saveTemplate, removeTemplate } = useNotificationStore();
   const canEmit = title.trim().length > 0 && body.trim().length > 0;
   const canSaveModel = body.trim().length > 0;
+
+  const showSuccessFeedback = (kind: "saved" | "emitted") => {
+    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    setFeedback(kind);
+    feedbackOpacity.setValue(0);
+    feedbackScale.setValue(0.82);
+    Animated.parallel([
+      Animated.timing(feedbackOpacity, { toValue: 1, duration: 180, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.spring(feedbackScale, { toValue: 1, friction: 7, tension: 90, useNativeDriver: true }),
+    ]).start();
+    feedbackTimer.current = setTimeout(() => {
+      Animated.timing(feedbackOpacity, { toValue: 0, duration: 220, easing: Easing.in(Easing.quad), useNativeDriver: true }).start(() => setFeedback(null));
+    }, 2200);
+  };
+
+  const showErrorFeedback = (kind: "save-error" | "emit-error") => {
+    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    setFeedback(kind);
+    feedbackOpacity.setValue(0);
+    feedbackScale.setValue(0.82);
+    Animated.parallel([
+      Animated.timing(feedbackOpacity, { toValue: 1, duration: 180, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.spring(feedbackScale, { toValue: 1, friction: 7, tension: 90, useNativeDriver: true }),
+    ]).start();
+    feedbackTimer.current = setTimeout(() => {
+      Animated.timing(feedbackOpacity, { toValue: 0, duration: 220, easing: Easing.in(Easing.quad), useNativeDriver: true }).start(() => setFeedback(null));
+    }, 3000);
+  };
+
+  useEffect(() => () => {
+    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+  }, []);
 
   const handleSaveModel = async (): Promise<boolean> => {
     if (isSavingModel) return false;
@@ -47,6 +84,7 @@ export default function ComposeScreen() {
     const resolvedName = trimmedName || title.trim() || "Modelo sem nome";
     if (!trimmedBody) {
       setSaveMessage("Informe a mensagem antes de salvar o modelo.");
+      showErrorFeedback("save-error");
       setIsSavingModel(false);
       return false;
     }
@@ -58,6 +96,7 @@ export default function ComposeScreen() {
         body: trimmedBody,
       }, editingTemplateId);
       setSaveMessage(editingTemplateId ? "Modelo atualizado nesta tela." : "Modelo salvo nesta tela.");
+      showSuccessFeedback("saved");
       setModelName("");
       setEditingTemplateId(undefined);
       setIsSavingModel(false);
@@ -65,19 +104,29 @@ export default function ComposeScreen() {
     } catch (error) {
       const detail = error instanceof Error ? error.message : "Não foi possível salvar o modelo neste iPhone.";
       setSaveMessage(detail);
+      showErrorFeedback("save-error");
       setIsSavingModel(false);
       return false;
     }
   };
 
-  const handleEmit = async () => {
-    if (isEmitting) return;
+  const handleEmit = () => {
+    if (isEmitting || isSavingModel) return;
     const trimmedTitle = title.trim();
     const trimmedBody = body.trim();
     if (!trimmedTitle || !trimmedBody) {
+      showErrorFeedback("emit-error");
       Alert.alert("Preencha a notificação", "Informe o nome exibido e a mensagem antes de emitir.");
       return;
     }
+    setIsConfirmingEmit(true);
+  };
+
+  const confirmEmit = async () => {
+    if (isEmitting) return;
+    setIsConfirmingEmit(false);
+    const trimmedTitle = title.trim();
+    const trimmedBody = body.trim();
     setIsEmitting(true);
     try {
       if (modelName.trim()) {
@@ -85,9 +134,16 @@ export default function ComposeScreen() {
         if (!saved) return;
       }
       const emitted = await emit({ title: trimmedTitle, subtitle: subtitle.trim(), body: trimmedBody, imageUri: selectedImage });
-      if (emitted) Alert.alert("Notificação emitida", "A notificação foi enviada para o iPhone.");
+      if (emitted) {
+        showSuccessFeedback("emitted");
+        Alert.alert("Notificação emitida", "A notificação foi enviada para o iPhone.");
+      } else {
+        showErrorFeedback("emit-error");
+        Alert.alert("Não foi possível emitir", "O iPhone não confirmou o envio da notificação.");
+      }
     } catch (error) {
       const detail = error instanceof Error && error.message ? error.message : "O iOS recusou o agendamento da notificação.";
+      showErrorFeedback("emit-error");
       Alert.alert("Não foi possível emitir", detail);
     } finally {
       setIsEmitting(false);
@@ -95,6 +151,7 @@ export default function ComposeScreen() {
   };
 
   return (
+    <>
     <ScrollView
       style={styles.scroll}
       contentContainerStyle={styles.content}
@@ -105,6 +162,18 @@ export default function ComposeScreen() {
       keyboardShouldPersistTaps="handled"
       contentInsetAdjustmentBehavior="never"
     >
+      {feedback && (
+        <Animated.View style={[styles.successToast, feedback.endsWith("error") && styles.errorToast, { opacity: feedbackOpacity, transform: [{ scale: feedbackScale }] }]} accessibilityLiveRegion="polite">
+          <View style={[styles.successToastIcon, feedback.endsWith("error") && styles.errorToastIcon]}>
+            <MaterialIcons name={feedback.endsWith("error") ? "priority-high" : "check"} size={20} color={colors.white} />
+          </View>
+          <View style={styles.flexCopy}>
+            <Text style={styles.successToastTitle}>{feedback === "saved" ? "Modelo salvo" : feedback === "emitted" ? "Notificação emitida" : feedback === "save-error" ? "Falha ao salvar" : "Falha ao emitir"}</Text>
+            <Text style={styles.successToastBody}>{feedback === "saved" ? "Sua predefinição foi guardada nesta tela." : feedback === "emitted" ? "A mensagem foi enviada para o iPhone." : feedback === "save-error" ? "Não foi possível guardar o modelo. Tente novamente." : "A mensagem não foi enviada. Verifique os dados e tente novamente."}</Text>
+          </View>
+        </Animated.View>
+      )}
+
       <View style={styles.header}>
         <Image source={appIcon} style={styles.headerLogo} />
         <View style={styles.headerCopy}>
@@ -167,22 +236,23 @@ export default function ComposeScreen() {
         </View>
         <Pressable
           onPress={handleSaveModel}
+          disabled={isSavingModel || isEmitting}
           hitSlop={14}
           accessibilityRole="button"
           accessibilityLabel="Salvar modelo predefinido"
           testID="save-template-header-button"
           style={({ pressed }) => [styles.bookmarkAction, pressed && styles.pressed]}
         >
-          <MaterialIcons name="bookmark-border" size={27} color={colors.teal} />
+          {isSavingModel ? <ActivityIndicator size="small" color={colors.teal} /> : <MaterialIcons name="bookmark-border" size={27} color={colors.teal} />}
         </Pressable>
       </View>
 
       <View style={styles.modelsCard}>
         <View style={styles.modelRow}>
           <TextInput value={modelName} onChangeText={(value) => { setModelName(value); setSaveMessage(""); }} placeholder="Nome do modelo (opcional)" placeholderTextColor="#87949C" style={styles.modelInput} maxLength={40} />
-          <Pressable onPress={handleSaveModel} hitSlop={12} style={({ pressed }) => [styles.saveButton, canSaveModel ? styles.saveReady : styles.saveDisabled, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Salvar modelo" testID="save-template-button">
-            <MaterialIcons name="bookmark" size={23} color={colors.white} />
-            <Text style={styles.saveText}>Salvar</Text>
+          <Pressable onPress={handleSaveModel} disabled={isSavingModel || isEmitting || !canSaveModel} hitSlop={12} style={({ pressed }) => [styles.saveButton, canSaveModel ? styles.saveReady : styles.saveDisabled, (pressed || isSavingModel) && styles.pressed]} accessibilityRole="button" accessibilityLabel={isSavingModel ? "Salvando modelo" : "Salvar modelo"} testID="save-template-button">
+            {isSavingModel ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="bookmark" size={23} color={colors.white} />}
+            <Text style={styles.saveText}>{isSavingModel ? "Salvando…" : "Salvar"}</Text>
           </Pressable>
         </View>
         <Text style={styles.modelHint}>{editingTemplateId ? "Edite os campos e salve para atualizar este modelo." : "Seus modelos salvos aparecerão aqui."}</Text>
@@ -249,17 +319,41 @@ export default function ComposeScreen() {
           accessibilityRole="button"
           accessibilityLabel="Emitir notificação"
           onPress={handleEmit}
+          disabled={isEmitting || isSavingModel}
           style={({ pressed }) => [
             styles.primaryButton,
             pressed && styles.pressed,
             isEmitting && styles.emittingButton,
           ]}
         >
-          <MaterialIcons name={isEmitting ? "hourglass-empty" : "notifications-none"} size={28} color={colors.white} />
-          <Text style={styles.primaryText}>{isEmitting ? "Emitindo…" : "Emitir notificação"}</Text>
+          {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="notifications-none" size={28} color={colors.white} />}
+          <Text style={styles.primaryText}>{isEmitting ? "Enviando…" : "Emitir notificação"}</Text>
         </Pressable>
       </View>
     </ScrollView>
+
+    <Modal visible={isConfirmingEmit} transparent animationType="fade" onRequestClose={() => setIsConfirmingEmit(false)}>
+      <View style={styles.modalBackdrop}>
+        <View style={styles.confirmModal}>
+          <View style={styles.modalIcon}><MaterialIcons name="notifications-none" size={27} color={colors.teal} /></View>
+          <Text style={styles.modalTitle}>Enviar esta notificação?</Text>
+          <Text style={styles.modalBody}>Confira os dados antes de enviar para o iPhone.</Text>
+          <View style={styles.modalPreview}>
+            <Text style={styles.modalPreviewTitle} numberOfLines={1}>{title.trim()}</Text>
+            {!!subtitle.trim() && <Text style={styles.modalPreviewSubtitle} numberOfLines={1}>{subtitle.trim()}</Text>}
+            <Text style={styles.modalPreviewMessage} numberOfLines={3}>{body.trim()}</Text>
+          </View>
+          <View style={styles.modalActions}>
+            <Pressable onPress={() => setIsConfirmingEmit(false)} disabled={isEmitting} style={({ pressed }) => [styles.modalButton, styles.modalCancel, pressed && styles.pressed]} accessibilityRole="button"><Text style={styles.modalCancelText}>Cancelar</Text></Pressable>
+            <Pressable onPress={confirmEmit} disabled={isEmitting} style={({ pressed }) => [styles.modalButton, styles.modalConfirm, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel={isEmitting ? "Enviando notificação" : "Enviar agora"}>
+              {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="send" size={18} color={colors.white} />}
+              <Text style={styles.modalConfirmText}>{isEmitting ? "Enviando…" : "Enviar agora"}</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </Modal>
+    </>
   );
 }
 
@@ -287,6 +381,27 @@ function Field({ label, value, placeholder, maxLength, onChangeText, multiline =
 const styles = StyleSheet.create({
   scroll: { flex: 1, backgroundColor: colors.bg },
   content: { flexGrow: 1, padding: 20, paddingBottom: 180, gap: 18 },
+  modalBackdrop: { flex: 1, backgroundColor: "rgba(8, 24, 36, 0.56)", alignItems: "center", justifyContent: "center", padding: 22 },
+  confirmModal: { width: "100%", maxWidth: 390, backgroundColor: colors.white, borderRadius: 24, padding: 22, shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 10 },
+  modalIcon: { width: 48, height: 48, borderRadius: 16, backgroundColor: "#E7F4F2", alignItems: "center", justifyContent: "center", marginBottom: 14 },
+  modalTitle: { color: colors.ink, fontSize: 21, fontWeight: "800", marginBottom: 6 },
+  modalBody: { color: colors.muted, fontSize: 14, lineHeight: 20, marginBottom: 16 },
+  modalPreview: { backgroundColor: "#F3F7F8", borderRadius: 14, padding: 14, marginBottom: 18 },
+  modalPreviewTitle: { color: colors.ink, fontSize: 16, fontWeight: "800", marginBottom: 4 },
+  modalPreviewSubtitle: { color: colors.muted, fontSize: 13, marginBottom: 6 },
+  modalPreviewMessage: { color: colors.ink, fontSize: 14, lineHeight: 20 },
+  modalActions: { flexDirection: "row", gap: 10 },
+  modalButton: { flex: 1, minHeight: 48, borderRadius: 14, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
+  modalCancel: { backgroundColor: "#EEF3F5", borderWidth: 1, borderColor: colors.border },
+  modalConfirm: { backgroundColor: colors.teal },
+  modalCancelText: { color: colors.ink, fontSize: 15, fontWeight: "700" },
+  modalConfirmText: { color: colors.white, fontSize: 15, fontWeight: "800" },
+  successToast: { flexDirection: "row", alignItems: "center", gap: 11, backgroundColor: colors.navy, borderRadius: 18, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: "#2F566C", shadowColor: "#102F49", shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
+  successToastIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.green, alignItems: "center", justifyContent: "center" },
+  errorToast: { backgroundColor: "#7F2630", borderColor: "#A9434D" },
+  errorToastIcon: { backgroundColor: "#D4515C" },
+  successToastTitle: { color: colors.white, fontSize: 14, fontWeight: "900" },
+  successToastBody: { color: "#C6D7E1", fontSize: 12, lineHeight: 16, marginTop: 2 },
   header: { flexDirection: "row", alignItems: "center", paddingTop: 8, gap: 12 },
   headerLogo: { width: 64, height: 64, borderRadius: 20 },
   headerCopy: { flex: 1 },
