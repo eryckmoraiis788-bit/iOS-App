@@ -169,3 +169,52 @@
 - [x] Tornar o botão Salvar independente da emissão de notificação e reduzir novamente a fonte do cabeçalho superior; IPA 1.2.4/build 124 gerada e verificada no Info.plist.
 - [x] Corrigir o bloco de Modelos conforme as imagens: exibir claramente a ação Salvar, persistir antes da emissão e reduzir mais a fonte circulada no topo; marcador e botão salvam diretamente na IPA 1.2.5/build 125.
 - [x] Ajustar fonte, pesos, tamanhos e espaçamentos do Compor conforme o print IMG_0457, sem regressão no salvamento de modelos.
+
+- [ ] Diagnosticar erro do SideStore: “could not determine this device's UDID; replace your pairing using iLoader”.
+- [ ] Retestar a instalação da IPA 1.2.6 após refazer o pareamento do dispositivo.
+
+- [x] Adicionar animação visual de sucesso ao salvar um modelo.
+- [x] Adicionar animação visual de sucesso ao emitir uma notificação.
+
+- [x] Adicionar feedback visual claro quando falhar o salvamento de um modelo.
+- [x] Adicionar feedback visual claro quando falhar o envio de uma notificação.
+
+- [x] Adicionar spinner no botão enquanto um modelo estiver sendo salvo.
+- [x] Adicionar spinner no botão enquanto uma notificação estiver sendo enviada.
+
+- [x] Adicionar modal de confirmação antes de emitir uma notificação.
+- [x] Permitir cancelar a confirmação sem iniciar o envio.
+- [x] Exibir resumo da notificação e confirmar o envio mantendo loading/erro/sucesso.
+
+- [x] Gerar IPA atualizada com o modal de confirmação de envio e disponibilizar o artefato para teste no SideStore.
+
+- [x] Corrigir o modal de confirmação para manter “Enviar agora” visível em telas pequenas.
+- [x] Validar que o botão continua acionando o envio e que “Cancelar” fecha sem enviar.
+
+- [x] Substituir a estrutura atual do modal de confirmação por uma implementação nativa compatível com iPhone.
+- [x] Garantir que “Enviar agora” seja visível, acionável e inicie o envio; “Cancelar” deve apenas fechar a confirmação.
+- [ ] Gerar e entregar nova IPA após validar a correção no dispositivo/preview.
+
+- [x] Substituir o alerta padrão de confirmação por um modal personalizado alinhado ao visual do Inter.
+- [x] Exibir resumo organizado e manter “Cancelar” e “Enviar agora” visíveis e funcionais.
+- [x] Validar o novo modal e gerar IPA atualizada para teste.
+
+- [x] Corrigir o botão “Enviar agora” que não aparece no modal personalizado do iPhone.
+- [x] Garantir que “Enviar agora” acione o envio e que “Cancelar” apenas feche o modal.
+- [x] Validar a correção e preparar IPA atualizada para teste.
+
+- [x] Substituir a ação “Enviar agora” do modal por um botão visual independente e sempre visível.
+- [x] Confirmar que o novo botão aciona o envio e preserva loading, sucesso e erro.
+
+- [x] Gerar e entregar IPA do checkpoint f31f5b51 com a correção definitiva do botão “Enviar agora”.
+
+- [ ] Corrigir definitivamente o botão “Enviar agora” que permanece invisível no modal do iPhone.
+- [ ] Validar o envio real, o cancelamento e gerar IPA específica para o teste urgente.
+
+- [x] Incrementar a versão/build para uma IPA inequivocamente nova; confirmação no binário instalado permanece pendente.
+
+- [x] Manter o modal atual e transformar “Enviar agora” em botão teal explícito, visível e acionável no iPhone.
+- [x] Validar que “Cancelar” continua fechando o modal e que “Enviar agora” inicia o envio.
+
+- [ ] Sincronizar a correção do modal no GitHub e gerar a IPA Inter 1.2.8/build 128 pelo workflow SideStore.
+- [ ] Entregar o artefato ou o link da Action concluída para teste no iPhone.
