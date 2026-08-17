@@ -1,6 +1,7 @@
 import { useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { useNotificationStore } from "@/lib/notification-store";
 
 const colors = {
   bg: "#EAF4F8",
@@ -28,6 +29,20 @@ export default function ComposeScreen() {
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [body, setBody] = useState("");
+  const { selectedImage, emit } = useNotificationStore();
+
+  const handleEmit = async () => {
+    const trimmedTitle = title.trim();
+    const trimmedBody = body.trim();
+    if (!trimmedTitle || !trimmedBody) {
+      Alert.alert("Preencha a notificação", "Informe o nome exibido e a mensagem antes de emitir.");
+      return;
+    }
+    const emitted = await emit({ title: trimmedTitle, subtitle: subtitle.trim(), body: trimmedBody, imageUri: selectedImage });
+    if (emitted) {
+      Alert.alert("Notificação emitida", "A notificação foi enviada para o iPhone.");
+    }
+  };
 
   return (
     <ScrollView
@@ -135,7 +150,12 @@ export default function ComposeScreen() {
         </View>
       </View>
 
-      <Pressable style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Emitir notificação"
+        onPress={() => void handleEmit()}
+        style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
+      >
         <MaterialIcons name="notifications-none" size={28} color={colors.white} />
         <Text style={styles.primaryText}>Emitir notificação</Text>
       </Pressable>
@@ -214,7 +234,7 @@ const styles = StyleSheet.create({
   previewTime: { color: "#C6D7E1", fontSize: 13 },
   previewSubtitle: { color: "#D8E4EA", fontSize: 16, lineHeight: 21, marginTop: 4 },
   previewBody: { color: "#D8E4EA", fontSize: 15, lineHeight: 20, marginTop: 3 },
-  primaryButton: { minHeight: 64, borderRadius: 22, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10 },
+  primaryButton: { minHeight: 64, borderRadius: 22, backgroundColor: "#168F86", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10, shadowColor: "#0E8278", shadowOpacity: 0.18, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
   primaryText: { color: colors.white, fontSize: 19, fontWeight: "900" },
   pressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
 });
