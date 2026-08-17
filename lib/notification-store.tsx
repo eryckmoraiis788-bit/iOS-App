@@ -4,6 +4,16 @@ import * as FileSystem from "expo-file-system/legacy";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { Alert, Linking, Platform } from "react-native";
 
+export type NotificationTemplate = {
+  id: string;
+  name: string;
+  title: string;
+  subtitle: string;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type NotificationRecord = {
   id: string;
   title: string;
@@ -19,6 +29,7 @@ export type NotificationRecord = {
 
 type Store = {
   records: NotificationRecord[];
+  templates: NotificationTemplate[];
   selectedImage?: string;
   hapticsEnabled: boolean;
   permission: Notifications.PermissionStatus | "unknown";
@@ -31,9 +42,12 @@ type Store = {
   cancel: (record: NotificationRecord) => Promise<void>;
   remove: (record: NotificationRecord) => Promise<void>;
   clearHistory: () => Promise<void>;
+  saveTemplate: (input: Omit<NotificationTemplate, "id" | "createdAt" | "updatedAt">, id?: string) => Promise<NotificationTemplate>;
+  removeTemplate: (template: NotificationTemplate) => Promise<void>;
 };
 
 const STORAGE_KEY = "notification-ios-records-v1";
+const TEMPLATES_KEY = "notification-ios-templates-v1";
 const IMAGE_KEY = "notification-ios-image-v1";
 const HAPTICS_KEY = "notification-ios-haptics-v1";
 
@@ -62,18 +76,21 @@ const StoreContext = createContext<Store | null>(null);
 
 export function NotificationStoreProvider({ children }: { children: ReactNode }) {
   const [records, setRecords] = useState<NotificationRecord[]>([]);
+  const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
   const [selectedImage, setSelectedImageState] = useState<string>();
   const [hapticsEnabled, setHapticsState] = useState(true);
   const [permission, setPermission] = useState<Notifications.PermissionStatus | "unknown">("unknown");
 
   useEffect(() => {
     void (async () => {
-      const [storedRecords, storedImage, storedHaptics] = await Promise.all([
+      const [storedRecords, storedTemplates, storedImage, storedHaptics] = await Promise.all([
         AsyncStorage.getItem(STORAGE_KEY),
+        AsyncStorage.getItem(TEMPLATES_KEY),
         AsyncStorage.getItem(IMAGE_KEY),
         AsyncStorage.getItem(HAPTICS_KEY),
       ]);
       if (storedRecords) setRecords(JSON.parse(storedRecords));
+      if (storedTemplates) setTemplates(JSON.parse(storedTemplates));
       if (storedImage) setSelectedImageState(storedImage);
       if (storedHaptics !== null) setHapticsState(storedHaptics !== "false");
       await refreshPermission();
@@ -165,6 +182,27 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     await persistRecords(records.filter((item) => item.status === "pending"));
   };
 
+  const saveTemplate = async (input: Omit<NotificationTemplate, "id" | "createdAt" | "updatedAt">, id?: string) => {
+    const now = new Date().toISOString();
+    const existing = id ? templates.find((item) => item.id === id) : undefined;
+    const template: NotificationTemplate = {
+      ...input,
+      id: existing?.id ?? `template-${Date.now()}`,
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+    };
+    const next = existing ? templates.map((item) => item.id === template.id ? template : item) : [template, ...templates];
+    setTemplates(next);
+    await AsyncStorage.setItem(TEMPLATES_KEY, JSON.stringify(next));
+    return template;
+  };
+
+  const removeTemplate = async (template: NotificationTemplate) => {
+    const next = templates.filter((item) => item.id !== template.id);
+    setTemplates(next);
+    await AsyncStorage.setItem(TEMPLATES_KEY, JSON.stringify(next));
+  };
+
   const setSelectedImage = async (uri?: string) => {
     setSelectedImageState(uri);
     if (uri) await AsyncStorage.setItem(IMAGE_KEY, uri);
@@ -176,7 +214,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     await AsyncStorage.setItem(HAPTICS_KEY, String(value));
   };
 
-  const value = useMemo(() => ({ records, selectedImage, hapticsEnabled, permission, setSelectedImage, setHapticsEnabled, refreshPermission, requestPermission, emit, schedule, cancel, remove, clearHistory }), [records, selectedImage, hapticsEnabled, permission]);
+  const value = useMemo(() => ({ templates, records, selectedImage, hapticsEnabled, permission, setSelectedImage, setHapticsEnabled, refreshPermission, requestPermission, emit, schedule, cancel, remove, clearHistory, saveTemplate, removeTemplate }), [templates, records, selectedImage, hapticsEnabled, permission]);
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 

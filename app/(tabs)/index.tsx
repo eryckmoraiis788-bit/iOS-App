@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useLocalSearchParams } from "expo-router";
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useNotificationStore } from "@/lib/notification-store";
 
@@ -31,7 +32,14 @@ export default function ComposeScreen() {
   const [body, setBody] = useState("");
   const [isEmitting, setIsEmitting] = useState(false);
   const { selectedImage, emit } = useNotificationStore();
+  const params = useLocalSearchParams<{ templateTitle?: string; templateSubtitle?: string; templateBody?: string }>();
   const canEmit = title.trim().length > 0 && body.trim().length > 0;
+
+  useEffect(() => {
+    if (typeof params.templateTitle === "string") setTitle(params.templateTitle);
+    if (typeof params.templateSubtitle === "string") setSubtitle(params.templateSubtitle);
+    if (typeof params.templateBody === "string") setBody(params.templateBody);
+  }, [params.templateBody, params.templateSubtitle, params.templateTitle]);
 
   const handleEmit = async () => {
     if (isEmitting) return;
