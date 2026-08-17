@@ -16,7 +16,7 @@ const scheme = `manus${timestamp}`;
 module.exports = {
   name: "Inter",
   slug: "notificacao-ios",
-  version: "1.1.3",
+  version: "1.1.6",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
   scheme,
