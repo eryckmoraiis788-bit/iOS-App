@@ -26,7 +26,7 @@ type Store = {
   setHapticsEnabled: (value: boolean) => Promise<void>;
   refreshPermission: () => Promise<void>;
   requestPermission: () => Promise<boolean>;
-  emit: (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => Promise<void>;
+  emit: (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => Promise<boolean>;
   schedule: (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">, minutes: number) => Promise<void>;
   cancel: (record: NotificationRecord) => Promise<void>;
   remove: (record: NotificationRecord) => Promise<void>;
@@ -116,10 +116,11 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
   };
 
   const emit = async (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => {
-    if (!(await requestPermission())) return;
+    if (!(await requestPermission())) return false;
     const notificationId = await Notifications.scheduleNotificationAsync({ content: await buildContent(input), trigger: null });
     const record: NotificationRecord = { ...input, id: `local-${Date.now()}`, kind: "immediate", status: "sent", createdAt: new Date().toISOString(), notificationId };
     await persistRecords([record, ...records]);
+    return true;
   };
 
   const schedule = async (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">, minutes: number) => {
