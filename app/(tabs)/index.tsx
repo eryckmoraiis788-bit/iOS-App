@@ -171,7 +171,7 @@ export default function ComposeScreen() {
       <View style={styles.modelsCard}>
         <View style={styles.modelRow}>
           <TextInput value={modelName} onChangeText={(value) => { setModelName(value); setSaveMessage(""); }} placeholder="Nome do modelo (opcional)" placeholderTextColor="#87949C" style={styles.modelInput} maxLength={40} />
-          <Pressable onPress={() => { void handleSaveModel(); }} hitSlop={12} style={({ pressed }) => [styles.saveButton, canSaveModel ? styles.saveReady : styles.saveDisabled, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Salvar modelo" testID="save-template-button">
+          <Pressable onPress={handleSaveModel} hitSlop={12} style={({ pressed }) => [styles.saveButton, canSaveModel ? styles.saveReady : styles.saveDisabled, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Salvar modelo" testID="save-template-button">
             <MaterialIcons name="bookmark" size={23} color={colors.white} />
             <Text style={styles.saveText}>Salvar</Text>
           </Pressable>
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   headerLogo: { width: 72, height: 72, borderRadius: 22 },
   headerCopy: { flex: 1 },
   eyebrow: { color: colors.teal, letterSpacing: 2.6, fontSize: 11, fontWeight: "800" },
-  heading: { color: colors.ink, fontSize: 27, lineHeight: 33, fontWeight: "900" },
+  heading: { color: colors.ink, fontSize: 22, lineHeight: 27, fontWeight: "900" },
   statusDot: { width: 14, height: 14, borderRadius: 7, backgroundColor: colors.green },
   hero: { backgroundColor: colors.navy, borderRadius: 34, padding: 28, gap: 12 },
   heroRow: { flexDirection: "row", alignItems: "center", gap: 18 },
@@ -309,12 +309,12 @@ const styles = StyleSheet.create({
   optionIcon: { width: 60, height: 60, borderRadius: 19, backgroundColor: "#EEF8F5", alignItems: "center", justifyContent: "center" },
   modelsHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingTop: 2 },
   modelsCard: { backgroundColor: colors.white, borderRadius: 25, padding: 20, borderWidth: 1, borderColor: colors.border, gap: 14, shadowColor: "#B8C8CF", shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
-  modelRow: { flexDirection: "row", gap: 14, alignItems: "center" },
-  modelInput: { flex: 1, height: 58, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingHorizontal: 16, color: colors.ink, fontSize: 17, backgroundColor: "#FCFCFC" },
-  saveButton: { height: 58, paddingHorizontal: 19, borderRadius: 18, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
+  modelRow: { flexDirection: "row", gap: 10, alignItems: "center", width: "100%" },
+  modelInput: { flex: 1, flexShrink: 1, minWidth: 0, height: 58, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingHorizontal: 14, color: colors.ink, fontSize: 16, backgroundColor: "#FCFCFC" },
+  saveButton: { width: 104, flexShrink: 0, height: 58, paddingHorizontal: 8, borderRadius: 18, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 5 },
   saveReady: { backgroundColor: colors.teal },
   saveDisabled: { backgroundColor: "#A9D2CF" },
-  saveText: { color: colors.white, fontSize: 17, fontWeight: "900" },
+  saveText: { color: colors.white, fontSize: 16, fontWeight: "900" },
   modelHint: { color: colors.muted, fontSize: 15 },
   saveMessage: { color: colors.teal, fontSize: 14, fontWeight: "800" },
   savedModelsCard: { backgroundColor: colors.white, borderRadius: 25, padding: 18, borderWidth: 1, borderColor: colors.border, gap: 12 },
