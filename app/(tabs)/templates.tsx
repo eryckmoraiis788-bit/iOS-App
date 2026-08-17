@@ -1,5 +1,6 @@
-import { Alert, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import { useRouter } from "expo-router";
+import { useCallback, useState } from "react";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { useFocusEffect, useRouter } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ScreenContainer } from "@/components/screen-container";
 import { useNotificationStore, type NotificationTemplate } from "@/lib/notification-store";
@@ -17,7 +18,12 @@ const colors = {
 
 export default function TemplatesScreen() {
   const router = useRouter();
-  const { templates, removeTemplate } = useNotificationStore();
+  const { templates, removeTemplate, refreshTemplates } = useNotificationStore();
+  const [pendingDelete, setPendingDelete] = useState<NotificationTemplate | null>(null);
+
+  useFocusEffect(useCallback(() => {
+    void refreshTemplates();
+  }, [refreshTemplates]));
 
   const handleEdit = (template: NotificationTemplate) => {
     router.push({ pathname: "/", params: { templateId: template.id, templateName: template.name, templateTitle: template.title, templateSubtitle: template.subtitle, templateBody: template.body } });
@@ -28,10 +34,14 @@ export default function TemplatesScreen() {
   };
 
   const handleDelete = (template: NotificationTemplate) => {
-    Alert.alert("Excluir modelo?", `O modelo “${template.name}” será removido.`, [
-      { text: "Cancelar", style: "cancel" },
-      { text: "Excluir", style: "destructive", onPress: () => void removeTemplate(template) },
-    ]);
+    setPendingDelete(template);
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    const template = pendingDelete;
+    setPendingDelete(null);
+    await removeTemplate(template);
   };
 
   const renderItem = ({ item }: { item: NotificationTemplate }) => (
@@ -82,6 +92,22 @@ export default function TemplatesScreen() {
         }
         ListEmptyComponent={<View style={styles.empty}><MaterialIcons name="bookmark-border" size={40} color={colors.teal} /><Text style={styles.emptyTitle}>Nenhum modelo salvo</Text><Text style={styles.emptyBody}>Salve uma predefinição na aba Compor para vê-la aqui.</Text></View>}
       />
+      {pendingDelete ? (
+        <View style={styles.confirmOverlay}>
+          <View style={styles.confirmCard}>
+            <Text style={styles.confirmTitle}>Excluir modelo?</Text>
+            <Text style={styles.confirmBody}>O modelo “{pendingDelete.name}” será removido da sua biblioteca.</Text>
+            <View style={styles.confirmActions}>
+              <Pressable accessibilityRole="button" accessibilityLabel="Cancelar exclusão" onPress={() => setPendingDelete(null)} style={styles.cancelButton}>
+                <Text style={styles.cancelText}>Cancelar</Text>
+              </Pressable>
+              <Pressable accessibilityRole="button" accessibilityLabel="Confirmar exclusão" onPress={() => void confirmDelete()} style={styles.deleteButton}>
+                <Text style={styles.deleteText}>Excluir</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      ) : null}
     </ScreenContainer>
   );
 }
@@ -112,6 +138,15 @@ const styles = StyleSheet.create({
   emptyTitle: { color: colors.ink, fontSize: 18, fontWeight: "900", marginTop: 8 },
   emptyBody: { color: colors.muted, textAlign: "center", marginTop: 5, lineHeight: 20 },
   pressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
+  confirmOverlay: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, backgroundColor: "rgba(16,47,73,0.38)", alignItems: "center", justifyContent: "center", padding: 24 },
+  confirmCard: { width: "100%", maxWidth: 360, backgroundColor: colors.white, borderRadius: 22, padding: 22, shadowColor: "#000", shadowOpacity: 0.18, shadowRadius: 18, shadowOffset: { width: 0, height: 8 }, elevation: 8 },
+  confirmTitle: { color: colors.ink, fontSize: 21, fontWeight: "900" },
+  confirmBody: { color: colors.muted, fontSize: 15, lineHeight: 21, marginTop: 8 },
+  confirmActions: { flexDirection: "row", justifyContent: "flex-end", gap: 10, marginTop: 20 },
+  cancelButton: { paddingHorizontal: 16, paddingVertical: 11, borderRadius: 12, backgroundColor: "#EAF0F2" },
+  cancelText: { color: colors.ink, fontWeight: "800" },
+  deleteButton: { paddingHorizontal: 18, paddingVertical: 11, borderRadius: 12, backgroundColor: "#B74D57" },
+  deleteText: { color: colors.white, fontWeight: "900" },
 });
 
 void styles;
