@@ -216,5 +216,11 @@
 - [x] Manter o modal atual e transformar “Enviar agora” em botão teal explícito, visível e acionável no iPhone.
 - [x] Validar que “Cancelar” continua fechando o modal e que “Enviar agora” inicia o envio.
 
-- [ ] Sincronizar a correção do modal no GitHub e gerar a IPA Inter 1.2.8/build 128 pelo workflow SideStore.
-- [ ] Entregar o artefato ou o link da Action concluída para teste no iPhone.
+- [x] Sincronizar a correção do modal no GitHub e gerar a IPA Inter 1.2.8/build 128 pelo workflow SideStore.
+- [x] Entregar o artefato ou o link da Action concluída para teste no iPhone.
+
+- [x] Dar ao botão “Cancelar” do modal o mesmo destaque visual e área de toque do “Enviar agora”.
+- [x] Remover a confirmação nativa “Notificação emitida” exibida após o envio, preservando o feedback visual interno.
+
+- [ ] Gerar IPA atualizada do Inter com o modal corrigido para teste no SideStore.
+- [ ] Verificar e entregar o artefato IPA gerado.

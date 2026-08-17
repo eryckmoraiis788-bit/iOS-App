@@ -136,7 +136,6 @@ export default function ComposeScreen() {
       const emitted = await emit({ title: trimmedTitle, subtitle: subtitle.trim(), body: trimmedBody, imageUri: selectedImage });
       if (emitted) {
         showSuccessFeedback("emitted");
-        Alert.alert("Notificação emitida", "A notificação foi enviada para o iPhone.");
       } else {
         showErrorFeedback("emit-error");
         Alert.alert("Não foi possível emitir", "O iPhone não confirmou o envio da notificação.");
@@ -418,10 +417,10 @@ const styles = StyleSheet.create({
   confirmModalPreviewTitle: { color: colors.ink, fontSize: 17, fontWeight: "900", marginBottom: 4 },
   confirmModalPreviewSubtitle: { color: colors.teal, fontSize: 14, fontWeight: "700", marginBottom: 6 },
   confirmModalPreviewBody: { color: colors.ink, fontSize: 15, lineHeight: 21 },
-  confirmModalActions: { flexDirection: "column", width: "100%", marginTop: 2, gap: 10, flexShrink: 0, minHeight: 124 },
+  confirmModalActions: { flexDirection: "column", width: "100%", marginTop: 2, gap: 10, flexShrink: 0, minHeight: 132 },
   confirmModalSendFrame: { width: "100%", minHeight: 56, borderRadius: 15, backgroundColor: colors.teal, overflow: "hidden", shadowColor: colors.teal, shadowOpacity: 0.24, shadowRadius: 7, shadowOffset: { width: 0, height: 3 }, elevation: 4 },
-  confirmModalCancel: { width: "100%", minHeight: 50, flexShrink: 0, borderRadius: 15, backgroundColor: "#EDF2F4", borderWidth: 1, borderColor: colors.border, alignItems: "center", justifyContent: "center" },
-  confirmModalCancelText: { color: colors.ink, fontSize: 15, fontWeight: "800" },
+  confirmModalCancel: { width: "100%", minHeight: 56, flexShrink: 0, borderRadius: 15, backgroundColor: colors.teal, borderWidth: 0, alignItems: "center", justifyContent: "center", shadowColor: colors.teal, shadowOpacity: 0.18, shadowRadius: 6, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
+  confirmModalCancelText: { color: colors.white, fontSize: 15, fontWeight: "900" },
   confirmModalSend: { width: "100%", minHeight: 56, flexShrink: 0, borderRadius: 15, backgroundColor: "transparent", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
   confirmModalSendText: { color: colors.white, fontSize: 15, fontWeight: "900" },
 
