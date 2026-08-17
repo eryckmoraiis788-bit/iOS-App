@@ -159,21 +159,21 @@ export default function ComposeScreen() {
         </View>
       </View>
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Emitir notificação"
-        accessibilityState={{ disabled: !canEmit || isEmitting }}
-        onPress={handleEmit}
-        style={({ pressed }) => [
-          styles.primaryButton,
-          canEmit ? styles.primaryButtonReady : styles.primaryButtonDisabled,
-          pressed && canEmit && styles.pressed,
-          isEmitting && styles.emittingButton,
-        ]}
-      >
-        <MaterialIcons name={isEmitting ? "hourglass-empty" : "notifications-none"} size={28} color={colors.white} />
-        <Text style={styles.primaryText}>{isEmitting ? "Emitindo…" : "Emitir notificação"}</Text>
-      </Pressable>
+      <View style={[styles.buttonShell, canEmit ? styles.primaryButtonReady : styles.primaryButtonDisabled]}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Emitir notificação"
+          onPress={handleEmit}
+          style={({ pressed }) => [
+            styles.primaryButton,
+            pressed && styles.pressed,
+            isEmitting && styles.emittingButton,
+          ]}
+        >
+          <MaterialIcons name={isEmitting ? "hourglass-empty" : "notifications-none"} size={28} color={colors.white} />
+          <Text style={styles.primaryText}>{isEmitting ? "Emitindo…" : "Emitir notificação"}</Text>
+        </Pressable>
+      </View>
     </ScrollView>
   );
 }
@@ -249,7 +249,8 @@ const styles = StyleSheet.create({
   previewTime: { color: "#C6D7E1", fontSize: 13 },
   previewSubtitle: { color: "#D8E4EA", fontSize: 16, lineHeight: 21, marginTop: 4 },
   previewBody: { color: "#D8E4EA", fontSize: 15, lineHeight: 20, marginTop: 3 },
-  primaryButton: { minHeight: 64, borderRadius: 22, borderWidth: 1.5, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10 },
+  buttonShell: { minHeight: 64, borderRadius: 22, overflow: "hidden" },
+  primaryButton: { minHeight: 64, borderRadius: 22, borderWidth: 1.5, borderColor: "transparent", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10 },
   primaryButtonReady: { backgroundColor: "#168F86", borderColor: "#0E8278", shadowColor: "#0E8278", shadowOpacity: 0.28, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 4 },
   primaryButtonDisabled: { backgroundColor: "#7ECBC4", borderColor: "#70BFB8", shadowOpacity: 0, elevation: 0, opacity: 1 },
   primaryText: { color: colors.white, fontSize: 19, fontWeight: "900" },
