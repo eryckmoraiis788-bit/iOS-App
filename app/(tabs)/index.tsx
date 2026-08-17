@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
-import { useNotificationStore } from "@/lib/notification-store";
+import { useNotificationStore, type NotificationTemplate } from "@/lib/notification-store";
 
 const colors = {
   bg: "#EAF4F8",
@@ -33,18 +32,11 @@ export default function ComposeScreen() {
   const [modelName, setModelName] = useState("");
   const [isEmitting, setIsEmitting] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
-  const { selectedImage, emit, saveTemplate } = useNotificationStore();
-  const router = useRouter();
-  const params = useLocalSearchParams<{ templateId?: string; templateName?: string; templateTitle?: string; templateSubtitle?: string; templateBody?: string }>();
+  const [editingTemplateId, setEditingTemplateId] = useState<string>();
+  const [pendingDelete, setPendingDelete] = useState<NotificationTemplate | null>(null);
+  const { selectedImage, emit, templates, saveTemplate, removeTemplate } = useNotificationStore();
   const canEmit = title.trim().length > 0 && body.trim().length > 0;
   const canSaveModel = modelName.trim().length > 0 && body.trim().length > 0;
-
-  useEffect(() => {
-    if (typeof params.templateName === "string") setModelName(params.templateName);
-    if (typeof params.templateTitle === "string") setTitle(params.templateTitle);
-    if (typeof params.templateSubtitle === "string") setSubtitle(params.templateSubtitle);
-    if (typeof params.templateBody === "string") setBody(params.templateBody);
-  }, [params.templateBody, params.templateName, params.templateSubtitle, params.templateTitle]);
 
   const handleSaveModel = async () => {
     const trimmedName = modelName.trim();
@@ -59,9 +51,10 @@ export default function ComposeScreen() {
         title: title.trim() || trimmedName,
         subtitle: subtitle.trim(),
         body: trimmedBody,
-      }, typeof params.templateId === "string" ? params.templateId : undefined);
-      setSaveMessage(params.templateId ? "Modelo atualizado e disponível na aba Modelos." : "Modelo salvo e disponível na aba Modelos.");
+      }, editingTemplateId);
+      setSaveMessage(editingTemplateId ? "Modelo atualizado nesta tela." : "Modelo salvo nesta tela.");
       setModelName("");
+      setEditingTemplateId(undefined);
     } catch (error) {
       const detail = error instanceof Error ? error.message : "Não foi possível salvar o modelo neste iPhone.";
       setSaveMessage(detail);
@@ -157,11 +150,9 @@ export default function ComposeScreen() {
       <View style={styles.modelsHeading}>
         <View>
           <Text style={styles.sectionTitle}>Modelos predefinidos</Text>
-          <Text style={styles.sectionLabel}>SALVE PARA USAR DE NOVO</Text>
+          <Text style={styles.sectionLabel}>SALVE E USE NESTA TELA</Text>
         </View>
-        <Pressable onPress={() => router.push("/templates")} accessibilityRole="button" accessibilityLabel="Abrir modelos salvos" hitSlop={8}>
-          <MaterialIcons name="bookmark-border" size={31} color={colors.teal} />
-        </Pressable>
+        <MaterialIcons name="bookmark-border" size={31} color={colors.teal} />
       </View>
 
       <View style={styles.modelsCard}>
@@ -172,9 +163,43 @@ export default function ComposeScreen() {
             <Text style={styles.saveText}>Salvar</Text>
           </Pressable>
         </View>
-        <Text style={styles.modelHint}>Salve aqui e encontre a predefinição na aba Modelos.</Text>
+        <Text style={styles.modelHint}>{editingTemplateId ? "Edite os campos e salve para atualizar este modelo." : "Salve aqui para usar esta notificação novamente."}</Text>
         {!!saveMessage && <Text style={styles.saveMessage}>{saveMessage}</Text>}
       </View>
+
+      {templates.length > 0 && (
+        <View style={styles.savedModelsCard}>
+          <View style={styles.savedModelsHeader}>
+            <Text style={styles.savedModelsTitle}>Salvos nesta tela</Text>
+            <Text style={styles.savedModelsCount}>{templates.length}</Text>
+          </View>
+          {templates.map((template) => (
+            <View key={template.id} style={styles.savedModelRow}>
+              <View style={styles.flexCopy}>
+                <Text style={styles.savedModelName}>{template.name}</Text>
+                <Text style={styles.savedModelBody} numberOfLines={1}>{template.body}</Text>
+              </View>
+              <Pressable onPress={() => { setModelName(template.name); setTitle(template.title); setSubtitle(template.subtitle); setBody(template.body); setEditingTemplateId(template.id); setSaveMessage("Modelo carregado para edição."); }} style={styles.smallAction} accessibilityRole="button" accessibilityLabel={`Editar ${template.name}`}>
+                <MaterialIcons name="edit" size={20} color={colors.teal} />
+              </Pressable>
+              <Pressable onPress={() => setPendingDelete(template)} style={styles.smallAction} accessibilityRole="button" accessibilityLabel={`Excluir ${template.name}`}>
+                <MaterialIcons name="delete-outline" size={21} color="#B64B4B" />
+              </Pressable>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {pendingDelete && (
+        <View style={styles.confirmCard}>
+          <Text style={styles.confirmTitle}>Excluir este modelo?</Text>
+          <Text style={styles.confirmBody}>“{pendingDelete.name}” será removido desta tela.</Text>
+          <View style={styles.confirmActions}>
+            <Pressable onPress={() => setPendingDelete(null)} style={[styles.confirmButton, styles.cancelButton]} accessibilityRole="button"><Text style={styles.cancelText}>Cancelar</Text></Pressable>
+            <Pressable onPress={async () => { const item = pendingDelete; setPendingDelete(null); await removeTemplate(item); setSaveMessage("Modelo excluído."); }} style={[styles.confirmButton, styles.deleteButton]} accessibilityRole="button"><Text style={styles.deleteText}>Excluir</Text></Pressable>
+          </View>
+        </View>
+      )}
 
       <View style={styles.previewHeading}>
         <Text style={styles.sectionTitle}>Pré-visualização</Text>
@@ -279,6 +304,23 @@ const styles = StyleSheet.create({
   saveText: { color: colors.white, fontSize: 17, fontWeight: "900" },
   modelHint: { color: colors.muted, fontSize: 15 },
   saveMessage: { color: colors.teal, fontSize: 14, fontWeight: "800" },
+  savedModelsCard: { backgroundColor: colors.white, borderRadius: 25, padding: 18, borderWidth: 1, borderColor: colors.border, gap: 12 },
+  savedModelsHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  savedModelsTitle: { color: colors.ink, fontSize: 17, fontWeight: "900" },
+  savedModelsCount: { color: colors.teal, fontSize: 16, fontWeight: "900" },
+  savedModelRow: { flexDirection: "row", alignItems: "center", gap: 8, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 12 },
+  savedModelName: { color: colors.ink, fontSize: 16, fontWeight: "800" },
+  savedModelBody: { color: colors.muted, fontSize: 14, marginTop: 3 },
+  smallAction: { width: 38, height: 38, borderRadius: 12, backgroundColor: "#EEF8F5", alignItems: "center", justifyContent: "center" },
+  confirmCard: { backgroundColor: "#FFF7F2", borderRadius: 22, padding: 18, borderWidth: 1, borderColor: "#F0CDBD", gap: 8 },
+  confirmTitle: { color: colors.ink, fontSize: 17, fontWeight: "900" },
+  confirmBody: { color: colors.muted, fontSize: 14, lineHeight: 20 },
+  confirmActions: { flexDirection: "row", justifyContent: "flex-end", gap: 10, marginTop: 5 },
+  confirmButton: { minHeight: 40, borderRadius: 12, paddingHorizontal: 16, alignItems: "center", justifyContent: "center" },
+  cancelButton: { backgroundColor: "#E8EFF2" },
+  deleteButton: { backgroundColor: "#B64B4B" },
+  cancelText: { color: colors.ink, fontSize: 14, fontWeight: "800" },
+  deleteText: { color: colors.white, fontSize: 14, fontWeight: "800" },
   previewHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   nowLabel: { color: colors.muted, letterSpacing: 2, fontSize: 11, fontWeight: "800" },
   greenDot: { color: colors.green, fontSize: 16 },
