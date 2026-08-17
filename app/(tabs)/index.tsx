@@ -31,6 +31,7 @@ export default function ComposeScreen() {
   const [body, setBody] = useState("");
   const [isEmitting, setIsEmitting] = useState(false);
   const { selectedImage, emit } = useNotificationStore();
+  const canEmit = title.trim().length > 0 && body.trim().length > 0;
 
   const handleEmit = async () => {
     if (isEmitting) return;
@@ -161,9 +162,14 @@ export default function ComposeScreen() {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Emitir notificação"
-        disabled={isEmitting}
+        disabled={!canEmit || isEmitting}
         onPress={handleEmit}
-        style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed, isEmitting && styles.disabledButton]}
+        style={({ pressed }) => [
+          styles.primaryButton,
+          canEmit ? styles.primaryButtonReady : styles.primaryButtonDisabled,
+          pressed && canEmit && styles.pressed,
+          isEmitting && styles.disabledButton,
+        ]}
       >
         <MaterialIcons name={isEmitting ? "hourglass-empty" : "notifications-none"} size={28} color={colors.white} />
         <Text style={styles.primaryText}>{isEmitting ? "Emitindo…" : "Emitir notificação"}</Text>
@@ -243,7 +249,9 @@ const styles = StyleSheet.create({
   previewTime: { color: "#C6D7E1", fontSize: 13 },
   previewSubtitle: { color: "#D8E4EA", fontSize: 16, lineHeight: 21, marginTop: 4 },
   previewBody: { color: "#D8E4EA", fontSize: 15, lineHeight: 20, marginTop: 3 },
-  primaryButton: { minHeight: 64, borderRadius: 22, backgroundColor: "#168F86", borderWidth: 1.5, borderColor: "#0E8278", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10, shadowColor: "#0E8278", shadowOpacity: 0.28, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 4 },
+  primaryButton: { minHeight: 64, borderRadius: 22, borderWidth: 1.5, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10 },
+  primaryButtonReady: { backgroundColor: "#168F86", borderColor: "#0E8278", shadowColor: "#0E8278", shadowOpacity: 0.28, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 4 },
+  primaryButtonDisabled: { backgroundColor: "#A9D2CF", borderColor: "#A9D2CF", shadowOpacity: 0, elevation: 0 },
   primaryText: { color: colors.white, fontSize: 19, fontWeight: "900" },
   pressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
   disabledButton: { opacity: 0.72 },
