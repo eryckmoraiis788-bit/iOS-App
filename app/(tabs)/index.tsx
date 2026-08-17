@@ -29,18 +29,25 @@ export default function ComposeScreen() {
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [body, setBody] = useState("");
+  const [isEmitting, setIsEmitting] = useState(false);
   const { selectedImage, emit } = useNotificationStore();
 
   const handleEmit = async () => {
+    if (isEmitting) return;
     const trimmedTitle = title.trim();
     const trimmedBody = body.trim();
     if (!trimmedTitle || !trimmedBody) {
       Alert.alert("Preencha a notificação", "Informe o nome exibido e a mensagem antes de emitir.");
       return;
     }
-    const emitted = await emit({ title: trimmedTitle, subtitle: subtitle.trim(), body: trimmedBody, imageUri: selectedImage });
-    if (emitted) {
-      Alert.alert("Notificação emitida", "A notificação foi enviada para o iPhone.");
+    setIsEmitting(true);
+    try {
+      const emitted = await emit({ title: trimmedTitle, subtitle: subtitle.trim(), body: trimmedBody, imageUri: selectedImage });
+      if (emitted) Alert.alert("Notificação emitida", "A notificação foi enviada para o iPhone.");
+    } catch {
+      Alert.alert("Não foi possível emitir", "Verifique a permissão de notificações e tente novamente.");
+    } finally {
+      setIsEmitting(false);
     }
   };
 
@@ -153,11 +160,12 @@ export default function ComposeScreen() {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Emitir notificação"
-        onPress={() => void handleEmit()}
-        style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}
+        disabled={isEmitting}
+        onPress={handleEmit}
+        style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed, isEmitting && styles.disabledButton]}
       >
-        <MaterialIcons name="notifications-none" size={28} color={colors.white} />
-        <Text style={styles.primaryText}>Emitir notificação</Text>
+        <MaterialIcons name={isEmitting ? "hourglass-empty" : "notifications-none"} size={28} color={colors.white} />
+        <Text style={styles.primaryText}>{isEmitting ? "Emitindo…" : "Emitir notificação"}</Text>
       </Pressable>
     </ScrollView>
   );
@@ -234,7 +242,8 @@ const styles = StyleSheet.create({
   previewTime: { color: "#C6D7E1", fontSize: 13 },
   previewSubtitle: { color: "#D8E4EA", fontSize: 16, lineHeight: 21, marginTop: 4 },
   previewBody: { color: "#D8E4EA", fontSize: 15, lineHeight: 20, marginTop: 3 },
-  primaryButton: { minHeight: 64, borderRadius: 22, backgroundColor: "#168F86", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10, shadowColor: "#0E8278", shadowOpacity: 0.18, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
+  primaryButton: { minHeight: 64, borderRadius: 22, backgroundColor: "#168F86", borderWidth: 1.5, borderColor: "#0E8278", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10, shadowColor: "#0E8278", shadowOpacity: 0.28, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 4 },
   primaryText: { color: colors.white, fontSize: 19, fontWeight: "900" },
   pressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
+  disabledButton: { opacity: 0.72 },
 });

@@ -14,9 +14,9 @@ const timestamp = bundleId.split(".").pop()?.replace(/^t/, "") || "";
 const scheme = `manus${timestamp}`;
 
 module.exports = {
-  name: "Notificação iOS",
+  name: "Inter",
   slug: "notificacao-ios",
-  version: "1.0.0",
+  version: "1.0.1",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
   scheme,
@@ -27,6 +27,7 @@ module.exports = {
     bundleIdentifier: bundleId,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
+      CFBundleDisplayName: "Inter",
     },
   },
   android: {
