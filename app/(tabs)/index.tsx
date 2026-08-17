@@ -36,19 +36,20 @@ export default function ComposeScreen() {
   const [pendingDelete, setPendingDelete] = useState<NotificationTemplate | null>(null);
   const { selectedImage, emit, templates, saveTemplate, removeTemplate } = useNotificationStore();
   const canEmit = title.trim().length > 0 && body.trim().length > 0;
-  const canSaveModel = modelName.trim().length > 0 && body.trim().length > 0;
+  const canSaveModel = body.trim().length > 0;
 
   const handleSaveModel = async () => {
     const trimmedName = modelName.trim();
     const trimmedBody = body.trim();
-    if (!trimmedName || !trimmedBody) {
-      setSaveMessage("Informe o nome do modelo e a mensagem antes de salvar.");
+    const resolvedName = trimmedName || title.trim() || "Modelo sem nome";
+    if (!trimmedBody) {
+      setSaveMessage("Informe a mensagem antes de salvar o modelo.");
       return;
     }
     try {
       await saveTemplate({
-        name: trimmedName,
-        title: title.trim() || trimmedName,
+        name: resolvedName,
+        title: title.trim() || resolvedName,
         subtitle: subtitle.trim(),
         body: trimmedBody,
       }, editingTemplateId);
@@ -150,20 +151,20 @@ export default function ComposeScreen() {
       <View style={styles.modelsHeading}>
         <View>
           <Text style={styles.sectionTitle}>Modelos predefinidos</Text>
-          <Text style={styles.sectionLabel}>SALVE E USE NESTA TELA</Text>
+          <Text style={styles.sectionLabel}>SALVE PARA USAR DE NOVO</Text>
         </View>
         <MaterialIcons name="bookmark-border" size={31} color={colors.teal} />
       </View>
 
       <View style={styles.modelsCard}>
         <View style={styles.modelRow}>
-          <TextInput value={modelName} onChangeText={(value) => { setModelName(value); setSaveMessage(""); }} placeholder="Nome do modelo..." placeholderTextColor="#87949C" style={styles.modelInput} maxLength={40} />
+          <TextInput value={modelName} onChangeText={(value) => { setModelName(value); setSaveMessage(""); }} placeholder="Nome do modelo (opcional)" placeholderTextColor="#87949C" style={styles.modelInput} maxLength={40} />
           <Pressable onPress={handleSaveModel} style={({ pressed }) => [styles.saveButton, canSaveModel ? styles.saveReady : styles.saveDisabled, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Salvar modelo">
             <MaterialIcons name="bookmark" size={23} color={colors.white} />
             <Text style={styles.saveText}>Salvar</Text>
           </Pressable>
         </View>
-        <Text style={styles.modelHint}>{editingTemplateId ? "Edite os campos e salve para atualizar este modelo." : "Salve aqui para usar esta notificação novamente."}</Text>
+        <Text style={styles.modelHint}>{editingTemplateId ? "Edite os campos e salve para atualizar este modelo." : "Seus modelos salvos aparecerão aqui."}</Text>
         {!!saveMessage && <Text style={styles.saveMessage}>{saveMessage}</Text>}
       </View>
 
@@ -294,8 +295,8 @@ const styles = StyleSheet.create({
   textArea: { minHeight: 110, paddingTop: 15 },
   optionCard: { backgroundColor: colors.white, borderRadius: 25, borderWidth: 1, borderColor: colors.border, padding: 20, flexDirection: "row", gap: 15, alignItems: "center" },
   optionIcon: { width: 60, height: 60, borderRadius: 19, backgroundColor: "#EEF8F5", alignItems: "center", justifyContent: "center" },
-  modelsHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
-  modelsCard: { backgroundColor: colors.white, borderRadius: 25, padding: 20, borderWidth: 1, borderColor: colors.border, gap: 14 },
+  modelsHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingTop: 2 },
+  modelsCard: { backgroundColor: colors.white, borderRadius: 25, padding: 20, borderWidth: 1, borderColor: colors.border, gap: 14, shadowColor: "#B8C8CF", shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
   modelRow: { flexDirection: "row", gap: 14, alignItems: "center" },
   modelInput: { flex: 1, height: 58, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingHorizontal: 16, color: colors.ink, fontSize: 17, backgroundColor: "#FCFCFC" },
   saveButton: { height: 58, paddingHorizontal: 19, borderRadius: 18, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
