@@ -1,6 +1,6 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ScreenContainer } from "@/components/screen-container";
 import { useNotificationStore, type NotificationTemplate } from "@/lib/notification-store";
@@ -18,12 +18,9 @@ const colors = {
 
 export default function TemplatesScreen() {
   const router = useRouter();
-  const { templates, removeTemplate, refreshTemplates } = useNotificationStore();
+  const { templates, removeTemplate } = useNotificationStore();
   const [pendingDelete, setPendingDelete] = useState<NotificationTemplate | null>(null);
 
-  useFocusEffect(useCallback(() => {
-    void refreshTemplates();
-  }, [refreshTemplates]));
 
   const handleEdit = (template: NotificationTemplate) => {
     router.push({ pathname: "/", params: { templateId: template.id, templateName: template.name, templateTitle: template.title, templateSubtitle: template.subtitle, templateBody: template.body } });
