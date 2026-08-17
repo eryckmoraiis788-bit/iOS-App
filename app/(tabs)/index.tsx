@@ -44,8 +44,9 @@ export default function ComposeScreen() {
     try {
       const emitted = await emit({ title: trimmedTitle, subtitle: subtitle.trim(), body: trimmedBody, imageUri: selectedImage });
       if (emitted) Alert.alert("Notificação emitida", "A notificação foi enviada para o iPhone.");
-    } catch {
-      Alert.alert("Não foi possível emitir", "Verifique a permissão de notificações e tente novamente.");
+    } catch (error) {
+      const detail = error instanceof Error && error.message ? error.message : "O iOS recusou o agendamento da notificação.";
+      Alert.alert("Não foi possível emitir", detail);
     } finally {
       setIsEmitting(false);
     }

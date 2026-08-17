@@ -39,6 +39,7 @@ const HAPTICS_KEY = "notification-ios-haptics-v1";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
+    shouldShowAlert: true,
     shouldShowBanner: true,
     shouldShowList: true,
     shouldPlaySound: false,
@@ -91,17 +92,17 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
 
   const requestPermission = async () => {
     const current = await Notifications.getPermissionsAsync();
-    const result = current.status === Notifications.PermissionStatus.GRANTED
+    const result = current.granted
       ? current
       : await Notifications.requestPermissionsAsync();
     setPermission(result.status);
-    if (result.status !== Notifications.PermissionStatus.GRANTED) {
+    if (!result.granted) {
       Alert.alert("Notificações desativadas", "Autorize as notificações nos Ajustes do iOS para receber os avisos.", [
         { text: "Agora não", style: "cancel" },
         { text: "Abrir Ajustes", onPress: () => void Linking.openSettings() },
       ]);
     }
-    return result.status === Notifications.PermissionStatus.GRANTED;
+    return result.granted;
   };
 
   const buildContent = async (input: { title: string; subtitle: string; body: string; imageUri?: string }) => {
@@ -117,7 +118,22 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
 
   const emit = async (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => {
     if (!(await requestPermission())) return false;
-    const notificationId = await Notifications.scheduleNotificationAsync({ content: await buildContent(input), trigger: null });
+    const content = await buildContent(input);
+    let notificationId: string;
+    try {
+      notificationId = await Notifications.scheduleNotificationAsync({ content, trigger: null });
+    } catch (firstError) {
+      // iOS can reject a local attachment URI even while notification permission is granted.
+      // Retry the same notification without the attachment so the core action still works.
+      const { attachments: _attachments, ...contentWithoutAttachment } = content;
+      try {
+        notificationId = await Notifications.scheduleNotificationAsync({ content: contentWithoutAttachment, trigger: null });
+      } catch {
+        const detail = firstError instanceof Error ? firstError.message : "Falha nativa ao agendar a notificação.";
+        console.error("[notifications] schedule failed", firstError);
+        throw new Error(detail);
+      }
+    }
     const record: NotificationRecord = { ...input, id: `local-${Date.now()}`, kind: "immediate", status: "sent", createdAt: new Date().toISOString(), notificationId };
     await persistRecords([record, ...records]);
     return true;
