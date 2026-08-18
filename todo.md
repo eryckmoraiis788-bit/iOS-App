@@ -234,5 +234,11 @@
 - [ ] Reproduzir o modal de confirmação conforme o print IMG_0553, com cartão branco e dois botões teal em coluna.
 - [ ] Garantir que o modal usado no build nativo mantenha “Enviar agora” e “Cancelar” visíveis e visualmente idênticos ao preview.
 
-- [ ] Gerar IPA com o modal conforme IMG_0553 para teste no SideStore.
-- [ ] Verificar e entregar o artefato da nova IPA.
+- [x] Gerar IPA com o modal conforme IMG_0553 para teste no SideStore.
+- [x] Verificar e entregar o artefato da nova IPA.
+
+- [ ] Compactar o modal para corresponder à segunda imagem IMG_0553, mantendo os dois botões teal totalmente visíveis.
+- [ ] Confirmar que a estrutura compacta é preservada no build nativo e não apenas no preview.
+
+- [ ] Gerar IPA com o modal compacto conforme a segunda foto IMG_0553 para teste no SideStore.
+- [ ] Verificar versão, build e entregar a IPA gerada.
