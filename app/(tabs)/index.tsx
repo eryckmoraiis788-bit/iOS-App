@@ -641,7 +641,7 @@ const styles = StyleSheet.create({
   primaryButtonReady: { backgroundColor: "#168F86", borderColor: "#0E8278", shadowColor: "#0E8278", shadowOpacity: 0.28, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 4 },
   primaryButtonDisabled: { backgroundColor: "#168F86", borderColor: "#0E8278", shadowColor: "#0E8278", shadowOpacity: 0.18, shadowRadius: 6, shadowOffset: { width: 0, height: 2 }, elevation: 3, opacity: 1 },
   primaryIconSlot: { position: "absolute", left: 16, width: 40, alignItems: "center", justifyContent: "center" },
-  primaryText: { color: colors.white, fontSize: 17, fontWeight: "900", textAlign: "center", width: "100%", paddingHorizontal: 52 },
+  primaryText: { position: "absolute", left: 0, right: 0, color: colors.white, fontSize: 17, fontWeight: "900", textAlign: "center" },
   pressed: { opacity: 0.78, transform: [{ scale: 0.99 }] },
   emittingButton: { opacity: 0.72 },
 });

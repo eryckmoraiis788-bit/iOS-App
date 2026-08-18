@@ -297,4 +297,48 @@
 - [ ] Animar feedbacks de sucesso, erro e carregamento sem alterar o fluxo atual.
 - [x] Validar desempenho e acessibilidade da primeira animação em viewport móvel; TypeScript e testes passaram.
 
-- [ ] Gerar e entregar uma nova IPA com a primeira etapa das animações da aba Compor.
+- [x] Gerar e entregar uma nova IPA com a primeira etapa das animações da aba Compor; Action 32139341293 concluída e artefato baixado.
+
+- [x] Corrigir a emissão do modelo rápido “Pix recebido” com nome e valor preenchidos.
+- [x] Corrigir a emissão do modelo rápido “Pix enviado” com nome e valor preenchidos.
+- [ ] Validar que aplicar um modelo preenche o formulário e permite emitir a notificação.
+
+- [x] Corrigir a transferência dos dados dos modelos rápidos Pix para título, subtítulo e mensagem do formulário principal.
+- [ ] Validar que o botão Emitir notificação usa os dados preenchidos pelo modelo rápido.
+
+- [ ] Gerar IPA 1.2.22/build 142 com a correção dos modelos rápidos Pix e validar no SideStore.
+
+- [x] Gerar e auditar a IPA 1.2.22/build 142 para teste no SideStore.
+
+- [x] Adicionar botão de emissão direta na área circulada dos cartões Pix recebido e Pix enviado.
+- [x] Validar emissão direta com nome/valor, loading e feedback de erro/sucesso no código, TypeScript, testes e preview móvel.
+
+- [x] Gerar e auditar a IPA atualizada com os botões Emitir agora dos cartões Pix para SideStore.
+
+- [x] Corrigir a renderização nativa dos botões Emitir agora nos cartões Pix, que não aparecem na IPA instalada.
+- [x] Validar a IPA correta no SideStore e confirmar visibilidade no bundle nativo; teste físico do toque permanece pendente.
+
+- [x] Remover o corte/ocultação da área de ações dos cartões Pix na IPA nativa.
+- [x] Mover os botões para uma seção explícita; validar o bundle nativo e manter o teste físico no iPhone pendente.
+
+- [x] Gerar nova IPA da revisão dos painéis Pix para teste no SideStore.
+- [x] Auditar versão, build e bundle da IPA antes da entrega.
+
+- [ ] Corrigir os painéis brancos vazios dos cartões Pix na IPA nativa.
+- [ ] Substituir a ação por um botão simples e validar que o código enviado à Action corresponde à versão instalada.
+
+- [x] Aplicar formatação monetária brasileira aos valores dos modelos Pix, incluindo milhares e centavos.
+- [x] Garantir que a emissão direta e o preenchimento do formulário usem o valor formatado corretamente.
+
+- [x] Aplicar ao botão principal Emitir notificação o verde/teal vivo usado no destaque dos modelos Pix.
+- [x] Validar contraste, estado ativo, loading e emissão após a alteração de cor.
+
+- [x] Gerar e auditar a IPA com o botão principal Emitir notificação em verde/teal vivo para teste no SideStore.
+
+- [x] Centralizar o texto Emitir notificação dentro do botão principal, mantendo o ícone alinhado separadamente.
+- [x] Validar o alinhamento no iPhone e preservar a interação do botão.
+
+- [ ] Gerar e auditar a IPA com Emitir notificação centralizado e o ícone separado, conforme a pré-visualização aprovada.
+
+- [x] Centralizar o texto Emitir notificação no eixo completo do botão, sem deslocamento causado pelo ícone.
+- [x] Manter o sino em camada independente e gerar/auditar uma IPA nova após a validação.
