@@ -364,13 +364,13 @@ export default function ComposeScreen() {
           <TextInput value={receivedValue} onChangeText={setReceivedValue} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={12} keyboardType="decimal-pad" />
         </View>
         <View style={styles.presetActions}>
-          <Pressable onPress={() => applyPixPreset("received")} style={({ pressed }) => [styles.applyPresetButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Preencher formulário com Pix recebido">
+          <Pressable onPress={() => void emitPixDirectly("received")} disabled={isEmitting || isSavingModel} style={({ pressed }) => [styles.directPresetButton, pressed && styles.pressed, isEmitting && styles.emittingButton]} accessibilityRole="button" accessibilityLabel="Emitir Pix recebido agora" testID="emit-pix-received-button">
+            {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="notifications-active" size={20} color={colors.white} />}
+            <Text style={styles.directPresetText}>{isEmitting ? "Emitindo Pix recebido…" : "Emitir Pix recebido"}</Text>
+          </Pressable>
+          <Pressable onPress={() => applyPixPreset("received")} style={({ pressed }) => [styles.applyPresetButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Preencher formulário com Pix recebido" testID="apply-pix-received-button">
             <MaterialIcons name="check" size={19} color={colors.white} />
             <Text style={styles.applyPresetText}>Usar Pix recebido</Text>
-          </Pressable>
-          <Pressable onPress={() => void emitPixDirectly("received")} disabled={isEmitting || isSavingModel} style={({ pressed }) => [styles.directPresetButton, pressed && styles.pressed, isEmitting && styles.emittingButton]} accessibilityRole="button" accessibilityLabel="Emitir Pix recebido agora">
-            {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="notifications-none" size={19} color={colors.white} />}
-            <Text style={styles.applyPresetText}>{isEmitting ? "Emitindo…" : "Emitir agora"}</Text>
           </Pressable>
         </View>
       </View>
@@ -388,13 +388,13 @@ export default function ComposeScreen() {
           <TextInput value={sentValue} onChangeText={setSentValue} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={12} keyboardType="decimal-pad" />
         </View>
         <View style={styles.presetActions}>
-          <Pressable onPress={() => applyPixPreset("sent")} style={({ pressed }) => [styles.applyPresetButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Preencher formulário com Pix enviado">
+          <Pressable onPress={() => void emitPixDirectly("sent")} disabled={isEmitting || isSavingModel} style={({ pressed }) => [styles.directPresetButton, pressed && styles.pressed, isEmitting && styles.emittingButton]} accessibilityRole="button" accessibilityLabel="Emitir Pix enviado agora" testID="emit-pix-sent-button">
+            {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="notifications-active" size={20} color={colors.white} />}
+            <Text style={styles.directPresetText}>{isEmitting ? "Emitindo Pix enviado…" : "Emitir Pix enviado"}</Text>
+          </Pressable>
+          <Pressable onPress={() => applyPixPreset("sent")} style={({ pressed }) => [styles.applyPresetButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Preencher formulário com Pix enviado" testID="apply-pix-sent-button">
             <MaterialIcons name="check" size={19} color={colors.white} />
             <Text style={styles.applyPresetText}>Usar Pix enviado</Text>
-          </Pressable>
-          <Pressable onPress={() => void emitPixDirectly("sent")} disabled={isEmitting || isSavingModel} style={({ pressed }) => [styles.directPresetButton, pressed && styles.pressed, isEmitting && styles.emittingButton]} accessibilityRole="button" accessibilityLabel="Emitir Pix enviado agora">
-            {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="notifications-none" size={19} color={colors.white} />}
-            <Text style={styles.applyPresetText}>{isEmitting ? "Emitindo…" : "Emitir agora"}</Text>
           </Pressable>
         </View>
       </View>
@@ -567,10 +567,11 @@ const styles = StyleSheet.create({
   presetInputsRow: { flexDirection: "row", gap: 8 },
   presetInput: { flex: 1, minWidth: 0, height: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 12, color: colors.ink, fontSize: 13, backgroundColor: "#FCFCFC" },
   presetValueInput: { width: 94, height: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 10, color: colors.ink, fontSize: 13, backgroundColor: "#FCFCFC" },
-  presetActions: { flexDirection: "row", gap: 9 },
-  applyPresetButton: { flex: 1, minWidth: 0, height: 45, borderRadius: 14, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 6, paddingHorizontal: 8 },
-  directPresetButton: { flex: 1, minWidth: 0, height: 45, borderRadius: 14, backgroundColor: colors.navy, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 6, paddingHorizontal: 8 },
-  applyPresetText: { color: colors.white, fontSize: 13, fontWeight: "900" },
+  presetActions: { width: "100%", flexDirection: "column", gap: 10 },
+  applyPresetButton: { width: "100%", height: 48, borderRadius: 14, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7, paddingHorizontal: 12 },
+  directPresetButton: { width: "100%", height: 54, borderRadius: 15, backgroundColor: "#E87808", borderWidth: 1, borderColor: "#D76600", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 8, paddingHorizontal: 12, shadowColor: "#B85A00", shadowOpacity: 0.22, shadowRadius: 6, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
+  directPresetText: { color: colors.white, fontSize: 15, fontWeight: "900" },
+  applyPresetText: { color: colors.white, fontSize: 14, fontWeight: "900" },
   modelRow: { flexDirection: "row", gap: 10, alignItems: "center", width: "100%" },
   modelInput: { flex: 1, flexShrink: 1, minWidth: 0, height: 58, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingHorizontal: 14, color: colors.ink, fontSize: 14, backgroundColor: "#FCFCFC" },
   saveButton: { width: 104, flexShrink: 0, height: 58, paddingHorizontal: 8, borderRadius: 18, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 5 },
