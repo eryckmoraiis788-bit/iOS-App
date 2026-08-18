@@ -265,4 +265,10 @@
 - [x] Corrigir a interpretação: manter o cartão “Imagem da notificação” e remover somente a confirmação de envio.
 - [x] Validar que o formulário, imagem, modelos e envio direto continuam funcionando após remover a confirmação no código, TypeScript, testes e preview móvel.
 
-- [ ] Sincronizar o Inter 1.2.17/build 137 e gerar a IPA para SideStore.
+- [x] Sincronizar o Inter 1.2.17/build 137 e gerar a IPA para SideStore; Action 32128485124 concluída com sucesso, download local pendente por timeout.
+
+- [x] Adicionar modelo pré-moldado “Pix recebido” com edição do nome e valor.
+- [x] Adicionar modelo pré-moldado “Pix enviado” com edição do nome e valor.
+- [x] Validar seleção dos modelos, preenchimento do formulário e emissão das duas notificações no código, TypeScript, testes e preview móvel.
+
+- [ ] Gerar a IPA do Inter com os modelos Pix recebido e Pix enviado editáveis.

@@ -16,6 +16,9 @@ const colors = {
 
 const appIcon = require("@/assets/images/icon.png");
 
+const DEFAULT_PIX_NAME = "Eryck Darllisson dos Santos Morais";
+
+
 type FieldProps = {
   label: string;
   value: string;
@@ -30,6 +33,10 @@ export default function ComposeScreen() {
   const [subtitle, setSubtitle] = useState("");
   const [body, setBody] = useState("");
   const [modelName, setModelName] = useState("");
+  const [receivedName, setReceivedName] = useState(DEFAULT_PIX_NAME);
+  const [receivedValue, setReceivedValue] = useState("4,00");
+  const [sentName, setSentName] = useState(DEFAULT_PIX_NAME);
+  const [sentValue, setSentValue] = useState("4,00");
   const [isEmitting, setIsEmitting] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [isSavingModel, setIsSavingModel] = useState(false);
@@ -107,6 +114,24 @@ export default function ComposeScreen() {
       setIsSavingModel(false);
       return false;
     }
+  };
+
+  const applyPixPreset = (kind: "received" | "sent") => {
+    const name = kind === "received" ? receivedName.trim() : sentName.trim();
+    const value = kind === "received" ? receivedValue.trim() : sentValue.trim();
+    if (!name || !value) {
+      setSaveMessage("Informe o nome e o valor do modelo antes de aplicar.");
+      showErrorFeedback("save-error");
+      return;
+    }
+    setTitle(kind === "received" ? "Pix recebido" : "Pix enviado");
+    setSubtitle("Inter");
+    setBody(kind === "received"
+      ? `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***15448-3.`
+      : `Você fez um Pix no valor de R$ ${value} para ${name}.`);
+    setModelName("");
+    setEditingTemplateId(undefined);
+    setSaveMessage(kind === "received" ? "Modelo Pix recebido aplicado." : "Modelo Pix enviado aplicado.");
   };
 
   const handleEmit = () => {
@@ -252,6 +277,50 @@ export default function ComposeScreen() {
         </View>
         <Text style={styles.modelHint}>{editingTemplateId ? "Edite os campos e salve para atualizar este modelo." : "Seus modelos salvos aparecerão aqui."}</Text>
         {!!saveMessage && <Text style={styles.saveMessage}>{saveMessage}</Text>}
+      </View>
+
+      <View style={styles.presetsHeading}>
+        <View style={styles.flexCopy}>
+          <Text style={styles.sectionTitle}>Modelos rápidos</Text>
+          <Text style={styles.sectionLabel}>EDITE E APLIQUE</Text>
+        </View>
+        <MaterialIcons name="bolt" size={25} color={colors.teal} />
+      </View>
+
+      <View style={styles.presetsCard}>
+        <View style={styles.presetHeader}>
+          <View style={styles.presetIcon}><MaterialIcons name="south-west" size={22} color={colors.white} /></View>
+          <View style={styles.flexCopy}>
+            <Text style={styles.presetTitle}>Pix recebido</Text>
+            <Text style={styles.presetDescription}>Notificação de valor creditado.</Text>
+          </View>
+        </View>
+        <View style={styles.presetInputsRow}>
+          <TextInput value={receivedName} onChangeText={setReceivedName} placeholder="Nome de quem enviou" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
+          <TextInput value={receivedValue} onChangeText={setReceivedValue} placeholder="Valor" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={12} keyboardType="decimal-pad" />
+        </View>
+        <Pressable onPress={() => applyPixPreset("received")} style={({ pressed }) => [styles.applyPresetButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Aplicar modelo Pix recebido">
+          <MaterialIcons name="check" size={19} color={colors.white} />
+          <Text style={styles.applyPresetText}>Usar Pix recebido</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.presetsCard}>
+        <View style={styles.presetHeader}>
+          <View style={[styles.presetIcon, styles.presetIconSent]}><MaterialIcons name="north-east" size={22} color={colors.white} /></View>
+          <View style={styles.flexCopy}>
+            <Text style={styles.presetTitle}>Pix enviado</Text>
+            <Text style={styles.presetDescription}>Notificação de transferência realizada.</Text>
+          </View>
+        </View>
+        <View style={styles.presetInputsRow}>
+          <TextInput value={sentName} onChangeText={setSentName} placeholder="Nome de quem recebeu" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
+          <TextInput value={sentValue} onChangeText={setSentValue} placeholder="Valor" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={12} keyboardType="decimal-pad" />
+        </View>
+        <Pressable onPress={() => applyPixPreset("sent")} style={({ pressed }) => [styles.applyPresetButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Aplicar modelo Pix enviado">
+          <MaterialIcons name="check" size={19} color={colors.white} />
+          <Text style={styles.applyPresetText}>Usar Pix enviado</Text>
+        </Pressable>
       </View>
 
       {templates.length > 0 && (
@@ -412,6 +481,18 @@ const styles = StyleSheet.create({
   modelsHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   bookmarkAction: { width: 48, height: 48, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "#EEF8F5", paddingTop: 2 },
   modelsCard: { backgroundColor: colors.white, borderRadius: 25, padding: 20, borderWidth: 1, borderColor: colors.border, gap: 14, shadowColor: "#B8C8CF", shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
+  presetsHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  presetsCard: { backgroundColor: colors.white, borderRadius: 25, padding: 18, borderWidth: 1, borderColor: colors.border, gap: 13, shadowColor: "#B8C8CF", shadowOpacity: 0.1, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
+  presetHeader: { flexDirection: "row", alignItems: "center", gap: 12 },
+  presetIcon: { width: 44, height: 44, borderRadius: 14, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center" },
+  presetIconSent: { backgroundColor: colors.navy },
+  presetTitle: { color: colors.ink, fontSize: 17, fontWeight: "900" },
+  presetDescription: { color: colors.muted, fontSize: 13, marginTop: 3 },
+  presetInputsRow: { flexDirection: "row", gap: 8 },
+  presetInput: { flex: 1, minWidth: 0, height: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 12, color: colors.ink, fontSize: 13, backgroundColor: "#FCFCFC" },
+  presetValueInput: { width: 94, height: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 10, color: colors.ink, fontSize: 13, backgroundColor: "#FCFCFC" },
+  applyPresetButton: { height: 45, borderRadius: 14, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
+  applyPresetText: { color: colors.white, fontSize: 14, fontWeight: "900" },
   modelRow: { flexDirection: "row", gap: 10, alignItems: "center", width: "100%" },
   modelInput: { flex: 1, flexShrink: 1, minWidth: 0, height: 58, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingHorizontal: 14, color: colors.ink, fontSize: 14, backgroundColor: "#FCFCFC" },
   saveButton: { width: 104, flexShrink: 0, height: 58, paddingHorizontal: 8, borderRadius: 18, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 5 },
