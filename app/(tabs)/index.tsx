@@ -16,8 +16,6 @@ const colors = {
 
 const appIcon = require("@/assets/images/icon.png");
 
-const DEFAULT_PIX_NAME = "Eryck Darllisson dos Santos Morais";
-
 
 type FieldProps = {
   label: string;
@@ -33,10 +31,10 @@ export default function ComposeScreen() {
   const [subtitle, setSubtitle] = useState("");
   const [body, setBody] = useState("");
   const [modelName, setModelName] = useState("");
-  const [receivedName, setReceivedName] = useState(DEFAULT_PIX_NAME);
-  const [receivedValue, setReceivedValue] = useState("4,00");
-  const [sentName, setSentName] = useState(DEFAULT_PIX_NAME);
-  const [sentValue, setSentValue] = useState("4,00");
+  const [receivedName, setReceivedName] = useState("");
+  const [receivedValue, setReceivedValue] = useState("");
+  const [sentName, setSentName] = useState("");
+  const [sentValue, setSentValue] = useState("");
   const [isEmitting, setIsEmitting] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [isSavingModel, setIsSavingModel] = useState(false);
@@ -46,6 +44,7 @@ export default function ComposeScreen() {
   const feedbackOpacity = useRef(new Animated.Value(0)).current;
   const feedbackScale = useRef(new Animated.Value(0.82)).current;
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const entranceProgress = useRef(new Animated.Value(0)).current;
   const { selectedImage, emit, templates, saveTemplate, removeTemplate } = useNotificationStore();
   const canEmit = title.trim().length > 0 && body.trim().length > 0;
   const canSaveModel = body.trim().length > 0;
@@ -81,6 +80,15 @@ export default function ComposeScreen() {
   useEffect(() => () => {
     if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
   }, []);
+
+  useEffect(() => {
+    Animated.timing(entranceProgress, {
+      toValue: 1,
+      duration: 320,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    }).start();
+  }, [entranceProgress]);
 
   const handleSaveModel = async (): Promise<boolean> => {
     if (isSavingModel) return false;
@@ -194,16 +202,22 @@ export default function ComposeScreen() {
         </Animated.View>
       )}
 
-      <View style={styles.header}>
-        <Image source={appIcon} style={styles.headerLogo} />
-        <View style={styles.headerCopy}>
-          <Text style={styles.eyebrow}>COMPOSITOR</Text>
-          <Text style={styles.heading}>Criar notificação</Text>
+      <Animated.View
+        style={{
+          opacity: entranceProgress,
+          transform: [{ translateY: entranceProgress.interpolate({ inputRange: [0, 1], outputRange: [12, 0] }) }],
+        }}
+      >
+        <View style={styles.header}>
+          <Image source={appIcon} style={styles.headerLogo} />
+          <View style={styles.headerCopy}>
+            <Text style={styles.eyebrow}>COMPOSITOR</Text>
+            <Text style={styles.heading}>Criar notificação</Text>
+          </View>
+          <View style={styles.statusDot} />
         </View>
-        <View style={styles.statusDot} />
-      </View>
 
-      <View style={styles.hero}>
+        <View style={styles.hero}>
         <View style={styles.heroRow}>
           <View style={styles.heroIcon}>
             <MaterialIcons name="notifications-none" size={34} color={colors.white} />
@@ -211,10 +225,11 @@ export default function ComposeScreen() {
           <Text style={styles.heroEyebrow}>PRONTA PARA CHEGAR</Text>
         </View>
         <Text style={styles.heroTitle}>Uma mensagem, no momento certo.</Text>
-        <Text style={styles.heroBody}>
-          Escreva uma notificação clara e veja como ela ficará antes de emitir.
-        </Text>
-      </View>
+          <Text style={styles.heroBody}>
+            Escreva uma notificação clara e veja como ela ficará antes de emitir.
+          </Text>
+        </View>
+      </Animated.View>
 
       <View style={styles.readyCard}>
         <View style={styles.readyIcon}>
@@ -296,8 +311,8 @@ export default function ComposeScreen() {
           </View>
         </View>
         <View style={styles.presetInputsRow}>
-          <TextInput value={receivedName} onChangeText={setReceivedName} placeholder="Nome de quem enviou" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
-          <TextInput value={receivedValue} onChangeText={setReceivedValue} placeholder="Valor" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={12} keyboardType="decimal-pad" />
+          <TextInput value={receivedName} onChangeText={setReceivedName} placeholder="Digite o nome de quem enviou" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
+          <TextInput value={receivedValue} onChangeText={setReceivedValue} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={12} keyboardType="decimal-pad" />
         </View>
         <Pressable onPress={() => applyPixPreset("received")} style={({ pressed }) => [styles.applyPresetButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Aplicar modelo Pix recebido">
           <MaterialIcons name="check" size={19} color={colors.white} />
@@ -314,8 +329,8 @@ export default function ComposeScreen() {
           </View>
         </View>
         <View style={styles.presetInputsRow}>
-          <TextInput value={sentName} onChangeText={setSentName} placeholder="Nome de quem recebeu" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
-          <TextInput value={sentValue} onChangeText={setSentValue} placeholder="Valor" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={12} keyboardType="decimal-pad" />
+          <TextInput value={sentName} onChangeText={setSentName} placeholder="Digite o nome de quem recebeu" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
+          <TextInput value={sentValue} onChangeText={setSentValue} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={12} keyboardType="decimal-pad" />
         </View>
         <Pressable onPress={() => applyPixPreset("sent")} style={({ pressed }) => [styles.applyPresetButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Aplicar modelo Pix enviado">
           <MaterialIcons name="check" size={19} color={colors.white} />

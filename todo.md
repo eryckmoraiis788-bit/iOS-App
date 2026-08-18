@@ -271,4 +271,30 @@
 - [x] Adicionar modelo pré-moldado “Pix enviado” com edição do nome e valor.
 - [x] Validar seleção dos modelos, preenchimento do formulário e emissão das duas notificações no código, TypeScript, testes e preview móvel.
 
-- [ ] Gerar a IPA do Inter com os modelos Pix recebido e Pix enviado editáveis.
+- [x] Gerar a IPA do Inter com os modelos Pix recebido e Pix enviado editáveis; IPA auditada como versão 1.2.18/build 138.
+
+- [x] Deixar vazios os campos de nome e valor dos modelos Pix rápidos, usando placeholders que expliquem o preenchimento.
+- [x] Validar que o botão de aplicar continua bloqueado até nome e valor serem informados; TypeScript, testes e preview móvel validados.
+
+- [x] Permitir agendamento sem título na aba Agendar, mantendo a mensagem obrigatória.
+- [x] Usar um nome padrão neutro quando o título do agendamento estiver vazio: “Notificação”.
+- [x] Validar agendamento com título e sem título; TypeScript, testes e preview móvel validados.
+
+- [x] Adicionar na aba Agendar os botões “Pix recebido” e “Pix enviado”.
+- [x] Preencher automaticamente título, subtítulo e mensagem ao escolher um modelo Pix.
+- [x] Validar o uso dos modelos e o agendamento sem título manual; TypeScript, testes e preview móvel validados.
+
+- [ ] Gerar e entregar uma nova IPA com os modelos Pix disponíveis na aba Agendar.
+
+- [x] Deixar o subtítulo dos modelos Pix vazio por padrão na aba Agendar.
+- [x] Permitir preencher o subtítulo manualmente antes de agendar.
+- [x] Validar a notificação com subtítulo vazio e com subtítulo manual; TypeScript, testes e preview móvel validados.
+
+- [x] Gerar e entregar a IPA com o subtítulo dos modelos Pix vazio por padrão para teste no iPhone; Action 32136482975 concluída e artefato baixado.
+
+- [x] Adicionar entrada suave ao cabeçalho e destaque principal da aba Compor.
+- [x] Preservar e validar o feedback de toque dos botões e a animação de sucesso/erro já existente.
+- [ ] Animar feedbacks de sucesso, erro e carregamento sem alterar o fluxo atual.
+- [x] Validar desempenho e acessibilidade da primeira animação em viewport móvel; TypeScript e testes passaram.
+
+- [ ] Gerar e entregar uma nova IPA com a primeira etapa das animações da aba Compor.
