@@ -257,4 +257,7 @@
 - [x] Corrigir o workflow/pacote e gerar uma IPA instalável para novo teste.
 
 - [x] Fazer o modal da aba “Emitir notificação” reproduzir exatamente o cartão compacto do preview enviado pelo usuário.
-- [ ] Garantir que “Enviar agora” e “Cancelar” sejam renderizados juntos e acionáveis na IPA nativa — confirmar na IPA 1.2.15/build 135.
+- [ ] Garantir que “Enviar agora” e “Cancelar” sejam renderizados juntos e acionáveis na IPA nativa — confirmar na IPA 1.2.16/build 136.
+
+- [x] Corrigir o botão “Cancelar” que continua invisível na IPA 1.2.15/build 135, apesar de aparecer no preview web — nova estrutura aplicada para a IPA 1.2.16/build 136.
+- [x] Substituir o modal atual por uma apresentação nativa com ações independentes; validação física permanece pendente na IPA 1.2.16/build 136.
