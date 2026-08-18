@@ -479,7 +479,7 @@ export default function ComposeScreen() {
         </View>
       </View>
 
-      <View style={[styles.buttonShell, canEmit ? styles.primaryButtonReady : styles.primaryButtonDisabled]}>
+      <View style={styles.buttonShell}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Emitir notificação"
@@ -487,6 +487,7 @@ export default function ComposeScreen() {
           disabled={isEmitting || isSavingModel}
           style={({ pressed }) => [
             styles.primaryButton,
+            canEmit ? styles.primaryButtonReady : styles.primaryButtonDisabled,
             pressed && styles.pressed,
             isEmitting && styles.emittingButton,
           ]}
