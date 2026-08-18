@@ -338,7 +338,38 @@
 - [x] Centralizar o texto Emitir notificação dentro do botão principal, mantendo o ícone alinhado separadamente.
 - [x] Validar o alinhamento no iPhone e preservar a interação do botão.
 
-- [ ] Gerar e auditar a IPA com Emitir notificação centralizado e o ícone separado, conforme a pré-visualização aprovada.
+- [x] Gerar e auditar a IPA com Emitir notificação centralizado e o ícone separado, conforme a pré-visualização aprovada.
 
 - [x] Centralizar o texto Emitir notificação no eixo completo do botão, sem deslocamento causado pelo ícone.
 - [x] Manter o sino em camada independente e gerar/auditar uma IPA nova após a validação.
+
+- [x] Fazer o texto do botão Emitir notificação seguir exatamente o padrão centralizado, tamanho e peso do botão Usar Pix.
+- [x] Preservar o sino separado à esquerda e validar a emissão após o ajuste.
+
+- [x] Gerar e auditar a IPA com Emitir notificação seguindo exatamente o padrão centralizado do botão Usar Pix; IPA 1.2.32/build 152 auditada.
+- [x] Reproduzir no botão “Emitir notificação” o mesmo bloco, espaçamento, altura, bordas e alinhamento do botão laranja destacado nos modelos Pix.
+- [x] Manter a cor atual do botão “Emitir notificação” e replicar exatamente o formato dos botões “Emitir Pix enviado” e “Usar Pix enviado”.
+- [x] Gerar, auditar e entregar a IPA com o novo layout do botão “Emitir notificação” para teste no SideStore; Action 32174748938 concluída e Info.plist confirmado.
+- [x] Corrigir o corte inferior do botão “Emitir notificação”, mantendo sino, texto, cor teal e contêiner totalmente visíveis; cor aplicada diretamente ao Pressable interno; IPA 1.2.32/build 152 gerada.
+- [x] Verificar e corrigir gradiente, opacidade, preenchimento teal e camadas sobrepostas do botão “Emitir notificação”; sem gradiente aplicado e com teal/opacidade normalizados.
+- [x] Ajustar o espaçamento interno, altura e proporção do botão “Emitir notificação” para coincidir com os botões Pix; padding horizontal 12, altura 54, raio 15 e ícone com altura alinhada.
+- [x] Gerar, auditar e entregar a IPA com o botão “Emitir notificação” igual à pré-visualização aprovada; Action 32178943674, versão 1.2.33/build 153, Info.plist confirmado.
+- [x] Copiar exatamente a estrutura visual do botão “Usar Pix enviado” para “Emitir notificação”, alterando somente ícone, texto e handler; TypeScript, testes e prévia validados.
+- [x] Gerar, auditar e entregar a IPA com “Emitir notificação” usando exatamente a estrutura de “Usar Pix enviado”; IPA 1.2.34/build 154 gerada pela Action 32182206478.
+- [x] Criar backup/checkpoint do estado estável atual antes de alterar a aba Agendar; checkpoint ae4416ff preservado.
+- [x] Revisar a implementação atual da aba Agendar e a documentação oficial de notificações do Expo SDK 54; APIs nativas confirmadas.
+- [x] Exibir agendamentos pendentes com data/hora e conteúdo resumido; lista sincronizada com agendamentos nativos.
+- [x] Permitir cancelar um agendamento individual e limpar todos os agendamentos; limpeza global com confirmação.
+- [x] Validar que a tela Compor, os modelos Pix e a emissão imediata continuam intactos; TypeScript, testes e preview passaram.
+- [x] Gerar, auditar e entregar a IPA com a aba Agendar atualizada para teste no SideStore; Action 32188197599, versão 1.2.35/build 155, Info.plist confirmado.
+- [x] Criar backup/checkpoint antes de implementar edição de agendamentos pendentes; checkpoint 9c683028 preservado.
+- [x] Permitir editar título, subtítulo, mensagem e horário de um agendamento pendente; editor implementado, com horário preservado.
+- [x] Reagendar a notificação com segurança após a edição, preservando cancelamento e limpeza geral; identificador antigo cancelado e novo persistido.
+- [x] Validar a edição no iPhone sem alterar Compor, modelos Pix ou emissão imediata; TypeScript, testes e preview validados.
+- [x] Adicionar edição de título em cada agendamento pendente; editor modal implementado.
+- [x] Adicionar edição de subtítulo em cada agendamento pendente; editor modal implementado.
+- [x] Adicionar edição de mensagem em cada agendamento pendente; editor modal implementado.
+- [x] Salvar o conteúdo editado mantendo o horário e o identificador do agendamento; novo agendamento criado no mesmo horário e antigo cancelado.
+- [x] Validar edição, cancelamento, limpeza geral e emissão imediata sem regressões; TypeScript, testes e preview passaram.
+- [ ] Incrementar a versão para 1.2.36/build 156 e gerar uma nova IPA SideStore para testar a edição de agendamentos pendentes.
+- [ ] Acompanhar a GitHub Action, baixar a IPA gerada e auditar o Info.plist antes da entrega.

@@ -39,6 +39,7 @@ type Store = {
   requestPermission: () => Promise<boolean>;
   emit: (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => Promise<boolean>;
   schedule: (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">, minutes: number) => Promise<void>;
+  updateScheduled: (record: NotificationRecord, input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => Promise<void>;
   refreshScheduled: () => Promise<void>;
   clearScheduled: () => Promise<void>;
   cancel: (record: NotificationRecord) => Promise<void>;
@@ -214,6 +215,27 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     await persistRecords([record, ...records]);
   };
 
+  const updateScheduled = async (record: NotificationRecord, input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => {
+    if (record.status !== "pending" || !record.scheduledAt) throw new Error("Este agendamento não está mais pendente.");
+    const scheduledAt = new Date(record.scheduledAt);
+    if (scheduledAt.getTime() <= Date.now()) throw new Error("O horário deste agendamento já passou.");
+    if (Platform.OS === "web") {
+      await persistRecords(records.map((item) => item.id === record.id ? { ...item, ...input } : item));
+      return;
+    }
+    const replacementId = await Notifications.scheduleNotificationAsync({
+      content: await buildContent(input),
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: scheduledAt },
+    });
+    try {
+      if (record.notificationId) await Notifications.cancelScheduledNotificationAsync(record.notificationId);
+    } catch (error) {
+      await Notifications.cancelScheduledNotificationAsync(replacementId).catch(() => undefined);
+      throw error;
+    }
+    await persistRecords(records.map((item) => item.id === record.id ? { ...item, ...input, notificationId: replacementId } : item));
+  };
+
   const refreshScheduled = useCallback(async () => {
     if (Platform.OS === "web") return;
     const scheduled = await Notifications.getAllScheduledNotificationsAsync();
@@ -236,7 +258,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
   };
 
   const remove = async (record: NotificationRecord) => {
-    if (record.notificationId && record.status === "pending") await Notifications.cancelScheduledNotificationAsync(record.notificationId);
+    if (Platform.OS !== "web" && record.notificationId && record.status === "pending") await Notifications.cancelScheduledNotificationAsync(record.notificationId);
     await persistRecords(records.filter((item) => item.id !== record.id));
   };
 
@@ -294,7 +316,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     await AsyncStorage.setItem(HAPTICS_KEY, String(value));
   };
 
-  const value = useMemo(() => ({ templates, records, selectedImage, hapticsEnabled, permission, setSelectedImage, setHapticsEnabled, refreshPermission, requestPermission, emit, schedule, refreshScheduled, clearScheduled, cancel, remove, clearHistory, saveTemplate, removeTemplate, refreshTemplates }), [templates, records, selectedImage, hapticsEnabled, permission]);
+  const value = useMemo(() => ({ templates, records, selectedImage, hapticsEnabled, permission, setSelectedImage, setHapticsEnabled, refreshPermission, requestPermission, emit, schedule, updateScheduled, refreshScheduled, clearScheduled, cancel, remove, clearHistory, saveTemplate, removeTemplate, refreshTemplates }), [templates, records, selectedImage, hapticsEnabled, permission]);
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 
