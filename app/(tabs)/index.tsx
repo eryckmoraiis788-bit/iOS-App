@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { ActivityIndicator, Alert, Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Animated, Easing, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useNotificationStore, type NotificationTemplate } from "@/lib/notification-store";
 
 const colors = {
@@ -116,7 +116,6 @@ export default function ComposeScreen() {
     const trimmedBody = body.trim();
     if (!trimmedTitle || !trimmedBody) {
       showErrorFeedback("emit-error");
-      Alert.alert("Preencha a notificação", "Informe o nome exibido e a mensagem antes de emitir.");
       return;
     }
     setIsConfirmingEmit(true);
@@ -138,12 +137,11 @@ export default function ComposeScreen() {
         showSuccessFeedback("emitted");
       } else {
         showErrorFeedback("emit-error");
-        Alert.alert("Não foi possível emitir", "O iPhone não confirmou o envio da notificação.");
       }
     } catch (error) {
       const detail = error instanceof Error && error.message ? error.message : "O iOS recusou o agendamento da notificação.";
       showErrorFeedback("emit-error");
-      Alert.alert("Não foi possível emitir", detail);
+      setSaveMessage(detail);
     } finally {
       setIsEmitting(false);
     }
@@ -340,23 +338,18 @@ export default function ComposeScreen() {
     >
       <View style={styles.confirmOverlay}>
         <View style={styles.confirmModal} accessibilityViewIsModal>
-          <ScrollView
-            style={styles.confirmModalContentScroll}
-            contentContainerStyle={styles.confirmModalContent}
-            showsVerticalScrollIndicator={false}
-            bounces={false}
-          >
+          <View style={styles.confirmModalContent}>
             <View style={styles.confirmModalIcon}>
-              <MaterialIcons name="notifications-none" size={29} color={colors.teal} />
+              <MaterialIcons name="notifications-none" size={26} color={colors.teal} />
             </View>
             <Text style={styles.confirmModalTitle}>Enviar esta notificação?</Text>
             <Text style={styles.confirmModalSubtitle}>Confira os dados antes de enviar para o iPhone.</Text>
             <View style={styles.confirmModalPreview}>
               <Text style={styles.confirmModalPreviewTitle} numberOfLines={1}>{title.trim()}</Text>
               {!!subtitle.trim() && <Text style={styles.confirmModalPreviewSubtitle} numberOfLines={1}>{subtitle.trim()}</Text>}
-              <Text style={styles.confirmModalPreviewBody} numberOfLines={3}>{body.trim()}</Text>
+              <Text style={styles.confirmModalPreviewBody} numberOfLines={2}>{body.trim()}</Text>
             </View>
-          </ScrollView>
+          </View>
           <View style={styles.confirmModalActions}>
             <View style={styles.confirmModalSendFrame}>
               <Pressable
@@ -415,22 +408,21 @@ const styles = StyleSheet.create({
   scroll: { flex: 1, backgroundColor: colors.bg },
   content: { flexGrow: 1, padding: 20, paddingBottom: 180, gap: 18 },
 
-  confirmOverlay: { flex: 1, backgroundColor: "rgba(11, 28, 39, 0.58)", alignItems: "center", justifyContent: "center", paddingHorizontal: 20 },
-  confirmModal: { width: "100%", maxWidth: 390, height: 430, maxHeight: "88%", backgroundColor: colors.white, borderRadius: 26, padding: 20, shadowColor: "#071B2A", shadowOpacity: 0.25, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 12 },
-  confirmModalContentScroll: { flex: 1 },
-  confirmModalContent: { paddingBottom: 0 },
-  confirmModalIcon: { width: 54, height: 54, borderRadius: 18, backgroundColor: "#E7F4F2", alignItems: "center", justifyContent: "center", marginBottom: 16 },
-  confirmModalTitle: { color: colors.ink, fontSize: 23, lineHeight: 28, fontWeight: "900", marginBottom: 6 },
-  confirmModalSubtitle: { color: colors.muted, fontSize: 15, lineHeight: 21, marginBottom: 17 },
-  confirmModalPreview: { backgroundColor: "#F1F7F7", borderRadius: 17, paddingHorizontal: 16, paddingVertical: 14, marginBottom: 18, borderWidth: 1, borderColor: "#E2EEEE" },
-  confirmModalPreviewTitle: { color: colors.ink, fontSize: 17, fontWeight: "900", marginBottom: 4 },
-  confirmModalPreviewSubtitle: { color: colors.teal, fontSize: 14, fontWeight: "700", marginBottom: 6 },
-  confirmModalPreviewBody: { color: colors.ink, fontSize: 15, lineHeight: 21 },
-  confirmModalActions: { flexDirection: "column", width: "100%", height: 122, marginTop: 10, gap: 10, flexShrink: 0 },
-  confirmModalSendFrame: { width: "100%", height: 56, borderRadius: 15, backgroundColor: colors.teal, overflow: "hidden", shadowColor: colors.teal, shadowOpacity: 0.24, shadowRadius: 7, shadowOffset: { width: 0, height: 3 }, elevation: 4 },
-  confirmModalCancel: { width: "100%", height: 56, flexShrink: 0, borderRadius: 15, backgroundColor: colors.teal, borderWidth: 0, alignItems: "center", justifyContent: "center", shadowColor: colors.teal, shadowOpacity: 0.18, shadowRadius: 6, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
+  confirmOverlay: { flex: 1, backgroundColor: "rgba(11, 28, 39, 0.58)", alignItems: "center", justifyContent: "center", paddingHorizontal: 18 },
+  confirmModal: { width: "100%", maxWidth: 360, backgroundColor: colors.white, borderRadius: 24, padding: 16, shadowColor: "#071B2A", shadowOpacity: 0.25, shadowRadius: 22, shadowOffset: { width: 0, height: 10 }, elevation: 12 },
+  confirmModalContent: { width: "100%" },
+  confirmModalIcon: { width: 46, height: 46, borderRadius: 15, backgroundColor: "#E7F4F2", alignItems: "center", justifyContent: "center", marginBottom: 11 },
+  confirmModalTitle: { color: colors.ink, fontSize: 20, lineHeight: 24, fontWeight: "900", marginBottom: 4 },
+  confirmModalSubtitle: { color: colors.muted, fontSize: 13, lineHeight: 18, marginBottom: 11 },
+  confirmModalPreview: { backgroundColor: "#F1F7F7", borderRadius: 15, paddingHorizontal: 13, paddingVertical: 11, marginBottom: 14, borderWidth: 1, borderColor: "#E2EEEE" },
+  confirmModalPreviewTitle: { color: colors.ink, fontSize: 16, fontWeight: "900", marginBottom: 3 },
+  confirmModalPreviewSubtitle: { color: colors.teal, fontSize: 13, fontWeight: "700", marginBottom: 4 },
+  confirmModalPreviewBody: { color: colors.ink, fontSize: 14, lineHeight: 19 },
+  confirmModalActions: { flexDirection: "column", width: "100%", gap: 8 },
+  confirmModalSendFrame: { width: "100%", height: 48, borderRadius: 14, backgroundColor: colors.teal, overflow: "hidden", shadowColor: colors.teal, shadowOpacity: 0.24, shadowRadius: 7, shadowOffset: { width: 0, height: 3 }, elevation: 4 },
+  confirmModalCancel: { width: "100%", height: 48, borderRadius: 14, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", shadowColor: colors.teal, shadowOpacity: 0.18, shadowRadius: 6, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
   confirmModalCancelText: { color: colors.white, fontSize: 15, fontWeight: "900" },
-  confirmModalSend: { width: "100%", height: 56, flexShrink: 0, borderRadius: 15, backgroundColor: "transparent", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
+  confirmModalSend: { width: "100%", height: 48, borderRadius: 14, backgroundColor: "transparent", alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
   confirmModalSendText: { color: colors.white, fontSize: 15, fontWeight: "900" },
 
   successToast: { flexDirection: "row", alignItems: "center", gap: 11, backgroundColor: colors.navy, borderRadius: 18, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: "#2F566C", shadowColor: "#102F49", shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },

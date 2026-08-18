@@ -240,5 +240,21 @@
 - [ ] Compactar o modal para corresponder à segunda imagem IMG_0553, mantendo os dois botões teal totalmente visíveis.
 - [ ] Confirmar que a estrutura compacta é preservada no build nativo e não apenas no preview.
 
-- [ ] Gerar IPA com o modal compacto conforme a segunda foto IMG_0553 para teste no SideStore.
-- [ ] Verificar versão, build e entregar a IPA gerada.
+- [x] Gerar IPA com o modal compacto conforme a segunda foto IMG_0553 para teste no SideStore.
+- [x] Verificar versão, build e entregar a IPA gerada.
+
+- [x] Corrigir definitivamente o layout nativo do modal para reservar espaço explícito e manter “Cancelar” visível no iPhone.
+- [ ] Validar o toque em “Cancelar” e “Enviar agora” no fluxo de confirmação após a nova alteração.
+
+- [x] Gerar IPA com a área fixa explícita para “Cancelar” e testar no iPhone.
+- [x] Verificar a nova versão/build e entregar o arquivo IPA.
+
+- [x] Corrigir a falha “Validate Expo configuration” da Action 32087094489.
+- [x] Reexecutar o workflow e entregar a IPA após a validação Expo passar.
+
+- [x] Investigar por que a IPA 1.2.13/build 133 faz o SideStore fechar durante a instalação.
+- [x] Auditar estrutura, bundle identifier, metadados e compatibilidade do pacote IPA.
+- [x] Corrigir o workflow/pacote e gerar uma IPA instalável para novo teste.
+
+- [x] Fazer o modal da aba “Emitir notificação” reproduzir exatamente o cartão compacto do preview enviado pelo usuário.
+- [ ] Garantir que “Enviar agora” e “Cancelar” sejam renderizados juntos e acionáveis na IPA nativa — confirmar na IPA 1.2.15/build 135.
