@@ -39,6 +39,8 @@ type Store = {
   requestPermission: () => Promise<boolean>;
   emit: (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => Promise<boolean>;
   schedule: (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">, minutes: number) => Promise<void>;
+  refreshScheduled: () => Promise<void>;
+  clearScheduled: () => Promise<void>;
   cancel: (record: NotificationRecord) => Promise<void>;
   remove: (record: NotificationRecord) => Promise<void>;
   clearHistory: () => Promise<void>;
@@ -212,8 +214,24 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     await persistRecords([record, ...records]);
   };
 
+  const refreshScheduled = useCallback(async () => {
+    if (Platform.OS === "web") return;
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    const nativeIds = new Set(scheduled.map((item) => item.identifier));
+    const next = records.map((item) => {
+      if (item.status !== "pending" || !item.notificationId || nativeIds.has(item.notificationId)) return item;
+      return { ...item, status: "delivered" as const };
+    });
+    if (next.some((item, index) => item.status !== records[index]?.status)) await persistRecords(next);
+  }, [records]);
+
+  const clearScheduled = useCallback(async () => {
+    if (Platform.OS !== "web") await Notifications.cancelAllScheduledNotificationsAsync();
+    await persistRecords(records.map((item) => item.status === "pending" ? { ...item, status: "cancelled" as const } : item));
+  }, [records]);
+
   const cancel = async (record: NotificationRecord) => {
-    if (record.notificationId) await Notifications.cancelScheduledNotificationAsync(record.notificationId);
+    if (Platform.OS !== "web" && record.notificationId) await Notifications.cancelScheduledNotificationAsync(record.notificationId);
     await persistRecords(records.map((item) => item.id === record.id ? { ...item, status: "cancelled" as const } : item));
   };
 
@@ -276,7 +294,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     await AsyncStorage.setItem(HAPTICS_KEY, String(value));
   };
 
-  const value = useMemo(() => ({ templates, records, selectedImage, hapticsEnabled, permission, setSelectedImage, setHapticsEnabled, refreshPermission, requestPermission, emit, schedule, cancel, remove, clearHistory, saveTemplate, removeTemplate, refreshTemplates }), [templates, records, selectedImage, hapticsEnabled, permission]);
+  const value = useMemo(() => ({ templates, records, selectedImage, hapticsEnabled, permission, setSelectedImage, setHapticsEnabled, refreshPermission, requestPermission, emit, schedule, refreshScheduled, clearScheduled, cancel, remove, clearHistory, saveTemplate, removeTemplate, refreshTemplates }), [templates, records, selectedImage, hapticsEnabled, permission]);
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 
