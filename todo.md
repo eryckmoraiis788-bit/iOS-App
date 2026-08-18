@@ -222,5 +222,11 @@
 - [x] Dar ao botão “Cancelar” do modal o mesmo destaque visual e área de toque do “Enviar agora”.
 - [x] Remover a confirmação nativa “Notificação emitida” exibida após o envio, preservando o feedback visual interno.
 
-- [ ] Gerar IPA atualizada do Inter com o modal corrigido para teste no SideStore.
-- [ ] Verificar e entregar o artefato IPA gerado.
+- [x] Gerar IPA atualizada do Inter com o modal corrigido para teste no SideStore.
+- [x] Verificar e entregar o artefato IPA gerado.
+
+- [x] Corrigir o corte vertical do modal de confirmação para manter “Cancelar” visível e acionável no iPhone.
+- [x] Validar que “Enviar agora” e “Cancelar” aparecem juntos sem restaurar a confirmação nativa pós-envio.
+
+- [ ] Gerar IPA atualizada com o modal corrigido para teste no SideStore.
+- [ ] Verificar e entregar a nova IPA gerada.
