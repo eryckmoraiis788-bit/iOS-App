@@ -149,6 +149,48 @@ export default function ComposeScreen() {
     setSaveMessage(kind === "received" ? "Modelo Pix recebido aplicado." : "Modelo Pix enviado aplicado.");
   };
 
+  const emitPixDirectly = async (kind: "received" | "sent") => {
+    if (isEmitting || isSavingModel) return;
+
+    const name = (kind === "received" ? receivedName : sentName).trim();
+    const value = (kind === "received" ? receivedValue : sentValue).trim();
+    if (!name || !value) {
+      setSaveMessage("Informe o nome e o valor antes de emitir o Pix.");
+      showErrorFeedback("emit-error");
+      return;
+    }
+
+    const nextTitle = kind === "received" ? "Pix recebido" : "Pix enviado";
+    const nextBody = kind === "received"
+      ? `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***15448-3.`
+      : `Você fez um Pix no valor de R$ ${value} para ${name}.`;
+
+    // Atualiza o formulário para que a pré-visualização reflita exatamente
+    // a mesma notificação que será emitida neste toque.
+    setTitle(nextTitle);
+    setSubtitle("");
+    setBody(nextBody);
+    setModelName("");
+    setEditingTemplateId(undefined);
+    setIsEmitting(true);
+
+    try {
+      const emitted = await emit({ title: nextTitle, subtitle: "", body: nextBody, imageUri: selectedImage });
+      if (emitted) {
+        setSaveMessage(kind === "received" ? "Pix recebido emitido." : "Pix enviado emitido.");
+        showSuccessFeedback("emitted");
+      } else {
+        showErrorFeedback("emit-error");
+      }
+    } catch (error) {
+      const detail = error instanceof Error && error.message ? error.message : "Não foi possível emitir esta notificação.";
+      setSaveMessage(detail);
+      showErrorFeedback("emit-error");
+    } finally {
+      setIsEmitting(false);
+    }
+  };
+
   const handleEmit = () => {
     if (isEmitting || isSavingModel) return;
     const trimmedTitle = title.trim();
@@ -321,10 +363,16 @@ export default function ComposeScreen() {
           <TextInput value={receivedName} onChangeText={setReceivedName} placeholder="Digite o nome de quem enviou" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
           <TextInput value={receivedValue} onChangeText={setReceivedValue} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={12} keyboardType="decimal-pad" />
         </View>
-        <Pressable onPress={() => applyPixPreset("received")} style={({ pressed }) => [styles.applyPresetButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Aplicar modelo Pix recebido">
-          <MaterialIcons name="check" size={19} color={colors.white} />
-          <Text style={styles.applyPresetText}>Usar Pix recebido</Text>
-        </Pressable>
+        <View style={styles.presetActions}>
+          <Pressable onPress={() => applyPixPreset("received")} style={({ pressed }) => [styles.applyPresetButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Preencher formulário com Pix recebido">
+            <MaterialIcons name="check" size={19} color={colors.white} />
+            <Text style={styles.applyPresetText}>Usar Pix recebido</Text>
+          </Pressable>
+          <Pressable onPress={() => void emitPixDirectly("received")} disabled={isEmitting || isSavingModel} style={({ pressed }) => [styles.directPresetButton, pressed && styles.pressed, isEmitting && styles.emittingButton]} accessibilityRole="button" accessibilityLabel="Emitir Pix recebido agora">
+            {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="notifications-none" size={19} color={colors.white} />}
+            <Text style={styles.applyPresetText}>{isEmitting ? "Emitindo…" : "Emitir agora"}</Text>
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.presetsCard}>
@@ -339,10 +387,16 @@ export default function ComposeScreen() {
           <TextInput value={sentName} onChangeText={setSentName} placeholder="Digite o nome de quem recebeu" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
           <TextInput value={sentValue} onChangeText={setSentValue} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={12} keyboardType="decimal-pad" />
         </View>
-        <Pressable onPress={() => applyPixPreset("sent")} style={({ pressed }) => [styles.applyPresetButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Aplicar modelo Pix enviado">
-          <MaterialIcons name="check" size={19} color={colors.white} />
-          <Text style={styles.applyPresetText}>Usar Pix enviado</Text>
-        </Pressable>
+        <View style={styles.presetActions}>
+          <Pressable onPress={() => applyPixPreset("sent")} style={({ pressed }) => [styles.applyPresetButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Preencher formulário com Pix enviado">
+            <MaterialIcons name="check" size={19} color={colors.white} />
+            <Text style={styles.applyPresetText}>Usar Pix enviado</Text>
+          </Pressable>
+          <Pressable onPress={() => void emitPixDirectly("sent")} disabled={isEmitting || isSavingModel} style={({ pressed }) => [styles.directPresetButton, pressed && styles.pressed, isEmitting && styles.emittingButton]} accessibilityRole="button" accessibilityLabel="Emitir Pix enviado agora">
+            {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="notifications-none" size={19} color={colors.white} />}
+            <Text style={styles.applyPresetText}>{isEmitting ? "Emitindo…" : "Emitir agora"}</Text>
+          </Pressable>
+        </View>
       </View>
 
       {templates.length > 0 && (
@@ -513,8 +567,10 @@ const styles = StyleSheet.create({
   presetInputsRow: { flexDirection: "row", gap: 8 },
   presetInput: { flex: 1, minWidth: 0, height: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 12, color: colors.ink, fontSize: 13, backgroundColor: "#FCFCFC" },
   presetValueInput: { width: 94, height: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 10, color: colors.ink, fontSize: 13, backgroundColor: "#FCFCFC" },
-  applyPresetButton: { height: 45, borderRadius: 14, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 7 },
-  applyPresetText: { color: colors.white, fontSize: 14, fontWeight: "900" },
+  presetActions: { flexDirection: "row", gap: 9 },
+  applyPresetButton: { flex: 1, minWidth: 0, height: 45, borderRadius: 14, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 6, paddingHorizontal: 8 },
+  directPresetButton: { flex: 1, minWidth: 0, height: 45, borderRadius: 14, backgroundColor: colors.navy, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 6, paddingHorizontal: 8 },
+  applyPresetText: { color: colors.white, fontSize: 13, fontWeight: "900" },
   modelRow: { flexDirection: "row", gap: 10, alignItems: "center", width: "100%" },
   modelInput: { flex: 1, flexShrink: 1, minWidth: 0, height: 58, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingHorizontal: 14, color: colors.ink, fontSize: 14, backgroundColor: "#FCFCFC" },
   saveButton: { width: 104, flexShrink: 0, height: 58, paddingHorizontal: 8, borderRadius: 18, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 5 },
