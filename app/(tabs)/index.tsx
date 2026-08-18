@@ -479,24 +479,20 @@ export default function ComposeScreen() {
         </View>
       </View>
 
-      <View style={styles.buttonShell}>
-        <Pressable
+      <View style={styles.presetActionPanel}>
+        <TouchableOpacity
+          onPress={handleEmit}
+          activeOpacity={0.8}
+          style={styles.applyPresetButton}
           accessibilityRole="button"
           accessibilityLabel="Emitir notificação"
-          onPress={handleEmit}
-          disabled={isEmitting || isSavingModel}
-          style={({ pressed }) => [
-            styles.primaryButton,
-            canEmit ? styles.primaryButtonReady : styles.primaryButtonDisabled,
-            pressed && styles.pressed,
-            isEmitting && styles.emittingButton,
-          ]}
+          testID="emit-notification-button"
         >
-          <View style={styles.primaryIconSlot}>
-            {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="notifications-none" size={28} color={colors.white} />}
+          <View style={styles.emitNotificationContent}>
+            {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="notifications-none" size={22} color={colors.white} />}
+            <Text style={styles.applyPresetText}>{isEmitting ? "Enviando…" : "Emitir notificação"}</Text>
           </View>
-          <Text style={styles.primaryText}>{isEmitting ? "Enviando…" : "Emitir notificação"}</Text>
-        </Pressable>
+        </TouchableOpacity>
       </View>
     </ScrollView>
 
@@ -601,6 +597,7 @@ const styles = StyleSheet.create({
   directPresetButton: { width: "100%", height: 54, marginBottom: 10, borderRadius: 15, backgroundColor: "#E87808", borderWidth: 1, borderColor: "#D76600", alignItems: "center", justifyContent: "center", paddingHorizontal: 12 },
   directPresetText: { color: colors.white, fontSize: 15, fontWeight: "900" },
   applyPresetText: { color: colors.white, fontSize: 14, fontWeight: "900" },
+  emitNotificationContent: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
   modelRow: { flexDirection: "row", gap: 10, alignItems: "center", width: "100%" },
   modelInput: { flex: 1, flexShrink: 1, minWidth: 0, height: 58, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingHorizontal: 14, color: colors.ink, fontSize: 14, backgroundColor: "#FCFCFC" },
   saveButton: { width: 104, flexShrink: 0, height: 58, paddingHorizontal: 8, borderRadius: 18, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 5 },
