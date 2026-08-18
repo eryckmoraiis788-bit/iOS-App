@@ -228,5 +228,11 @@
 - [x] Corrigir o corte vertical do modal de confirmação para manter “Cancelar” visível e acionável no iPhone.
 - [x] Validar que “Enviar agora” e “Cancelar” aparecem juntos sem restaurar a confirmação nativa pós-envio.
 
-- [ ] Gerar IPA atualizada com o modal corrigido para teste no SideStore.
-- [ ] Verificar e entregar a nova IPA gerada.
+- [x] Gerar IPA atualizada com o modal corrigido para teste no SideStore.
+- [x] Verificar e entregar a nova IPA gerada.
+
+- [ ] Reproduzir o modal de confirmação conforme o print IMG_0553, com cartão branco e dois botões teal em coluna.
+- [ ] Garantir que o modal usado no build nativo mantenha “Enviar agora” e “Cancelar” visíveis e visualmente idênticos ao preview.
+
+- [ ] Gerar IPA com o modal conforme IMG_0553 para teste no SideStore.
+- [ ] Verificar e entregar o artefato da nova IPA.
