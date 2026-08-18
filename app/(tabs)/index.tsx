@@ -16,6 +16,30 @@ const colors = {
 
 const appIcon = require("@/assets/images/icon.png");
 
+function formatPixValue(value: string): string {
+  const raw = value.trim().replace(/\s/g, "");
+  if (!raw) return "";
+
+  const hasComma = raw.includes(",");
+  const dotParts = raw.split(".");
+  const hasDecimalDot = !hasComma && dotParts.length === 2 && dotParts[1].length <= 2;
+  let integerDigits = "";
+  let centsDigits = "00";
+
+  if (hasComma || hasDecimalDot) {
+    const separator = hasComma ? "," : ".";
+    const parts = raw.split(separator);
+    integerDigits = (parts[0] ?? "").replace(/\D/g, "") || "0";
+    centsDigits = (parts[1] ?? "").replace(/\D/g, "").slice(0, 2).padEnd(2, "0");
+  } else {
+    integerDigits = raw.replace(/\D/g, "") || "0";
+  }
+
+  integerDigits = integerDigits.replace(/^0+(?=\d)/, "") || "0";
+  const groupedInteger = integerDigits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `${groupedInteger},${centsDigits}`;
+}
+
 
 type FieldProps = {
   label: string;
@@ -141,6 +165,8 @@ export default function ComposeScreen() {
       ? `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***15448-3.`
       : `Você fez um Pix no valor de R$ ${value} para ${name}.`;
 
+    if (kind === "received") setReceivedValue(value);
+    else setSentValue(value);
     setTitle(nextTitle);
     setSubtitle("");
     setBody(nextBody);
@@ -153,8 +179,9 @@ export default function ComposeScreen() {
     if (isEmitting || isSavingModel) return;
 
     const name = (kind === "received" ? receivedName : sentName).trim();
-    const value = (kind === "received" ? receivedValue : sentValue).trim();
-    if (!name || !value) {
+    const rawValue = (kind === "received" ? receivedValue : sentValue).trim();
+    const value = formatPixValue(rawValue);
+    if (!name || !rawValue) {
       setSaveMessage("Informe o nome e o valor antes de emitir o Pix.");
       showErrorFeedback("emit-error");
       return;
@@ -167,6 +194,8 @@ export default function ComposeScreen() {
 
     // Atualiza o formulário para que a pré-visualização reflita exatamente
     // a mesma notificação que será emitida neste toque.
+    if (kind === "received") setReceivedValue(value);
+    else setSentValue(value);
     setTitle(nextTitle);
     setSubtitle("");
     setBody(nextBody);
@@ -361,7 +390,7 @@ export default function ComposeScreen() {
         </View>
         <View style={styles.presetInputsRow}>
           <TextInput value={receivedName} onChangeText={setReceivedName} placeholder="Digite o nome de quem enviou" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
-          <TextInput value={receivedValue} onChangeText={setReceivedValue} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={12} keyboardType="decimal-pad" />
+          <TextInput value={receivedValue} onChangeText={setReceivedValue} onBlur={() => setReceivedValue(formatPixValue(receivedValue))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
         </View>
       </View>
       <View style={styles.presetActionPanel}>
@@ -383,7 +412,7 @@ export default function ComposeScreen() {
         </View>
         <View style={styles.presetInputsRow}>
           <TextInput value={sentName} onChangeText={setSentName} placeholder="Digite o nome de quem recebeu" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
-          <TextInput value={sentValue} onChangeText={setSentValue} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={12} keyboardType="decimal-pad" />
+          <TextInput value={sentValue} onChangeText={setSentValue} onBlur={() => setSentValue(formatPixValue(sentValue))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
         </View>
       </View>
       <View style={styles.presetActionPanel}>
