@@ -12,12 +12,10 @@ export default function ScheduleScreen() {
   const applyPixPreset = (kind: "received" | "sent") => {
     if (kind === "received") {
       setTitle("Pix recebido");
-      setSubtitle("Inter");
       setBody("[Nome de quem enviou] te enviou um Pix de R$ [valor] creditado na sua conta final ***15448-3.");
       return;
     }
     setTitle("Pix enviado");
-    setSubtitle("Inter");
     setBody("Você fez um Pix no valor de R$ [valor] para [Nome de quem recebeu].");
   };
   const submit = async () => { if (!body.trim()) { Alert.alert("Preencha a notificação", "Informe a mensagem para agendar."); return; } await schedule({ title: title.trim() || "Notificação", subtitle: subtitle.trim(), body: body.trim(), imageUri: selectedImage }, minutes); Alert.alert("Notificação agendada", `Ela será emitida em ${minutes} minuto${minutes === 1 ? "" : "s"}.`); setTitle(""); setSubtitle(""); setBody(""); };
