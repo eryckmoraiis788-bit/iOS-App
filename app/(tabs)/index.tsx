@@ -125,18 +125,25 @@ export default function ComposeScreen() {
   };
 
   const applyPixPreset = (kind: "received" | "sent") => {
-    const name = kind === "received" ? receivedName.trim() : sentName.trim();
-    const value = kind === "received" ? receivedValue.trim() : sentValue.trim();
+    const name = (kind === "received" ? receivedName : sentName).trim();
+    const value = (kind === "received" ? receivedValue : sentValue).trim();
+
     if (!name || !value) {
       setSaveMessage("Informe o nome e o valor do modelo antes de aplicar.");
       showErrorFeedback("save-error");
       return;
     }
-    setTitle(kind === "received" ? "Pix recebido" : "Pix enviado");
-    setSubtitle("Inter");
-    setBody(kind === "received"
+
+    // Monte o conteúdo antes de atualizar o estado para garantir que o mesmo
+    // conjunto de dados seja transferido para todos os campos controlados.
+    const nextTitle = kind === "received" ? "Pix recebido" : "Pix enviado";
+    const nextBody = kind === "received"
       ? `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***15448-3.`
-      : `Você fez um Pix no valor de R$ ${value} para ${name}.`);
+      : `Você fez um Pix no valor de R$ ${value} para ${name}.`;
+
+    setTitle(nextTitle);
+    setSubtitle("");
+    setBody(nextBody);
     setModelName("");
     setEditingTemplateId(undefined);
     setSaveMessage(kind === "received" ? "Modelo Pix recebido aplicado." : "Modelo Pix enviado aplicado.");
