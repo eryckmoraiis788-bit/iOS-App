@@ -261,3 +261,8 @@
 
 - [x] Corrigir o botão “Cancelar” que continua invisível na IPA 1.2.15/build 135, apesar de aparecer no preview web — nova estrutura aplicada para a IPA 1.2.16/build 136.
 - [x] Substituir o modal atual por uma apresentação nativa com ações independentes; validação física permanece pendente na IPA 1.2.16/build 136.
+
+- [x] Corrigir a interpretação: manter o cartão “Imagem da notificação” e remover somente a confirmação de envio.
+- [x] Validar que o formulário, imagem, modelos e envio direto continuam funcionando após remover a confirmação no código, TypeScript, testes e preview móvel.
+
+- [ ] Sincronizar o Inter 1.2.17/build 137 e gerar a IPA para SideStore.

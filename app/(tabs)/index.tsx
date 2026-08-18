@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { ActivityIndicator, Animated, Easing, Image, Keyboard, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Animated, Easing, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useNotificationStore, type NotificationTemplate } from "@/lib/notification-store";
 
 const colors = {
@@ -35,7 +35,6 @@ export default function ComposeScreen() {
   const [isSavingModel, setIsSavingModel] = useState(false);
   const [editingTemplateId, setEditingTemplateId] = useState<string>();
   const [pendingDelete, setPendingDelete] = useState<NotificationTemplate | null>(null);
-  const [isConfirmingEmit, setIsConfirmingEmit] = useState(false);
   const [feedback, setFeedback] = useState<"saved" | "emitted" | "save-error" | "emit-error" | null>(null);
   const feedbackOpacity = useRef(new Animated.Value(0)).current;
   const feedbackScale = useRef(new Animated.Value(0.82)).current;
@@ -118,13 +117,11 @@ export default function ComposeScreen() {
       showErrorFeedback("emit-error");
       return;
     }
-    Keyboard.dismiss();
-    setIsConfirmingEmit(true);
+    void confirmEmit();
   };
 
   const confirmEmit = async () => {
     if (isEmitting) return;
-    setIsConfirmingEmit(false);
     const trimmedTitle = title.trim();
     const trimmedBody = body.trim();
     setIsEmitting(true);
@@ -330,55 +327,6 @@ export default function ComposeScreen() {
       </View>
     </ScrollView>
 
-    <Modal
-      visible={isConfirmingEmit}
-      transparent
-      animationType="fade"
-      statusBarTranslucent
-      onRequestClose={() => { if (!isEmitting) setIsConfirmingEmit(false); }}
-    >
-      <View style={styles.confirmOverlay}>
-        <View style={styles.confirmModal} accessibilityViewIsModal>
-          <View style={styles.confirmModalContent}>
-            <View style={styles.confirmModalIcon}>
-              <MaterialIcons name="notifications-none" size={26} color={colors.teal} />
-            </View>
-            <Text style={styles.confirmModalTitle}>Enviar esta notificação?</Text>
-            <Text style={styles.confirmModalSubtitle}>Confira os dados antes de enviar para o iPhone.</Text>
-            <View style={styles.confirmModalPreview}>
-              <Text style={styles.confirmModalPreviewTitle} numberOfLines={1}>{title.trim()}</Text>
-              {!!subtitle.trim() && <Text style={styles.confirmModalPreviewSubtitle} numberOfLines={1}>{subtitle.trim()}</Text>}
-              <Text style={styles.confirmModalPreviewBody} numberOfLines={2}>{body.trim()}</Text>
-            </View>
-          </View>
-          <View style={styles.confirmModalActions}>
-            <View style={styles.confirmModalSendFrame}>
-              <Pressable
-                onPress={confirmEmit}
-                disabled={isEmitting}
-                style={({ pressed }) => [styles.confirmModalSend, pressed && styles.pressed]}
-                accessibilityRole="button"
-                accessibilityLabel={isEmitting ? "Enviando notificação" : "Enviar agora"}
-                testID="confirm-send-button"
-              >
-                {isEmitting ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="send" size={18} color={colors.white} />}
-                <Text style={styles.confirmModalSendText}>{isEmitting ? "Enviando…" : "Enviar agora"}</Text>
-              </Pressable>
-            </View>
-            <Pressable
-              onPress={() => setIsConfirmingEmit(false)}
-              disabled={isEmitting}
-              style={({ pressed }) => [styles.confirmModalCancel, pressed && styles.pressed]}
-              accessibilityRole="button"
-              accessibilityLabel="Cancelar envio"
-              testID="confirm-cancel-button"
-            >
-              <Text style={styles.confirmModalCancelText}>Cancelar</Text>
-            </Pressable>
-          </View>
-        </View>
-      </View>
-    </Modal>
 
     </>
   );
