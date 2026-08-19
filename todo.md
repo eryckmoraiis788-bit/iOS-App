@@ -427,12 +427,38 @@
 - [x] Definir o destino de cada ação: emissão imediata para “Repetir” e aba Agendar preenchida para “Agendar novamente”.
 - [x] Preservar imagem/anexo quando existir e manter limpeza individual e geral funcionando.
 - [x] Validar TypeScript, testes, prévia móvel e compatibilidade com o backup 1.2.42/build 162.
-- [ ] Incrementar versão/build, gerar IPA SideStore e auditar o artefato após aprovação.
+- [x] Incrementar versão/build, gerar IPA SideStore e auditar o artefato após aprovação; 1.2.43/build 163, AUDIT=PASS.
 
 
 # Entrega da IPA com ações rápidas no Histórico
 
-- [ ] Incrementar a versão/build da implementação do Histórico.
+- [x] Incrementar a versão/build da implementação do Histórico para 1.2.43/build 163.
+- [x] Publicar a alteração no repositório SideStore e disparar a GitHub Action 32210148927.
+- [x] Baixar e auditar a IPA gerada; Inter, com.app.notificacaoios, 1.2.43, build 163; AUDIT=PASS.
+- [x] Entregar a IPA auditada para teste no iPhone via SideStore.
+
+
+# Backup para retomada amanhã
+
+- [x] Marcar a versão Inter 1.2.43/build 163, com ações rápidas do Histórico validadas no iPhone, como backup de retomada.
+- [x] Salvar checkpoint definitivo antes de pausar o projeto.
+
+
+# Repetição diária e semanal
+
+- [x] Adicionar modo de repetição única, diária e semanal na aba Agendar.
+- [x] Definir o horário de repetição diária e o dia da semana para repetição semanal.
+- [x] Usar gatilhos nativos de calendário compatíveis com expo-notifications.
+- [x] Exibir claramente a recorrência nos agendamentos pendentes.
+- [x] Preservar edição, cancelamento, limpeza e ações rápidas do Histórico.
+- [x] Validar datas/horários passados, recorrência semanal e comportamento local do dispositivo.
+- [x] Validar TypeScript, testes e prévia móvel antes da IPA.
+- [ ] Incrementar versão/build e gerar IPA SideStore após aprovação.
+
+
+# Entrega da IPA com recorrência
+
+- [ ] Incrementar a versão/build da implementação de repetição diária e semanal.
 - [ ] Publicar a alteração no repositório SideStore e disparar a GitHub Action.
 - [ ] Baixar e auditar a IPA gerada com nome, bundle identifier, versão e build confirmados.
 - [ ] Entregar a IPA auditada para teste no iPhone via SideStore.

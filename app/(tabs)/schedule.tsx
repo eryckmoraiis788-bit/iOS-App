@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useNotificationStore } from "@/lib/notification-store";
+import { useNotificationStore, type NotificationRecurrence } from "@/lib/notification-store";
 
 const teal = "#0E8278";
 const orange = "#F18400";
@@ -52,6 +52,8 @@ export default function ScheduleScreen() {
   const [timingMode, setTimingMode] = useState<"quick" | "custom">("quick");
   const [scheduledDate, setScheduledDate] = useState(() => new Date(Date.now() + 5 * 60_000));
   const [pickerMode, setPickerMode] = useState<"date" | "time" | null>(null);
+  const [recurrence, setRecurrence] = useState<NotificationRecurrence>("once");
+  const [repeatWeekday, setRepeatWeekday] = useState(() => new Date(Date.now() + 5 * 60_000).getDay() + 1);
   const [receivedName, setReceivedName] = useState("");
   const [receivedValue, setReceivedValue] = useState("");
   const [sentName, setSentName] = useState("");
@@ -59,6 +61,8 @@ export default function ScheduleScreen() {
   const [draftImageUri, setDraftImageUri] = useState<string>();
   const pending = records.filter((item) => item.status === "pending");
   const notificationImageUri = draftImageUri || selectedImage;
+  const weekdayOptions = [{ value: 1, label: "Dom" }, { value: 2, label: "Seg" }, { value: 3, label: "Ter" }, { value: 4, label: "Qua" }, { value: 5, label: "Qui" }, { value: 6, label: "Sex" }, { value: 7, label: "Sáb" }];
+  const recurrenceLabel = recurrence === "daily" ? "Todos os dias" : recurrence === "weekly" ? `Toda semana, ${weekdayOptions.find((item) => item.value === repeatWeekday)?.label ?? "dia selecionado"}` : "Uma vez";
 
   useEffect(() => {
     if (historyTitle || historySubtitle || historyBody) {
@@ -96,14 +100,15 @@ export default function ScheduleScreen() {
   const schedulePixDirectly = async (kind: "received" | "sent") => {
     const payload = buildPixPayload(kind);
     if (!payload) return;
+    const effectiveRecurrence: NotificationRecurrence = timingMode === "custom" ? recurrence : "once";
     const timing = timingMode === "custom" ? scheduledDate : minutes;
     if (timingMode === "custom" && scheduledDate.getTime() <= Date.now()) {
       Alert.alert("Horário inválido", "Escolha uma data e um horário futuros.");
       return;
     }
     try {
-      await schedule({ ...payload, imageUri: notificationImageUri }, timing);
-      Alert.alert("Pix agendado", timingMode === "custom" ? `O Pix será emitido em ${formatDateSummary(scheduledDate)} às ${formatTimeSummary(scheduledDate)}.` : `O Pix será emitido em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
+      await schedule({ ...payload, imageUri: notificationImageUri }, timing, effectiveRecurrence, repeatWeekday);
+      Alert.alert("Pix agendado", timingMode === "custom" ? `${recurrenceLabel}: ${formatDateSummary(scheduledDate)} às ${formatTimeSummary(scheduledDate)}.` : `O Pix será emitido em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
       if (kind === "received") setReceivedValue(formatPixValue(receivedValue));
       else setSentValue(formatPixValue(sentValue));
       await refreshScheduled();
@@ -129,20 +134,22 @@ export default function ScheduleScreen() {
       next.setHours(value.getHours(), value.getMinutes(), 0, 0);
     }
     setScheduledDate(next);
+    setRepeatWeekday(next.getDay() + 1);
     setTimingMode("custom");
     setPickerMode(null);
   };
 
   const submit = async () => {
     if (!body.trim()) { Alert.alert("Preencha a notificação", "Use um modelo Pix ou informe a mensagem para agendar."); return; }
+    const effectiveRecurrence: NotificationRecurrence = timingMode === "custom" ? recurrence : "once";
     const timing = timingMode === "custom" ? scheduledDate : minutes;
     if (timingMode === "custom" && scheduledDate.getTime() <= Date.now()) {
       Alert.alert("Horário inválido", "Escolha uma data e um horário futuros.");
       return;
     }
     try {
-      await schedule({ title: title.trim() || "Notificação", subtitle: subtitle.trim(), body: body.trim(), imageUri: notificationImageUri }, timing);
-      Alert.alert("Notificação agendada", timingMode === "custom" ? `Ela será emitida em ${formatDateSummary(scheduledDate)} às ${formatTimeSummary(scheduledDate)}.` : `Ela será emitida em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
+      await schedule({ title: title.trim() || "Notificação", subtitle: subtitle.trim(), body: body.trim(), imageUri: notificationImageUri }, timing, effectiveRecurrence, repeatWeekday);
+      Alert.alert("Notificação agendada", timingMode === "custom" ? `${recurrenceLabel}: ${formatDateSummary(scheduledDate)} às ${formatTimeSummary(scheduledDate)}.` : `Ela será emitida em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
       setTitle(""); setSubtitle(""); setBody("");
       await refreshScheduled();
     } catch (error) {
@@ -204,7 +211,20 @@ export default function ScheduleScreen() {
                 <View><Text style={styles.dateTimeCaption}>Horário</Text><Text style={styles.dateTimeValue}>{formatTimeSummary(scheduledDate)}</Text></View>
               </Pressable>
             </View>
-            <Text style={styles.customTimingSummary}>Será enviado em {formatDateSummary(scheduledDate)} às {formatTimeSummary(scheduledDate)}</Text>
+            <Text style={styles.customTimingSummary}>{recurrence === "once" ? "Será enviado" : recurrenceLabel} em {formatDateSummary(scheduledDate)} às {formatTimeSummary(scheduledDate)}</Text>
+            <Text style={styles.recurrenceLabel}>Repetição</Text>
+            <View style={styles.recurrenceRow}>
+              {([{ value: "once", label: "Uma vez" }, { value: "daily", label: "Diária" }, { value: "weekly", label: "Semanal" }] as const).map((option) => (
+                <Pressable key={option.value} onPress={() => setRecurrence(option.value)} style={[styles.recurrenceButton, recurrence === option.value && styles.recurrenceButtonActive]}>
+                  <Text style={[styles.recurrenceButtonText, recurrence === option.value && styles.recurrenceButtonTextActive]}>{option.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+            {recurrence === "weekly" && <View style={styles.weekdayRow}>{weekdayOptions.map((day) => (
+              <Pressable key={day.value} onPress={() => setRepeatWeekday(day.value)} style={[styles.weekdayButton, repeatWeekday === day.value && styles.weekdayButtonActive]}>
+                <Text style={[styles.weekdayText, repeatWeekday === day.value && styles.weekdayTextActive]}>{day.label}</Text>
+              </Pressable>
+            ))}</View>}
           </View>
         )}
         <Modal visible={pickerMode !== null} transparent animationType="fade" onRequestClose={() => setPickerMode(null)}>
@@ -258,6 +278,15 @@ function QuickPresetCard({ kind, name, value, onNameChange, onValueChange, onSch
 
 function Field({ label, value, onChangeText, placeholder, multiline = false }: { label: string; value: string; onChangeText: (v: string) => void; placeholder: string; multiline?: boolean }) { return <View style={styles.field}><Text style={styles.label}>{label}</Text><TextInput value={value} onChangeText={onChangeText} placeholder={placeholder} placeholderTextColor="#B7C0C5" multiline={multiline} textAlignVertical={multiline ? "top" : "center"} style={[styles.input, multiline && { minHeight: 110, paddingTop: 15 }]} /></View>; }
 
+function formatPendingRecurrence(item: import("@/lib/notification-store").NotificationRecord) {
+  if (item.recurrence === "daily") return "Repete diariamente";
+  if (item.recurrence === "weekly") {
+    const days = ["domingo", "segunda-feira", "terça-feira", "quarta-feira", "quinta-feira", "sexta-feira", "sábado"];
+    return `Repete toda ${days[(item.repeatWeekday ?? 1) - 1] ?? "semana"}`;
+  }
+  return "Agendamento único";
+}
+
 function PendingCard({ item }: { item: import("@/lib/notification-store").NotificationRecord }) {
   const { cancel, remove, updateScheduled } = useNotificationStore();
   const [editing, setEditing] = useState(false); const [saving, setSaving] = useState(false);
@@ -265,7 +294,8 @@ function PendingCard({ item }: { item: import("@/lib/notification-store").Notifi
   const openEditor = () => { setEditTitle(item.title); setEditSubtitle(item.subtitle); setEditBody(item.body); setEditing(true); };
   const saveEdit = async () => { const nextBody = editBody.trim(); if (!nextBody) { Alert.alert("Mensagem obrigatória", "Informe a mensagem da notificação."); return; } setSaving(true); try { await updateScheduled(item, { title: editTitle.trim() || "Notificação", subtitle: editSubtitle.trim(), body: nextBody, imageUri: item.imageUri }); setEditing(false); Alert.alert("Agendamento atualizado", "O conteúdo da notificação foi alterado com sucesso."); } catch (error) { Alert.alert("Não foi possível atualizar", error instanceof Error ? error.message : "Tente novamente."); } finally { setSaving(false); } };
   return <>
-    <View style={styles.pending}><View style={styles.pendingTop}><Image source={require("@/assets/images/icon.png")} style={styles.brandImage} /><View style={{ flex: 1 }}><Text style={styles.pendingTitle}>{item.title}</Text>{item.subtitle ? <Text style={styles.pendingSubtitle}>{item.subtitle}</Text> : null}<Text style={styles.pendingBody}>{item.body}</Text></View></View><Text style={styles.pendingDate}>{item.scheduledAt ? new Date(item.scheduledAt).toLocaleString("pt-BR") : ""}</Text><View style={styles.actions}><Pressable onPress={openEditor} style={styles.secondary}><IconSymbol name="square.and.pencil" size={17} color={teal} /><Text style={styles.secondaryText}>Editar</Text></Pressable><Pressable onPress={() => void cancel(item)} style={styles.secondary}><Text style={styles.secondaryText}>Cancelar</Text></Pressable><Pressable onPress={() => void remove(item)} style={styles.delete}><IconSymbol name="trash" size={19} color="#B44B47" /><Text style={{ color: "#B44B47", fontWeight: "800" }}>Excluir</Text></Pressable></View></View>
+    <View style={styles.pending}><View style={styles.pendingTop}><Image source={require("@/assets/images/icon.png")} style={styles.brandImage} /><View style={{ flex: 1 }}><Text style={styles.pendingTitle}>{item.title}</Text>{item.subtitle ? <Text style={styles.pendingSubtitle}>{item.subtitle}</Text> : null}<Text style={styles.pendingBody}>{item.body}</Text></View></View><Text style={styles.pendingDate}>{formatPendingRecurrence(item)}{item.scheduledAt ? ` • ${new Date(item.scheduledAt).toLocaleString("pt-BR")}` : ""}</Text>
+<View style={styles.actions}><Pressable onPress={openEditor} style={styles.secondary}><IconSymbol name="square.and.pencil" size={17} color={teal} /><Text style={styles.secondaryText}>Editar</Text></Pressable><Pressable onPress={() => void cancel(item)} style={styles.secondary}><Text style={styles.secondaryText}>Cancelar</Text></Pressable><Pressable onPress={() => void remove(item)} style={styles.delete}><IconSymbol name="trash" size={19} color="#B44B47" /><Text style={{ color: "#B44B47", fontWeight: "800" }}>Excluir</Text></Pressable></View></View>
     <Modal visible={editing} transparent animationType="slide" onRequestClose={() => !saving && setEditing(false)}><View style={styles.modalBackdrop}><View style={styles.modalCard}><Text style={styles.modalTitle}>Editar agendamento</Text><Text style={styles.modalDate}>{item.scheduledAt ? `Será enviado em ${new Date(item.scheduledAt).toLocaleString("pt-BR")}` : ""}</Text><Field label="Título" value={editTitle} onChangeText={setEditTitle} placeholder="Título da notificação" /><Field label="Subtítulo (Opcional)" value={editSubtitle} onChangeText={setEditSubtitle} placeholder="Subtítulo da notificação" /><Field label="Mensagem" value={editBody} onChangeText={setEditBody} placeholder="Mensagem da notificação" multiline /><View style={styles.modalActions}><Pressable disabled={saving} onPress={() => setEditing(false)} style={styles.modalCancel}><Text style={styles.modalCancelText}>Cancelar</Text></Pressable><Pressable disabled={saving} onPress={() => void saveEdit()} style={[styles.modalSave, saving && { opacity: 0.65 }]}><Text style={styles.modalSaveText}>{saving ? "Salvando..." : "Salvar"}</Text></Pressable></View></View></View></Modal>
   </>;
 }
@@ -294,7 +324,19 @@ const styles = StyleSheet.create({
   choice: { width: "48%", minHeight: 60, borderWidth: 1, borderColor: border, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: bg },
   choiceActive: { backgroundColor: teal }, choiceText: { fontSize: 17, color: ink },
   timingModeRow: { flexDirection: "row", gap: 10 }, timingModeButton: { flex: 1, minHeight: 48, borderWidth: 1, borderColor: border, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: "#FFF" }, timingModeActive: { backgroundColor: teal, borderColor: teal }, timingModeText: { color: teal, fontSize: 14, fontWeight: "800" }, timingModeTextActive: { color: "#FFF" },
-  customTimingCard: { backgroundColor: "#FFF", borderWidth: 1, borderColor: border, borderRadius: 20, padding: 16, gap: 14 }, customTimingHint: { color: muted, fontSize: 14, lineHeight: 19 }, customTimingRow: { flexDirection: "row", gap: 10 }, dateTimeButton: { flex: 1, minHeight: 66, borderWidth: 1, borderColor: "#B8DAD6", borderRadius: 16, paddingHorizontal: 12, flexDirection: "row", alignItems: "center", gap: 9, backgroundColor: "#F5FCFB" }, dateTimeCaption: { color: muted, fontSize: 12, fontWeight: "700" }, dateTimeValue: { color: ink, fontSize: 16, fontWeight: "900", marginTop: 2 }, customTimingSummary: { color: teal, fontSize: 14, fontWeight: "800" },
+  customTimingCard: { backgroundColor: "#FFF", borderWidth: 1, borderColor: border, borderRadius: 20, padding: 16, gap: 14 }, customTimingHint: { color: muted, fontSize: 14, lineHeight: 19 }, customTimingRow: { flexDirection: "row", gap: 10 }, dateTimeButton: { flex: 1, minHeight: 66, borderWidth: 1, borderColor: "#B8DAD6", borderRadius: 16, paddingHorizontal: 12, flexDirection: "row", alignItems: "center", gap: 9, backgroundColor: "#F5FCFB" }, dateTimeCaption: { color: muted, fontSize: 12, fontWeight: "700" }, dateTimeValue: { color: ink, fontSize: 16, fontWeight: "900", marginTop: 2 },   customTimingSummary: { color: teal, fontSize: 14, fontWeight: "800" },
+  recurrenceLabel: { color: ink, fontSize: 14, fontWeight: "900", marginTop: 2 },
+  recurrenceRow: { flexDirection: "row", gap: 8 },
+  recurrenceButton: { flex: 1, minHeight: 46, borderWidth: 1, borderColor: border, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "#FFF" },
+  recurrenceButtonActive: { backgroundColor: teal, borderColor: teal },
+  recurrenceButtonText: { color: teal, fontSize: 14, fontWeight: "800" },
+  recurrenceButtonTextActive: { color: "#FFF" },
+  weekdayRow: { flexDirection: "row", justifyContent: "space-between", gap: 6 },
+  weekdayButton: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: border, alignItems: "center", justifyContent: "center", backgroundColor: "#FFF" },
+  weekdayButtonActive: { backgroundColor: orange, borderColor: orange },
+  weekdayText: { color: teal, fontSize: 12, fontWeight: "900" },
+  weekdayTextActive: { color: "#FFF" },
+
   pickerBackdrop: { flex: 1, justifyContent: "center", padding: 20, backgroundColor: "rgba(18,27,36,0.45)" }, pickerCard: { backgroundColor: "#FFF", borderRadius: 26, padding: 20, alignItems: "center", gap: 14 }, pickerDone: { width: "100%", minHeight: 52, borderRadius: 16, backgroundColor: teal, alignItems: "center", justifyContent: "center" }, pickerDoneText: { color: "#FFF", fontSize: 16, fontWeight: "900" },
   selectedSummary: { backgroundColor: "#FFF", borderWidth: 1, borderColor: border, borderRadius: 18, padding: 16, gap: 4 },
   summaryTitle: { color: ink, fontSize: 16, fontWeight: "900" }, summaryBody: { color: muted, fontSize: 14, lineHeight: 20 },

@@ -14,6 +14,8 @@ export type NotificationTemplate = {
   updatedAt: string;
 };
 
+export type NotificationRecurrence = "once" | "daily" | "weekly";
+
 export type NotificationRecord = {
   id: string;
   title: string;
@@ -25,6 +27,8 @@ export type NotificationRecord = {
   createdAt: string;
   scheduledAt?: string;
   notificationId?: string;
+  recurrence?: NotificationRecurrence;
+  repeatWeekday?: number;
 };
 
 type Store = {
@@ -38,7 +42,7 @@ type Store = {
   refreshPermission: () => Promise<void>;
   requestPermission: () => Promise<boolean>;
   emit: (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => Promise<boolean>;
-  schedule: (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">, timing: number | Date) => Promise<void>;
+  schedule: (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId" | "recurrence" | "repeatWeekday">, timing: number | Date, recurrence?: NotificationRecurrence, repeatWeekday?: number) => Promise<void>;
   updateScheduled: (record: NotificationRecord, input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => Promise<void>;
   refreshScheduled: () => Promise<void>;
   clearScheduled: () => Promise<void>;
@@ -204,39 +208,49 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     return true;
   };
 
-  const schedule = async (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">, timing: number | Date) => {
+  const schedule = async (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId" | "recurrence" | "repeatWeekday">, timing: number | Date, recurrence: NotificationRecurrence = "once", repeatWeekday?: number) => {
     if (!(await requestPermission())) return;
     const scheduledAt = timing instanceof Date ? new Date(timing) : new Date(Date.now() + timing * 60_000);
-    if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() <= Date.now()) {
+    if (Number.isNaN(scheduledAt.getTime()) || (recurrence === "once" && scheduledAt.getTime() <= Date.now())) {
       throw new Error("Escolha uma data e um horário futuros.");
     }
-    const notificationId = await Notifications.scheduleNotificationAsync({
-      content: await buildContent(input),
-      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: scheduledAt },
-    });
-    const record: NotificationRecord = { ...input, id: `scheduled-${Date.now()}`, kind: "scheduled", status: "pending", createdAt: new Date().toISOString(), scheduledAt: scheduledAt.toISOString(), notificationId };
+    const weekday = repeatWeekday ?? scheduledAt.getDay() + 1;
+    if (recurrence === "weekly" && (weekday < 1 || weekday > 7)) {
+      throw new Error("Escolha um dia da semana válido.");
+    }
+    const trigger: Notifications.NotificationTriggerInput = recurrence === "daily"
+      ? { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: scheduledAt.getHours(), minute: scheduledAt.getMinutes() }
+      : recurrence === "weekly"
+        ? { type: Notifications.SchedulableTriggerInputTypes.WEEKLY, weekday, hour: scheduledAt.getHours(), minute: scheduledAt.getMinutes() }
+        : { type: Notifications.SchedulableTriggerInputTypes.DATE, date: scheduledAt };
+    const notificationId = await Notifications.scheduleNotificationAsync({ content: await buildContent(input), trigger });
+    const record: NotificationRecord = { ...input, id: `scheduled-${Date.now()}`, kind: "scheduled", status: "pending", createdAt: new Date().toISOString(), scheduledAt: scheduledAt.toISOString(), notificationId, recurrence, ...(recurrence === "weekly" ? { repeatWeekday: weekday } : {}) };
     await persistRecords([record, ...records]);
   };
 
   const updateScheduled = async (record: NotificationRecord, input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => {
     if (record.status !== "pending" || !record.scheduledAt) throw new Error("Este agendamento não está mais pendente.");
     const scheduledAt = new Date(record.scheduledAt);
-    if (scheduledAt.getTime() <= Date.now()) throw new Error("O horário deste agendamento já passou.");
+    const recurrence = record.recurrence ?? "once";
+    if (recurrence === "once" && scheduledAt.getTime() <= Date.now()) throw new Error("O horário deste agendamento já passou.");
     if (Platform.OS === "web") {
       await persistRecords(records.map((item) => item.id === record.id ? { ...item, ...input } : item));
       return;
     }
-    const replacementId = await Notifications.scheduleNotificationAsync({
-      content: await buildContent(input),
-      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: scheduledAt },
-    });
+    const weekday = record.repeatWeekday ?? scheduledAt.getDay() + 1;
+    const trigger: Notifications.NotificationTriggerInput = recurrence === "daily"
+      ? { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: scheduledAt.getHours(), minute: scheduledAt.getMinutes() }
+      : recurrence === "weekly"
+        ? { type: Notifications.SchedulableTriggerInputTypes.WEEKLY, weekday, hour: scheduledAt.getHours(), minute: scheduledAt.getMinutes() }
+        : { type: Notifications.SchedulableTriggerInputTypes.DATE, date: scheduledAt };
+    const replacementId = await Notifications.scheduleNotificationAsync({ content: await buildContent(input), trigger });
     try {
       if (record.notificationId) await Notifications.cancelScheduledNotificationAsync(record.notificationId);
     } catch (error) {
       await Notifications.cancelScheduledNotificationAsync(replacementId).catch(() => undefined);
       throw error;
     }
-    await persistRecords(records.map((item) => item.id === record.id ? { ...item, ...input, notificationId: replacementId } : item));
+    await persistRecords(records.map((item) => item.id === record.id ? { ...item, ...input, notificationId: replacementId, recurrence, ...(recurrence === "weekly" ? { repeatWeekday: weekday } : {}) } : item));
   };
 
   const refreshScheduled = useCallback(async () => {
