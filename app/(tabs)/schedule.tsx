@@ -1,5 +1,5 @@
 import { Alert, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
+import type { DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
@@ -9,6 +9,16 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore, type NotificationRecurrence, type NotificationTemplate } from "@/lib/notification-store";
 
 const teal = "#0E8278";
+
+function loadDateTimePicker() {
+  if (Platform.OS === "web") return null;
+  try {
+    return require("@react-native-community/datetimepicker").default;
+  } catch (error) {
+    console.error("[Inter] DateTimePicker indisponível no runtime nativo", error);
+    return null;
+  }
+}
 const orange = "#F18400";
 const bg = "#EAF4F8";
 const ink = "#121B24";
@@ -70,6 +80,7 @@ export default function ScheduleScreen() {
   const notificationImageUri = draftImageUri || selectedImage;
   const weekdayOptions = [{ value: 1, label: "Dom" }, { value: 2, label: "Seg" }, { value: 3, label: "Ter" }, { value: 4, label: "Qua" }, { value: 5, label: "Qui" }, { value: 6, label: "Sex" }, { value: 7, label: "Sáb" }];
   const recurrenceLabel = recurrence === "daily" ? "Todos os dias" : recurrence === "weekly" ? `Toda semana, ${weekdayOptions.find((item) => item.value === repeatWeekday)?.label ?? "dia selecionado"}` : "Uma vez";
+  const DateTimePickerComponent = pickerMode ? loadDateTimePicker() : null;
 
   useEffect(() => {
     if (historyTitle || historySubtitle || historyBody) {
@@ -331,7 +342,7 @@ export default function ScheduleScreen() {
         <Modal visible={pickerMode !== null} transparent animationType="fade" onRequestClose={() => setPickerMode(null)}>
           <View style={styles.pickerBackdrop}><View style={styles.pickerCard}>
             <Text style={styles.modalTitle}>{pickerMode === "date" ? "Escolha a data" : "Escolha o horário"}</Text>
-            {pickerMode && <DateTimePicker value={scheduledDate} mode={pickerMode} display="spinner" minimumDate={pickerMode === "date" ? new Date() : undefined} onChange={handlePickerChange} themeVariant="light" />}
+            {pickerMode && DateTimePickerComponent ? <DateTimePickerComponent value={scheduledDate} mode={pickerMode} display="spinner" minimumDate={pickerMode === "date" ? new Date() : undefined} onChange={handlePickerChange} themeVariant="light" /> : pickerMode ? <Text style={styles.pickerFallback}>Seleção de data e horário indisponível neste dispositivo.</Text> : null}
             <Pressable onPress={() => setPickerMode(null)} style={styles.pickerDone}><Text style={styles.pickerDoneText}>Concluir</Text></Pressable>
           </View></View>
         </Modal>
@@ -439,7 +450,7 @@ const styles = StyleSheet.create({
   weekdayText: { color: teal, fontSize: 12, fontWeight: "900" },
   weekdayTextActive: { color: "#FFF" },
 
-  pickerBackdrop: { flex: 1, justifyContent: "center", padding: 20, backgroundColor: "rgba(18,27,36,0.45)" }, pickerCard: { backgroundColor: "#FFF", borderRadius: 26, padding: 20, alignItems: "center", gap: 14 }, pickerDone: { width: "100%", minHeight: 52, borderRadius: 16, backgroundColor: teal, alignItems: "center", justifyContent: "center" }, pickerDoneText: { color: "#FFF", fontSize: 16, fontWeight: "900" },
+  pickerBackdrop: { flex: 1, justifyContent: "center", padding: 20, backgroundColor: "rgba(18,27,36,0.45)" }, pickerCard: { backgroundColor: "#FFF", borderRadius: 26, padding: 20, alignItems: "center", gap: 14 }, pickerFallback: { color: muted, fontSize: 15, lineHeight: 21, textAlign: "center", paddingVertical: 24 }, pickerDone: { width: "100%", minHeight: 52, borderRadius: 16, backgroundColor: teal, alignItems: "center", justifyContent: "center" }, pickerDoneText: { color: "#FFF", fontSize: 16, fontWeight: "900" },
   customModelsHeader: { flexDirection: "row", alignItems: "center", marginTop: 4 },
   customModelsTitle: { color: ink, fontSize: 22, fontWeight: "900" },
   customModelsEmpty: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: "#F6FBFC", borderWidth: 1, borderColor: border, borderRadius: 18, padding: 15 },
