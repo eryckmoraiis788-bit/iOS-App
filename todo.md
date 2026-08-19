@@ -379,11 +379,5 @@
 - [x] Validar as animações no preview; TypeScript e testes passaram, e a nova IPA ficará para a etapa seguinte após o checkpoint.
 - [x] Incrementar a versão/build e gerar uma IPA SideStore com as animações da aba Agendar para teste no iPhone; versão 1.2.37/build 157, Action 32200357651.
 - [x] Acompanhar a GitHub Action, baixar a IPA e auditar o Info.plist antes da entrega; Inter, versão 1.2.37, build 157, bundle com.app.notificacaoios.
-- [x] Comparar a aba Agendar atual com o print IMG_0614 e corrigir tipografia, espaçamento, campos, modelos Pix, seletores de tempo e barra inferior.
-- [x] Validar a interface corrigida no preview móvel e preservar os fluxos de agendamento, edição e cancelamento; TypeScript e testes passaram.
-- [ ] Salvar checkpoint da correção visual e preparar nova IPA para teste no iPhone.
-- [x] Restaurar a aparência da última IPA aprovada na aba Agendar, desfazendo os ajustes copiados do print.
-- [x] Garantir que os botões Pix recebido e Pix enviado permaneçam visíveis, funcionais e no estilo anterior.
-- [x] Validar que agendamento, edição e cancelamento continuam intactos antes de gerar nova IPA; TypeScript e testes passaram.
-- [ ] Incrementar a versão/build e gerar uma IPA SideStore com a aba Agendar restaurada e os botões Pix recebido/Pix enviado visíveis.
-- [ ] Acompanhar a GitHub Action, baixar a IPA e auditar o Info.plist antes da entrega.
+- [ ] Restaurar o backup 1b65e909 e validar a interface recuperada da aba Agendar; restauração confirmada e TypeScript/testes aprovados.
+- [ ] Incrementar a versão/build, gerar e auditar uma IPA baseada no backup restaurado para teste no iPhone.
