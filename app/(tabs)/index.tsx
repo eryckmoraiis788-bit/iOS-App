@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocalSearchParams } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ActivityIndicator, Animated, Easing, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useNotificationStore, type NotificationTemplate } from "@/lib/notification-store";
@@ -51,6 +52,7 @@ type FieldProps = {
 };
 
 export default function ComposeScreen() {
+  const { historyTitle, historySubtitle, historyBody } = useLocalSearchParams<{ historyTitle?: string; historySubtitle?: string; historyBody?: string }>();
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [body, setBody] = useState("");
@@ -71,6 +73,17 @@ export default function ComposeScreen() {
   const entranceProgress = useRef(new Animated.Value(0)).current;
   const { selectedImage, emit, templates, saveTemplate, removeTemplate } = useNotificationStore();
   const canEmit = title.trim().length > 0 && body.trim().length > 0;
+
+  useEffect(() => {
+    if (historyTitle || historySubtitle || historyBody) {
+      setTitle(historyTitle ?? "");
+      setSubtitle(historySubtitle ?? "");
+      setBody(historyBody ?? "");
+      setModelName("");
+      setEditingTemplateId(undefined);
+      setSaveMessage("Notificação carregada do Histórico.");
+    }
+  }, [historyBody, historySubtitle, historyTitle]);
   const canSaveModel = body.trim().length > 0;
 
   const showSuccessFeedback = (kind: "saved" | "emitted") => {

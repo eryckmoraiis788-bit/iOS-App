@@ -2,6 +2,7 @@ import { Alert, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text,
 import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useEffect, useState } from "react";
+import { useLocalSearchParams } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore } from "@/lib/notification-store";
@@ -42,6 +43,7 @@ function formatPixValue(value: string): string {
 }
 
 export default function ScheduleScreen() {
+  const { historyTitle, historySubtitle, historyBody, historyImageUri } = useLocalSearchParams<{ historyTitle?: string; historySubtitle?: string; historyBody?: string; historyImageUri?: string }>();
   const { schedule, records, selectedImage, refreshScheduled, clearScheduled } = useNotificationStore();
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
@@ -54,7 +56,18 @@ export default function ScheduleScreen() {
   const [receivedValue, setReceivedValue] = useState("");
   const [sentName, setSentName] = useState("");
   const [sentValue, setSentValue] = useState("");
+  const [draftImageUri, setDraftImageUri] = useState<string>();
   const pending = records.filter((item) => item.status === "pending");
+  const notificationImageUri = draftImageUri || selectedImage;
+
+  useEffect(() => {
+    if (historyTitle || historySubtitle || historyBody) {
+      setTitle(historyTitle ?? "");
+      setSubtitle(historySubtitle ?? "");
+      setBody(historyBody ?? "");
+      setDraftImageUri(historyImageUri || undefined);
+    }
+  }, [historyBody, historyImageUri, historySubtitle, historyTitle]);
 
   useEffect(() => { void refreshScheduled(); }, [refreshScheduled]);
 
@@ -89,7 +102,7 @@ export default function ScheduleScreen() {
       return;
     }
     try {
-      await schedule({ ...payload, imageUri: selectedImage }, timing);
+      await schedule({ ...payload, imageUri: notificationImageUri }, timing);
       Alert.alert("Pix agendado", timingMode === "custom" ? `O Pix será emitido em ${formatDateSummary(scheduledDate)} às ${formatTimeSummary(scheduledDate)}.` : `O Pix será emitido em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
       if (kind === "received") setReceivedValue(formatPixValue(receivedValue));
       else setSentValue(formatPixValue(sentValue));
@@ -128,7 +141,7 @@ export default function ScheduleScreen() {
       return;
     }
     try {
-      await schedule({ title: title.trim() || "Notificação", subtitle: subtitle.trim(), body: body.trim(), imageUri: selectedImage }, timing);
+      await schedule({ title: title.trim() || "Notificação", subtitle: subtitle.trim(), body: body.trim(), imageUri: notificationImageUri }, timing);
       Alert.alert("Notificação agendada", timingMode === "custom" ? `Ela será emitida em ${formatDateSummary(scheduledDate)} às ${formatTimeSummary(scheduledDate)}.` : `Ela será emitida em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
       setTitle(""); setSubtitle(""); setBody("");
       await refreshScheduled();

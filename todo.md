@@ -401,13 +401,38 @@
 - [x] Validar datas passadas, horários inválidos e mudanças de fuso/horário local.
 - [x] Preservar modelos Pix, preenchimento automático, edição e cancelamento de agendamentos.
 - [x] Validar TypeScript, testes e prévia móvel sem regressões.
-- [ ] Incrementar a versão/build e gerar IPA SideStore após aprovação da implementação.
-- [ ] Auditar o Info.plist e entregar a IPA para teste no iPhone.
+- [x] Incrementar a versão/build e gerar IPA SideStore após aprovação da implementação; versão 1.2.42/build 162, Action 32208579369.
+- [x] Auditar o Info.plist e entregar a IPA para teste no iPhone; AUDIT=PASS.
 
 
 # Entrega da IPA com data e horário completos
 
-- [ ] Incrementar a versão/build da implementação de data e horário.
+- [x] Incrementar a versão/build da implementação de data e horário para 1.2.42/build 162.
+- [x] Publicar a alteração no repositório SideStore e disparar a GitHub Action 32208579369.
+- [x] Baixar e auditar a IPA gerada; Inter, com.app.notificacaoios, 1.2.42, build 162; AUDIT=PASS.
+- [x] Entregar a IPA auditada para teste no iPhone via SideStore.
+
+
+# Backup validado no iPhone
+
+- [x] Registrar a versão Inter 1.2.42/build 162 como ponto de backup definitivo após validação física no iPhone.
+- [x] Salvar checkpoint de restauração associado a esse backup.
+
+
+# Ações rápidas no Histórico
+
+- [x] Adicionar ação “Repetir” em cada notificação do Histórico.
+- [x] Adicionar ação “Agendar novamente” em cada notificação do Histórico.
+- [x] Reutilizar título, subtítulo e mensagem da notificação selecionada sem duplicar o registro indevidamente.
+- [x] Definir o destino de cada ação: emissão imediata para “Repetir” e aba Agendar preenchida para “Agendar novamente”.
+- [x] Preservar imagem/anexo quando existir e manter limpeza individual e geral funcionando.
+- [x] Validar TypeScript, testes, prévia móvel e compatibilidade com o backup 1.2.42/build 162.
+- [ ] Incrementar versão/build, gerar IPA SideStore e auditar o artefato após aprovação.
+
+
+# Entrega da IPA com ações rápidas no Histórico
+
+- [ ] Incrementar a versão/build da implementação do Histórico.
 - [ ] Publicar a alteração no repositório SideStore e disparar a GitHub Action.
 - [ ] Baixar e auditar a IPA gerada com nome, bundle identifier, versão e build confirmados.
 - [ ] Entregar a IPA auditada para teste no iPhone via SideStore.
