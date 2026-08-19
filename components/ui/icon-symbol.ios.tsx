@@ -1,33 +1,34 @@
-import { SymbolView, type SymbolViewProps, type SymbolWeight } from "expo-symbols";
-import { StyleProp, ViewStyle } from "react-native";
+// iOS fallback for the shared icon API.
+// MaterialIcons is deliberately used here instead of SymbolView because an
+// unsupported SF Symbol can abort native route rendering in a release build.
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import type { ComponentProps } from "react";
+import type { OpaqueColorValue, StyleProp, TextStyle } from "react-native";
 
-/**
- * The shared app screens use a few friendly aliases so the Android/web
- * MaterialIcons fallback can render them. iOS must receive real SF Symbol
- * names, otherwise SymbolView can fail while rendering the screen.
- */
-const IOS_SYMBOLS: Record<string, SymbolViewProps["name"]> = {
-  "square.and.pencil": "square.and.pencil",
-  "clock.arrow.circlepath": "clock.arrow.circlepath",
-  "calendar.badge.clock": "calendar.badge.clock",
-  refresh: "arrow.clockwise",
-  calendar: "calendar",
-  clock: "clock",
+type MaterialIconName = ComponentProps<typeof MaterialIcons>["name"];
+
+const IOS_ICON_MAP: Record<string, MaterialIconName> = {
+  "square.and.pencil": "edit",
+  "clock.arrow.circlepath": "history",
+  "calendar.badge.clock": "event-available",
+  refresh: "refresh",
+  calendar: "calendar-today",
+  clock: "schedule",
   photo: "photo",
-  image: "photo",
-  "gearshape.fill": "gearshape.fill",
-  "bell.fill": "bell.fill",
-  notifications: "bell.badge.fill",
-  vibration: "waveform",
-  "check-circle": "checkmark.circle.fill",
-  "chevron.right": "chevron.right",
-  trash: "trash",
-  info: "info.circle",
-  "arrow-up-right": "arrow.up.right",
-  "bolt.fill": "bolt.fill",
-  bookmark: "bookmark.fill",
-  "bookmark.fill": "bookmark.fill",
-  xmark: "xmark",
+  image: "image",
+  "gearshape.fill": "settings",
+  "bell.fill": "notifications-none",
+  notifications: "notifications",
+  vibration: "vibration",
+  "check-circle": "check-circle",
+  "chevron.right": "chevron-right",
+  trash: "delete-outline",
+  info: "info-outline",
+  "arrow-up-right": "north-east",
+  "bolt.fill": "bolt",
+  bookmark: "bookmark",
+  "bookmark.fill": "bookmark",
+  xmark: "close",
 };
 
 export function IconSymbol({
@@ -35,29 +36,13 @@ export function IconSymbol({
   size = 24,
   color,
   style,
-  weight = "regular",
 }: {
   name: string;
   size?: number;
-  color: string;
-  style?: StyleProp<ViewStyle>;
-  weight?: SymbolWeight;
+  color: string | OpaqueColorValue;
+  style?: StyleProp<TextStyle>;
+  weight?: never;
 }) {
-  const symbolName = IOS_SYMBOLS[name] ?? "questionmark.circle";
-
-  return (
-    <SymbolView
-      weight={weight}
-      tintColor={color}
-      resizeMode="scaleAspectFit"
-      name={symbolName}
-      style={[
-        {
-          width: size,
-          height: size,
-        },
-        style,
-      ]}
-    />
-  );
+  const iconName = IOS_ICON_MAP[name] ?? "help-outline";
+  return <MaterialIcons color={color} size={size} name={iconName} style={style} />;
 }
