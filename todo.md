@@ -486,3 +486,8 @@
 - [x] Integrar modelos rápidos personalizados na aba Agendar com uso, edição e exclusão sincronizados com Compor
 - [x] Validar TypeScript, testes e prévia móvel da integração de modelos personalizados
 - [x] Atualizar versão para Inter 1.2.45/build 165 e preparar nova IPA SideStore
+
+- [x] Exibir feedback visual imediato e claro ao salvar um modelo na aba Compor
+- [x] Validar o fluxo de salvamento com o novo feedback sem regressões
+
+- [ ] Gerar e auditar a IPA atualizada com feedback visual de salvamento para teste via SideStore

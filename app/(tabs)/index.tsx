@@ -382,7 +382,7 @@ export default function ComposeScreen() {
           </Pressable>
         </View>
         <Text style={styles.modelHint}>{editingTemplateId ? "Edite os campos e salve para atualizar este modelo." : "Seus modelos salvos aparecerão aqui."}</Text>
-        {!!saveMessage && <Text style={styles.saveMessage}>{saveMessage}</Text>}
+        {!!saveMessage && <View style={[styles.saveMessageCard, saveMessage.startsWith("Informe") && styles.saveMessageError]} accessibilityLiveRegion="polite"><View style={[styles.saveMessageIcon, saveMessage.startsWith("Informe") && styles.saveMessageErrorIcon]}><MaterialIcons name={saveMessage.startsWith("Informe") ? "priority-high" : "check"} size={17} color={colors.white} /></View><Text style={[styles.saveMessage, saveMessage.startsWith("Informe") && styles.saveMessageErrorText]}>{saveMessage}</Text></View>}
       </View>
 
       <View style={styles.presetsHeading}>
@@ -618,7 +618,12 @@ const styles = StyleSheet.create({
   saveDisabled: { backgroundColor: "#A9D2CF" },
   saveText: { color: colors.white, fontSize: 14, fontWeight: "900" },
   modelHint: { color: colors.muted, fontSize: 13 },
-  saveMessage: { color: colors.teal, fontSize: 14, fontWeight: "800" },
+  saveMessageCard: { flexDirection: "row", alignItems: "center", gap: 9, backgroundColor: "#EAF8F3", borderWidth: 1, borderColor: "#B9E2D4", borderRadius: 14, paddingVertical: 10, paddingHorizontal: 12 },
+  saveMessageIcon: { width: 24, height: 24, borderRadius: 12, backgroundColor: colors.green, alignItems: "center", justifyContent: "center" },
+  saveMessage: { flex: 1, color: colors.teal, fontSize: 14, lineHeight: 19, fontWeight: "800" },
+  saveMessageError: { backgroundColor: "#FFF4F2", borderColor: "#E9B9B2" },
+  saveMessageErrorIcon: { backgroundColor: "#B64B4B" },
+  saveMessageErrorText: { color: "#B64B4B" },
   savedModelsCard: { backgroundColor: colors.white, borderRadius: 25, padding: 18, borderWidth: 1, borderColor: colors.border, gap: 12 },
   savedModelsHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   savedModelsTitle: { color: colors.ink, fontSize: 17, fontWeight: "900" },
