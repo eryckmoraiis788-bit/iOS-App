@@ -453,13 +453,36 @@
 - [x] Preservar edição, cancelamento, limpeza e ações rápidas do Histórico.
 - [x] Validar datas/horários passados, recorrência semanal e comportamento local do dispositivo.
 - [x] Validar TypeScript, testes e prévia móvel antes da IPA.
-- [ ] Incrementar versão/build e gerar IPA SideStore após aprovação.
+- [x] Incrementar versão/build e gerar IPA SideStore após aprovação; versão 1.2.44/build 164, Action 32240356271.
 
 
 # Entrega da IPA com recorrência
 
-- [ ] Incrementar a versão/build da implementação de repetição diária e semanal.
-- [ ] Publicar a alteração no repositório SideStore e disparar a GitHub Action.
-- [ ] Baixar e auditar a IPA gerada com nome, bundle identifier, versão e build confirmados.
-- [ ] Entregar a IPA auditada para teste no iPhone via SideStore.
+- [x] Incrementar a versão/build da implementação de repetição diária e semanal para 1.2.44/build 164.
+- [x] Publicar a alteração no repositório SideStore e disparar a GitHub Action 32240356271.
+- [x] Baixar e auditar a IPA gerada; Inter, com.app.notificacaoios, 1.2.44, build 164; AUDIT=PASS.
+- [x] Entregar a IPA auditada para teste no iPhone via SideStore.
 
+
+# Backup da recorrência validada
+
+- [x] Marcar a versão Inter 1.2.44/build 164, com repetição diária e semanal validada no iPhone, como backup definitivo.
+- [x] Salvar checkpoint de restauração associado a essa versão.
+
+
+# Modelos rápidos personalizados
+
+- [x] Criar formulário para salvar um modelo com nome, título, subtítulo, mensagem e imagem opcional.
+- [x] Persistir modelos personalizados localmente no dispositivo.
+- [x] Exibir modelos personalizados junto dos modelos rápidos, sem remover Pix recebido e Pix enviado.
+- [x] Permitir usar um modelo para preencher Compor e Agendar sem emitir automaticamente.
+- [x] Permitir editar modelos personalizados.
+- [x] Permitir excluir modelos personalizados com confirmação.
+- [x] Validar persistência após reiniciar o aplicativo e evitar modelos duplicados.
+- [x] Validar TypeScript, testes e prévia móvel antes da IPA.
+- [ ] Incrementar versão/build e gerar IPA SideStore após aprovação.
+
+
+- [x] Integrar modelos rápidos personalizados na aba Agendar com uso, edição e exclusão sincronizados com Compor
+- [x] Validar TypeScript, testes e prévia móvel da integração de modelos personalizados
+- [x] Atualizar versão para Inter 1.2.45/build 165 e preparar nova IPA SideStore

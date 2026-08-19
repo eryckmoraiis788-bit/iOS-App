@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { useNotificationStore, type NotificationRecurrence } from "@/lib/notification-store";
+import { useNotificationStore, type NotificationRecurrence, type NotificationTemplate } from "@/lib/notification-store";
 
 const teal = "#0E8278";
 const orange = "#F18400";
@@ -44,7 +44,7 @@ function formatPixValue(value: string): string {
 
 export default function ScheduleScreen() {
   const { historyTitle, historySubtitle, historyBody, historyImageUri } = useLocalSearchParams<{ historyTitle?: string; historySubtitle?: string; historyBody?: string; historyImageUri?: string }>();
-  const { schedule, records, selectedImage, refreshScheduled, clearScheduled } = useNotificationStore();
+  const { schedule, records, selectedImage, refreshScheduled, clearScheduled, templates, saveTemplate, removeTemplate, refreshTemplates } = useNotificationStore();
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [body, setBody] = useState("");
@@ -59,6 +59,12 @@ export default function ScheduleScreen() {
   const [sentName, setSentName] = useState("");
   const [sentValue, setSentValue] = useState("");
   const [draftImageUri, setDraftImageUri] = useState<string>();
+  const [editingTemplate, setEditingTemplate] = useState<NotificationTemplate | null>(null);
+  const [templateName, setTemplateName] = useState("");
+  const [templateTitle, setTemplateTitle] = useState("");
+  const [templateSubtitle, setTemplateSubtitle] = useState("");
+  const [templateBody, setTemplateBody] = useState("");
+  const [savingTemplate, setSavingTemplate] = useState(false);
   const pending = records.filter((item) => item.status === "pending");
   const notificationImageUri = draftImageUri || selectedImage;
   const weekdayOptions = [{ value: 1, label: "Dom" }, { value: 2, label: "Seg" }, { value: 3, label: "Ter" }, { value: 4, label: "Qua" }, { value: 5, label: "Qui" }, { value: 6, label: "Sex" }, { value: 7, label: "Sáb" }];
@@ -73,7 +79,7 @@ export default function ScheduleScreen() {
     }
   }, [historyBody, historyImageUri, historySubtitle, historyTitle]);
 
-  useEffect(() => { void refreshScheduled(); }, [refreshScheduled]);
+  useEffect(() => { void refreshScheduled(); void refreshTemplates(); }, [refreshScheduled, refreshTemplates]);
 
   const buildPixPayload = (kind: "received" | "sent") => {
     const name = (kind === "received" ? receivedName : sentName).trim();
@@ -115,6 +121,63 @@ export default function ScheduleScreen() {
     } catch (error) {
       Alert.alert("Não foi possível agendar", error instanceof Error ? error.message : "Tente novamente.");
     }
+  };
+
+  const applyTemplate = (template: NotificationTemplate) => {
+    setTitle(template.title || template.name);
+    setSubtitle(template.subtitle);
+    setBody(template.body);
+    Alert.alert("Modelo aplicado", `“${template.name}” preencheu a notificação.`);
+  };
+
+  const scheduleTemplateDirectly = async (template: NotificationTemplate) => {
+    const effectiveRecurrence: NotificationRecurrence = timingMode === "custom" ? recurrence : "once";
+    const timing = timingMode === "custom" ? scheduledDate : minutes;
+    if (timingMode === "custom" && scheduledDate.getTime() <= Date.now()) {
+      Alert.alert("Horário inválido", "Escolha uma data e um horário futuros.");
+      return;
+    }
+    try {
+      await schedule({ title: template.title || template.name, subtitle: template.subtitle, body: template.body, imageUri: notificationImageUri }, timing, effectiveRecurrence, repeatWeekday);
+      Alert.alert("Modelo agendado", timingMode === "custom" ? `${recurrenceLabel}: ${formatDateSummary(scheduledDate)} às ${formatTimeSummary(scheduledDate)}.` : `“${template.name}” será emitido em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
+      await refreshScheduled();
+    } catch (error) {
+      Alert.alert("Não foi possível agendar", error instanceof Error ? error.message : "Tente novamente.");
+    }
+  };
+
+  const openTemplateEditor = (template: NotificationTemplate) => {
+    setEditingTemplate(template);
+    setTemplateName(template.name);
+    setTemplateTitle(template.title);
+    setTemplateSubtitle(template.subtitle);
+    setTemplateBody(template.body);
+  };
+
+  const saveTemplateFromSchedule = async () => {
+    const name = templateName.trim();
+    const bodyValue = templateBody.trim();
+    if (!name || !bodyValue) {
+      Alert.alert("Dados incompletos", "Informe o nome e a mensagem do modelo.");
+      return;
+    }
+    setSavingTemplate(true);
+    try {
+      await saveTemplate({ name, title: templateTitle.trim() || name, subtitle: templateSubtitle.trim(), body: bodyValue }, editingTemplate?.id);
+      setEditingTemplate(null);
+      Alert.alert("Modelo salvo", editingTemplate ? "O modelo foi atualizado e também estará disponível em Compor." : "O modelo foi salvo e também estará disponível em Compor.");
+    } catch (error) {
+      Alert.alert("Não foi possível salvar", error instanceof Error ? error.message : "Tente novamente.");
+    } finally {
+      setSavingTemplate(false);
+    }
+  };
+
+  const deleteTemplateFromSchedule = (template: NotificationTemplate) => {
+    Alert.alert("Excluir modelo", `Deseja realmente excluir “${template.name}”?`, [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Excluir", style: "destructive", onPress: () => void removeTemplate(template) },
+    ]);
   };
 
   const openPicker = (mode: "date" | "time") => {
@@ -182,6 +245,42 @@ export default function ScheduleScreen() {
           onSchedule={() => void schedulePixDirectly("sent")}
           onApply={() => applyPixPreset("sent")}
         />
+
+        <View style={styles.customModelsHeader}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.customModelsTitle}>Meus modelos</Text>
+            <Text style={styles.modelHint}>SALVOS EM COMUM COM COMPOR</Text>
+          </View>
+          <MaterialIcons name="bookmark" size={24} color={teal} />
+        </View>
+        {templates.length === 0 ? (
+          <View style={styles.customModelsEmpty}><MaterialIcons name="bookmark-border" size={25} color={muted} /><Text style={styles.customModelsEmptyText}>Salve um modelo na aba Compor para ele aparecer aqui.</Text></View>
+        ) : templates.map((template) => (
+          <View key={template.id} style={styles.customModelCard}>
+            <View style={styles.customModelTop}>
+              <View style={styles.customModelIcon}><MaterialIcons name="text-snippet" size={21} color="#FFF" /></View>
+              <View style={{ flex: 1 }}><Text style={styles.customModelName}>{template.name}</Text><Text style={styles.customModelBody} numberOfLines={2}>{template.body}</Text></View>
+            </View>
+            <View style={styles.customModelActions}>
+              <Pressable onPress={() => applyTemplate(template)} style={styles.customModelAction}><MaterialIcons name="edit-note" size={18} color={teal} /><Text style={styles.customModelActionText}>Usar</Text></Pressable>
+              <Pressable onPress={() => void scheduleTemplateDirectly(template)} style={[styles.customModelAction, styles.customModelSchedule]}><MaterialIcons name="calendar-month" size={18} color="#FFF" /><Text style={styles.customModelScheduleText}>Agendar</Text></Pressable>
+              <Pressable onPress={() => openTemplateEditor(template)} style={styles.customModelAction}><MaterialIcons name="edit" size={18} color={teal} /><Text style={styles.customModelActionText}>Editar</Text></Pressable>
+              <Pressable onPress={() => deleteTemplateFromSchedule(template)} style={styles.customModelAction}><MaterialIcons name="delete-outline" size={18} color="#B44B47" /><Text style={styles.customModelDeleteText}>Excluir</Text></Pressable>
+            </View>
+          </View>
+        ))}
+
+        <Modal visible={editingTemplate !== null} transparent animationType="slide" onRequestClose={() => !savingTemplate && setEditingTemplate(null)}>
+          <View style={styles.modalBackdrop}><View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Editar modelo rápido</Text>
+            <Text style={styles.modalDate}>As alterações aparecem também na aba Compor.</Text>
+            <Field label="Nome do modelo" value={templateName} onChangeText={setTemplateName} placeholder="Nome do modelo" />
+            <Field label="Título" value={templateTitle} onChangeText={setTemplateTitle} placeholder="Título da notificação" />
+            <Field label="Subtítulo (Opcional)" value={templateSubtitle} onChangeText={setTemplateSubtitle} placeholder="Subtítulo da notificação" />
+            <Field label="Mensagem" value={templateBody} onChangeText={setTemplateBody} placeholder="Mensagem da notificação" multiline />
+            <View style={styles.modalActions}><Pressable disabled={savingTemplate} onPress={() => setEditingTemplate(null)} style={styles.modalCancel}><Text style={styles.modalCancelText}>Cancelar</Text></Pressable><Pressable disabled={savingTemplate} onPress={() => void saveTemplateFromSchedule()} style={[styles.modalSave, savingTemplate && { opacity: 0.65 }]}><Text style={styles.modalSaveText}>{savingTemplate ? "Salvando..." : "Salvar"}</Text></Pressable></View>
+          </View></View>
+        </Modal>
 
         <Text style={styles.label}>Quando enviar?</Text>
         <View style={styles.timingModeRow}>
@@ -338,6 +437,21 @@ const styles = StyleSheet.create({
   weekdayTextActive: { color: "#FFF" },
 
   pickerBackdrop: { flex: 1, justifyContent: "center", padding: 20, backgroundColor: "rgba(18,27,36,0.45)" }, pickerCard: { backgroundColor: "#FFF", borderRadius: 26, padding: 20, alignItems: "center", gap: 14 }, pickerDone: { width: "100%", minHeight: 52, borderRadius: 16, backgroundColor: teal, alignItems: "center", justifyContent: "center" }, pickerDoneText: { color: "#FFF", fontSize: 16, fontWeight: "900" },
+  customModelsHeader: { flexDirection: "row", alignItems: "center", marginTop: 4 },
+  customModelsTitle: { color: ink, fontSize: 22, fontWeight: "900" },
+  customModelsEmpty: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: "#F6FBFC", borderWidth: 1, borderColor: border, borderRadius: 18, padding: 15 },
+  customModelsEmptyText: { flex: 1, color: muted, fontSize: 14, lineHeight: 19 },
+  customModelCard: { backgroundColor: "#FFF", borderWidth: 1, borderColor: border, borderRadius: 20, padding: 15, gap: 13 },
+  customModelTop: { flexDirection: "row", alignItems: "flex-start", gap: 11 },
+  customModelIcon: { width: 42, height: 42, borderRadius: 13, backgroundColor: orange, alignItems: "center", justifyContent: "center" },
+  customModelName: { color: ink, fontSize: 17, fontWeight: "900" },
+  customModelBody: { color: muted, fontSize: 14, lineHeight: 19, marginTop: 3 },
+  customModelActions: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  customModelAction: { minHeight: 38, borderWidth: 1, borderColor: teal, borderRadius: 12, paddingHorizontal: 10, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5 },
+  customModelActionText: { color: teal, fontSize: 13, fontWeight: "900" },
+  customModelSchedule: { backgroundColor: teal, borderColor: teal },
+  customModelScheduleText: { color: "#FFF", fontSize: 13, fontWeight: "900" },
+  customModelDeleteText: { color: "#B44B47", fontSize: 13, fontWeight: "900" },
   selectedSummary: { backgroundColor: "#FFF", borderWidth: 1, borderColor: border, borderRadius: 18, padding: 16, gap: 4 },
   summaryTitle: { color: ink, fontSize: 16, fontWeight: "900" }, summaryBody: { color: muted, fontSize: 14, lineHeight: 20 },
   button: { minHeight: 64, borderRadius: 22, backgroundColor: teal, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10, marginTop: 2 }, buttonText: { color: "#FFF", fontSize: 19, fontWeight: "900" },
