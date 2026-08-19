@@ -1,4 +1,5 @@
-import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import DateTimePicker, { type DateTimePickerEvent } from "@react-native-community/datetimepicker";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useEffect, useState } from "react";
 import { ScreenContainer } from "@/components/screen-container";
@@ -11,6 +12,14 @@ const bg = "#EAF4F8";
 const ink = "#121B24";
 const muted = "#667580";
 const border = "#D4E0E5";
+
+function formatDateSummary(value: Date): string {
+  return value.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+function formatTimeSummary(value: Date): string {
+  return value.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", hour12: false });
+}
 
 function formatPixValue(value: string): string {
   const raw = value.trim().replace(/\s/g, "");
@@ -38,6 +47,9 @@ export default function ScheduleScreen() {
   const [subtitle, setSubtitle] = useState("");
   const [body, setBody] = useState("");
   const [minutes, setMinutes] = useState(1);
+  const [timingMode, setTimingMode] = useState<"quick" | "custom">("quick");
+  const [scheduledDate, setScheduledDate] = useState(() => new Date(Date.now() + 5 * 60_000));
+  const [pickerMode, setPickerMode] = useState<"date" | "time" | null>(null);
   const [receivedName, setReceivedName] = useState("");
   const [receivedValue, setReceivedValue] = useState("");
   const [sentName, setSentName] = useState("");
@@ -71,9 +83,14 @@ export default function ScheduleScreen() {
   const schedulePixDirectly = async (kind: "received" | "sent") => {
     const payload = buildPixPayload(kind);
     if (!payload) return;
+    const timing = timingMode === "custom" ? scheduledDate : minutes;
+    if (timingMode === "custom" && scheduledDate.getTime() <= Date.now()) {
+      Alert.alert("Horário inválido", "Escolha uma data e um horário futuros.");
+      return;
+    }
     try {
-      await schedule({ ...payload, imageUri: selectedImage }, minutes);
-      Alert.alert("Pix agendado", `O Pix será emitido em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
+      await schedule({ ...payload, imageUri: selectedImage }, timing);
+      Alert.alert("Pix agendado", timingMode === "custom" ? `O Pix será emitido em ${formatDateSummary(scheduledDate)} às ${formatTimeSummary(scheduledDate)}.` : `O Pix será emitido em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
       if (kind === "received") setReceivedValue(formatPixValue(receivedValue));
       else setSentValue(formatPixValue(sentValue));
       await refreshScheduled();
@@ -82,12 +99,42 @@ export default function ScheduleScreen() {
     }
   };
 
+  const openPicker = (mode: "date" | "time") => {
+    if (Platform.OS === "web") {
+      Alert.alert("Disponível no iPhone", "A escolha nativa de data e horário estará disponível na IPA do SideStore.");
+      return;
+    }
+    setPickerMode(mode);
+  };
+
+  const handlePickerChange = (event: DateTimePickerEvent, value?: Date) => {
+    if (event.type === "dismissed" || !value) { setPickerMode(null); return; }
+    const next = new Date(scheduledDate);
+    if (pickerMode === "date") {
+      next.setFullYear(value.getFullYear(), value.getMonth(), value.getDate());
+    } else {
+      next.setHours(value.getHours(), value.getMinutes(), 0, 0);
+    }
+    setScheduledDate(next);
+    setTimingMode("custom");
+    setPickerMode(null);
+  };
+
   const submit = async () => {
     if (!body.trim()) { Alert.alert("Preencha a notificação", "Use um modelo Pix ou informe a mensagem para agendar."); return; }
-    await schedule({ title: title.trim() || "Notificação", subtitle: subtitle.trim(), body: body.trim(), imageUri: selectedImage }, minutes);
-    Alert.alert("Notificação agendada", `Ela será emitida em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
-    setTitle(""); setSubtitle(""); setBody("");
-    await refreshScheduled();
+    const timing = timingMode === "custom" ? scheduledDate : minutes;
+    if (timingMode === "custom" && scheduledDate.getTime() <= Date.now()) {
+      Alert.alert("Horário inválido", "Escolha uma data e um horário futuros.");
+      return;
+    }
+    try {
+      await schedule({ title: title.trim() || "Notificação", subtitle: subtitle.trim(), body: body.trim(), imageUri: selectedImage }, timing);
+      Alert.alert("Notificação agendada", timingMode === "custom" ? `Ela será emitida em ${formatDateSummary(scheduledDate)} às ${formatTimeSummary(scheduledDate)}.` : `Ela será emitida em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
+      setTitle(""); setSubtitle(""); setBody("");
+      await refreshScheduled();
+    } catch (error) {
+      Alert.alert("Não foi possível agendar", error instanceof Error ? error.message : "Tente novamente.");
+    }
   };
 
   return (
@@ -117,11 +164,43 @@ export default function ScheduleScreen() {
         />
 
         <Text style={styles.label}>Quando enviar?</Text>
-        <View style={styles.grid}>{[1, 5, 10, 30].map((value) => (
-          <Pressable key={value} onPress={() => setMinutes(value)} style={[styles.choice, minutes === value && styles.choiceActive]}>
-            <Text style={[styles.choiceText, minutes === value && { color: "#FFF" }]}>{value} minuto{value === 1 ? "" : "s"}</Text>
+        <View style={styles.timingModeRow}>
+          <Pressable onPress={() => setTimingMode("quick")} style={[styles.timingModeButton, timingMode === "quick" && styles.timingModeActive]}>
+            <Text style={[styles.timingModeText, timingMode === "quick" && styles.timingModeTextActive]}>Intervalo rápido</Text>
           </Pressable>
-        ))}</View>
+          <Pressable onPress={() => setTimingMode("custom")} style={[styles.timingModeButton, timingMode === "custom" && styles.timingModeActive]}>
+            <Text style={[styles.timingModeText, timingMode === "custom" && styles.timingModeTextActive]}>Data e horário</Text>
+          </Pressable>
+        </View>
+        {timingMode === "quick" ? (
+          <View style={styles.grid}>{[1, 5, 10, 30].map((value) => (
+            <Pressable key={value} onPress={() => setMinutes(value)} style={[styles.choice, minutes === value && styles.choiceActive]}>
+              <Text style={[styles.choiceText, minutes === value && { color: "#FFF" }]}>{value} minuto{value === 1 ? "" : "s"}</Text>
+            </Pressable>
+          ))}</View>
+        ) : (
+          <View style={styles.customTimingCard}>
+            <Text style={styles.customTimingHint}>Escolha quando a notificação deverá aparecer no iPhone.</Text>
+            <View style={styles.customTimingRow}>
+              <Pressable onPress={() => openPicker("date")} style={styles.dateTimeButton}>
+                <IconSymbol name="calendar" size={20} color={teal} />
+                <View><Text style={styles.dateTimeCaption}>Data</Text><Text style={styles.dateTimeValue}>{formatDateSummary(scheduledDate)}</Text></View>
+              </Pressable>
+              <Pressable onPress={() => openPicker("time")} style={styles.dateTimeButton}>
+                <IconSymbol name="clock" size={20} color={teal} />
+                <View><Text style={styles.dateTimeCaption}>Horário</Text><Text style={styles.dateTimeValue}>{formatTimeSummary(scheduledDate)}</Text></View>
+              </Pressable>
+            </View>
+            <Text style={styles.customTimingSummary}>Será enviado em {formatDateSummary(scheduledDate)} às {formatTimeSummary(scheduledDate)}</Text>
+          </View>
+        )}
+        <Modal visible={pickerMode !== null} transparent animationType="fade" onRequestClose={() => setPickerMode(null)}>
+          <View style={styles.pickerBackdrop}><View style={styles.pickerCard}>
+            <Text style={styles.modalTitle}>{pickerMode === "date" ? "Escolha a data" : "Escolha o horário"}</Text>
+            {pickerMode && <DateTimePicker value={scheduledDate} mode={pickerMode} display="spinner" minimumDate={pickerMode === "date" ? new Date() : undefined} onChange={handlePickerChange} themeVariant="light" />}
+            <Pressable onPress={() => setPickerMode(null)} style={styles.pickerDone}><Text style={styles.pickerDoneText}>Concluir</Text></Pressable>
+          </View></View>
+        </Modal>
 
         <View style={styles.selectedSummary}>
           <Text style={styles.summaryTitle}>{title || "Modelo pronto para agendamento"}</Text>
@@ -201,6 +280,9 @@ const styles = StyleSheet.create({
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
   choice: { width: "48%", minHeight: 60, borderWidth: 1, borderColor: border, borderRadius: 18, alignItems: "center", justifyContent: "center", backgroundColor: bg },
   choiceActive: { backgroundColor: teal }, choiceText: { fontSize: 17, color: ink },
+  timingModeRow: { flexDirection: "row", gap: 10 }, timingModeButton: { flex: 1, minHeight: 48, borderWidth: 1, borderColor: border, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: "#FFF" }, timingModeActive: { backgroundColor: teal, borderColor: teal }, timingModeText: { color: teal, fontSize: 14, fontWeight: "800" }, timingModeTextActive: { color: "#FFF" },
+  customTimingCard: { backgroundColor: "#FFF", borderWidth: 1, borderColor: border, borderRadius: 20, padding: 16, gap: 14 }, customTimingHint: { color: muted, fontSize: 14, lineHeight: 19 }, customTimingRow: { flexDirection: "row", gap: 10 }, dateTimeButton: { flex: 1, minHeight: 66, borderWidth: 1, borderColor: "#B8DAD6", borderRadius: 16, paddingHorizontal: 12, flexDirection: "row", alignItems: "center", gap: 9, backgroundColor: "#F5FCFB" }, dateTimeCaption: { color: muted, fontSize: 12, fontWeight: "700" }, dateTimeValue: { color: ink, fontSize: 16, fontWeight: "900", marginTop: 2 }, customTimingSummary: { color: teal, fontSize: 14, fontWeight: "800" },
+  pickerBackdrop: { flex: 1, justifyContent: "center", padding: 20, backgroundColor: "rgba(18,27,36,0.45)" }, pickerCard: { backgroundColor: "#FFF", borderRadius: 26, padding: 20, alignItems: "center", gap: 14 }, pickerDone: { width: "100%", minHeight: 52, borderRadius: 16, backgroundColor: teal, alignItems: "center", justifyContent: "center" }, pickerDoneText: { color: "#FFF", fontSize: 16, fontWeight: "900" },
   selectedSummary: { backgroundColor: "#FFF", borderWidth: 1, borderColor: border, borderRadius: 18, padding: 16, gap: 4 },
   summaryTitle: { color: ink, fontSize: 16, fontWeight: "900" }, summaryBody: { color: muted, fontSize: 14, lineHeight: 20 },
   button: { minHeight: 64, borderRadius: 22, backgroundColor: teal, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10, marginTop: 2 }, buttonText: { color: "#FFF", fontSize: 19, fontWeight: "900" },
@@ -211,5 +293,6 @@ const styles = StyleSheet.create({
   pending: { backgroundColor: "#FFF", borderWidth: 1, borderColor: border, borderRadius: 22, padding: 18, gap: 11 }, pendingTop: { flexDirection: "row", gap: 12 }, pendingTitle: { color: ink, fontWeight: "800", fontSize: 17 }, pendingSubtitle: { color: ink, fontSize: 14, marginTop: 3 }, pendingBody: { color: muted, fontSize: 15, marginTop: 3 }, pendingDate: { color: muted, fontSize: 13 }, actions: { flexDirection: "row", gap: 10 }, brandImage: { width: 32, height: 32, borderRadius: 10 },
   secondary: { borderWidth: 1, borderColor: teal, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 15 }, secondaryText: { color: teal, fontWeight: "800" }, delete: { borderWidth: 1, borderColor: "#E8B7B4", borderRadius: 12, paddingVertical: 10, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", gap: 6 },
   field: { gap: 8 }, input: { backgroundColor: "#FFF", borderWidth: 1, borderColor: border, borderRadius: 18, minHeight: 58, paddingHorizontal: 18, color: ink, fontSize: 17 },
-  modalBackdrop: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(18,27,36,0.45)" }, modalCard: { backgroundColor: "#FFF", borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, paddingBottom: 30, gap: 12 }, modalTitle: { color: ink, fontSize: 24, fontWeight: "900" }, modalDate: { color: muted, fontSize: 14, marginBottom: 2 }, modalActions: { flexDirection: "row", gap: 12, marginTop: 4 }, modalCancel: { flex: 1, minHeight: 54, borderRadius: 16, borderWidth: 1, borderColor: teal, alignItems: "center", justifyContent: "center" }, modalCancelText: { color: teal, fontSize: 16, fontWeight: "800" }, modalSave: { flex: 1, minHeight: 54, borderRadius: 16, backgroundColor: teal, alignItems: "center", justifyContent: "center" }, modalSaveText: { color: "#FFF", fontSize: 16, fontWeight: "900" },
+  modalBackdrop: { flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(18,27,36,0.45)" }, modalCard: { backgroundColor: "#FFF", borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, paddingBottom: 30, gap: 12 }, modalTitle: { color: ink, fontSize: 24, fontWeight: "900" }, modalDate: { color: muted, fontSize: 14, marginBottom: 2 }, modalActions: { flexDirection: "row", gap: 12, marginTop: 4 },   modalCancel: { flex: 1, minHeight: 54, borderRadius: 16, borderWidth: 1, borderColor: teal, alignItems: "center", justifyContent: "center" }, modalCancelText: { color: teal, fontSize: 16, fontWeight: "800" }, modalSave: { flex: 1, minHeight: 54, borderRadius: 16, backgroundColor: teal, alignItems: "center", justifyContent: "center" }, modalSaveText: { color: "#FFF", fontSize: 16, fontWeight: "900" },
+
 });

@@ -14,6 +14,8 @@ const MAPPING = {
   "square.and.pencil": "edit",
   "clock.arrow.circlepath": "history",
   "calendar.badge.clock": "event",
+  calendar: "calendar-today",
+  clock: "schedule",
   photo: "photo-library",
   "gearshape.fill": "settings",
   notifications: "notifications",

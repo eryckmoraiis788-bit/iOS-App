@@ -1,8 +1,8 @@
 {
   "build_command": "pnpm run build",
   "capabilities": [
-    "server",
     "db",
+    "server",
     "user"
   ],
   "dev_command": "pnpm run dev",
@@ -14,8 +14,8 @@
   ],
   "git_remote": {
     "repo_url": "https://7f0548f6b28a1758d9bf7be630d36cb4.artifacts.cloudflare.net/git/prod/XAPbL7nn9gYRu3sh33W5xN.git",
-    "expiration": "2026-08-16T17:15:23.365Z",
-    "token": "art_v2_x_d757c364dec35e3d178f45020f6c985bc860b9e2?expires=1786900523",
+    "expiration": "2026-08-18T18:44:46.658Z",
+    "token": "art_v2_x_b9b2518823b1c8b6f5fcf2a2cc061ba99d126143?expires=1787078686",
     "backend": "GIT_BACKEND_ARTIFACTS"
   },
   "name": "notificacao-ios",
@@ -24,22 +24,18 @@
   "secrets": {
     "BUILT_IN_FORGE_API_KEY": "oE69mAfLTRPYow3ZJwbaU6",
     "BUILT_IN_FORGE_API_URL": "https://forge.manus.ai",
-    "EXPO_APP_QR_URL": "exps://8081-i2w5rzquzj3mngvdupqcr-1e38affc.us3.manus.computer",
-    "EXPO_PACKAGER_PROXY_URL": "https://8081-i2w5rzquzj3mngvdupqcr-1e38affc.us3.manus.computer",
-    "EXPO_PUBLIC_API_BASE_URL": "https://3000-i2w5rzquzj3mngvdupqcr-1e38affc.us3.manus.computer",
-    "EXPO_PUBLIC_OAUTH_PORTAL_URL": "https://manus.im",
-    "EXPO_PUBLIC_OAUTH_SERVER_URL": "https://api.manus.im",
-    "EXPO_PUBLIC_OWNER_NAME": "Eryck Darlisson",
-    "EXPO_PUBLIC_OWNER_OPEN_ID": "gYZhHDZ2TznPrThFN6tT4h",
+    "EXPO_APP_QR_URL": "exps://8081-isqttqdw6ztyctkcnhty3-4271ca08.us3.manus.computer",
+    "EXPO_PACKAGER_PROXY_URL": "https://8081-isqttqdw6ztyctkcnhty3-4271ca08.us3.manus.computer",
+    "EXPO_PUBLIC_API_BASE_URL": "https://3000-isqttqdw6ztyctkcnhty3-4271ca08.us3.manus.computer",
     "JWT_SECRET": "nGRskZyuccBGGQwQJky3LP",
     "OAUTH_SERVER_URL": "https://api.manus.im",
     "OWNER_NAME": "Eryck Darlisson",
     "OWNER_OPEN_ID": "gYZhHDZ2TznPrThFN6tT4h",
-    "REACT_NATIVE_PACKAGER_HOSTNAME": "8081-i2w5rzquzj3mngvdupqcr-1e38affc.us3.manus.computer",
+    "REACT_NATIVE_PACKAGER_HOSTNAME": "8081-isqttqdw6ztyctkcnhty3-4271ca08.us3.manus.computer",
     "VITE_ANALYTICS_ENDPOINT": "https://manus-analytics.com",
     "VITE_ANALYTICS_WEBSITE_ID": "d378a1f1-991c-4801-9bd6-dac5b95a38b6",
     "VITE_APP_ID": "XAPbL7nn9gYRu3sh33W5xN",
-    "VITE_APP_LOGO": "",
+    "VITE_APP_LOGO": "https://files.manuscdn.com/user_upload_by_module/session_file/310519663877112972/DbtapuRiZKczgrFp.JPG",
     "VITE_APP_TITLE": "Notificação iOS",
     "VITE_FRONTEND_FORGE_API_KEY": "5Ktj5kEuv5H4duhzMWVyME",
     "VITE_FRONTEND_FORGE_API_URL": "https://forge.manus.ai",

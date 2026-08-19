@@ -38,7 +38,7 @@ type Store = {
   refreshPermission: () => Promise<void>;
   requestPermission: () => Promise<boolean>;
   emit: (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => Promise<boolean>;
-  schedule: (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">, minutes: number) => Promise<void>;
+  schedule: (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">, timing: number | Date) => Promise<void>;
   updateScheduled: (record: NotificationRecord, input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => Promise<void>;
   refreshScheduled: () => Promise<void>;
   clearScheduled: () => Promise<void>;
@@ -204,9 +204,12 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     return true;
   };
 
-  const schedule = async (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">, minutes: number) => {
+  const schedule = async (input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">, timing: number | Date) => {
     if (!(await requestPermission())) return;
-    const scheduledAt = new Date(Date.now() + minutes * 60_000);
+    const scheduledAt = timing instanceof Date ? new Date(timing) : new Date(Date.now() + timing * 60_000);
+    if (Number.isNaN(scheduledAt.getTime()) || scheduledAt.getTime() <= Date.now()) {
+      throw new Error("Escolha uma data e um horário futuros.");
+    }
     const notificationId = await Notifications.scheduleNotificationAsync({
       content: await buildContent(input),
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: scheduledAt },
