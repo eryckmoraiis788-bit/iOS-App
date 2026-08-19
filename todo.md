@@ -371,5 +371,11 @@
 - [x] Adicionar edição de mensagem em cada agendamento pendente; editor modal implementado.
 - [x] Salvar o conteúdo editado mantendo o horário e o identificador do agendamento; novo agendamento criado no mesmo horário e antigo cancelado.
 - [x] Validar edição, cancelamento, limpeza geral e emissão imediata sem regressões; TypeScript, testes e preview passaram.
-- [ ] Incrementar a versão para 1.2.36/build 156 e gerar uma nova IPA SideStore para testar a edição de agendamentos pendentes.
-- [ ] Acompanhar a GitHub Action, baixar a IPA gerada e auditar o Info.plist antes da entrega.
+- [x] Incrementar a versão para 1.2.36/build 156 e gerar uma nova IPA SideStore para testar a edição de agendamentos pendentes.
+- [x] Acompanhar a GitHub Action, baixar a IPA gerada e auditar o Info.plist antes da entrega; Action 32198570440 concluída com sucesso, IPA auditada com Inter, versão 1.2.36, build 156 e bundle com.app.notificacaoios.
+- [x] Adicionar feedback sutil de toque aos botões principais sem alterar a lógica de emissão ou agendamento.
+- [x] Animar a entrada dos agendamentos pendentes e a abertura do editor.
+- [x] Animar os estados de sucesso, edição salva e cancelamento de agendamento.
+- [x] Validar as animações no preview; TypeScript e testes passaram, e a nova IPA ficará para a etapa seguinte após o checkpoint.
+- [ ] Incrementar a versão/build e gerar uma IPA SideStore com as animações da aba Agendar para teste no iPhone.
+- [ ] Acompanhar a GitHub Action, baixar a IPA e auditar o Info.plist antes da entrega.
