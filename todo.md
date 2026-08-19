@@ -373,11 +373,10 @@
 - [x] Validar edição, cancelamento, limpeza geral e emissão imediata sem regressões; TypeScript, testes e preview passaram.
 - [x] Incrementar a versão para 1.2.36/build 156 e gerar uma nova IPA SideStore para testar a edição de agendamentos pendentes.
 - [x] Acompanhar a GitHub Action, baixar a IPA gerada e auditar o Info.plist antes da entrega; Action 32198570440 concluída com sucesso, IPA auditada com Inter, versão 1.2.36, build 156 e bundle com.app.notificacaoios.
-- [x] Adicionar feedback sutil de toque aos botões principais sem alterar a lógica de emissão ou agendamento.
-- [x] Animar a entrada dos agendamentos pendentes e a abertura do editor.
-- [x] Animar os estados de sucesso, edição salva e cancelamento de agendamento.
-- [x] Validar as animações no preview; TypeScript e testes passaram, e a nova IPA ficará para a etapa seguinte após o checkpoint.
-- [x] Incrementar a versão/build e gerar uma IPA SideStore com as animações da aba Agendar para teste no iPhone; versão 1.2.37/build 157, Action 32200357651.
-- [x] Acompanhar a GitHub Action, baixar a IPA e auditar o Info.plist antes da entrega; Inter, versão 1.2.37, build 157, bundle com.app.notificacaoios.
-- [ ] Restaurar o backup 1b65e909 e validar a interface recuperada da aba Agendar; restauração confirmada e TypeScript/testes aprovados.
-- [ ] Incrementar a versão/build, gerar e auditar uma IPA baseada no backup restaurado para teste no iPhone.
+- [x] Salvar a versão correspondente à Action 32198570440 como ponto de referência definitivo; estado restaurado via checkpoint f0f549fe, Inter 1.2.36/build 156, TypeScript e testes aprovados.
+- [x] Adicionar na aba Agendar uma seção Modelos rápidos igual à da aba Compor, com Pix recebido e Pix enviado.
+- [x] Substituir somente a área circulada dos campos na aba Agendar, preservando o restante do layout definitivo.
+- [x] Fazer os modelos rápidos preencherem título, subtítulo e mensagem sem emitir a notificação automaticamente.
+- [x] Validar agendamento após usar cada modelo e salvar checkpoint separado da referência definitiva; preview móvel, TypeScript e testes aprovados.
+- [ ] Incrementar a versão/build e gerar uma IPA SideStore com os Modelos rápidos na aba Agendar.
+- [ ] Acompanhar a Action, baixar a IPA e auditar o Info.plist antes da entrega.
