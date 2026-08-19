@@ -378,5 +378,15 @@
 - [x] Substituir somente a área circulada dos campos na aba Agendar, preservando o restante do layout definitivo.
 - [x] Fazer os modelos rápidos preencherem título, subtítulo e mensagem sem emitir a notificação automaticamente.
 - [x] Validar agendamento após usar cada modelo e salvar checkpoint separado da referência definitiva; preview móvel, TypeScript e testes aprovados.
-- [ ] Incrementar a versão/build e gerar uma IPA SideStore com os Modelos rápidos na aba Agendar.
-- [ ] Acompanhar a Action, baixar a IPA e auditar o Info.plist antes da entrega.
+- [x] Incrementar a versão/build e gerar uma IPA SideStore com os Modelos rápidos na aba Agendar; Inter 1.2.40/build 160, Action 32205489984.
+- [x] Acompanhar a Action, baixar a IPA e auditar o Info.plist antes da entrega; AUDIT=PASS.
+- [x] Salvar a versão Inter 1.2.40/build 160, com Modelos rápidos confirmados no iPhone, como backup de referência definitiva antes de novas alterações; checkpoint c7decb3a.
+- [ ] Remover a aba Ícone da barra inferior e limpar referências de navegação relacionadas.
+- [ ] Validar Compor, Histórico, Agendar e Ajustes após a remoção, sem alterar os Modelos rápidos.
+- [ ] Salvar checkpoint separado do backup 316e3866 e preparar nova IPA de teste.
+
+- [x] Remover a aba Ícone da barra inferior e ocultar explicitamente sua rota Expo Router.
+- [x] Validar a navegação com apenas Compor, Histórico, Agendar e Ajustes; TypeScript, testes e prévia móvel aprovados.
+- [ ] Incrementar a versão/build para 1.2.41/build 161 e gerar IPA SideStore.
+- [ ] Baixar e auditar a nova IPA antes da entrega.
+
