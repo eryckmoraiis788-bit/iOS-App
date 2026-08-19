@@ -4,6 +4,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
+import { AnimatedScreen } from "@/components/animated-screen";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore, type NotificationRecurrence, type NotificationTemplate } from "@/lib/notification-store";
 
@@ -222,6 +223,7 @@ export default function ScheduleScreen() {
 
   return (
     <ScreenContainer containerClassName="bg-[#EAF4F8]">
+      <AnimatedScreen>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.heading}>Agendar Notificação</Text>
         <Text style={styles.modelLabel}>Modelos rápidos</Text>
@@ -347,6 +349,7 @@ export default function ScheduleScreen() {
         {pending.length > 0 && <Pressable onPress={() => Alert.alert("Cancelar agendamentos", "Deseja cancelar todos os agendamentos pendentes?", [{ text: "Não", style: "cancel" }, { text: "Cancelar todos", style: "destructive", onPress: () => void clearScheduled() }])} style={styles.clearButton}><IconSymbol name="trash" size={18} color="#B44B47" /><Text style={styles.clearText}>Cancelar todos os agendamentos</Text></Pressable>}
         {pending.length === 0 ? <View style={styles.empty}><IconSymbol name="calendar.badge.clock" size={30} color={muted} /><Text style={styles.emptyText}>Nenhum agendamento pendente.</Text></View> : pending.map((item) => <PendingCard key={item.id} item={item} />)}
       </ScrollView>
+      </AnimatedScreen>
     </ScreenContainer>
   );
 }

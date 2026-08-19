@@ -2,6 +2,7 @@ import { Alert, ActivityIndicator, FlatList, Image, Pressable, StyleSheet, Text,
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { ScreenContainer } from "@/components/screen-container";
+import { AnimatedScreen } from "@/components/animated-screen";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore, type NotificationRecord } from "@/lib/notification-store";
 
@@ -34,6 +35,7 @@ export default function HistoryScreen() {
 
   return (
     <ScreenContainer containerClassName="bg-[#EAF4F8]">
+      <AnimatedScreen>
       <FlatList
         data={history}
         keyExtractor={(item) => item.id}
@@ -42,6 +44,7 @@ export default function HistoryScreen() {
         ListEmptyComponent={<View style={styles.empty}><IconSymbol name="clock.arrow.circlepath" size={35} color={muted} /><Text style={styles.emptyTitle}>Nenhuma notificação ainda</Text><Text style={styles.emptyBody}>As notificações emitidas aparecerão aqui.</Text></View>}
         renderItem={({ item }) => <HistoryCard item={item} onScheduleAgain={() => scheduleAgain(item)} onRemove={() => Alert.alert("Excluir notificação?", "Este registro será removido do histórico.", [{ text: "Cancelar", style: "cancel" }, { text: "Excluir", style: "destructive", onPress: () => void remove(item) }])} />}
       />
+      </AnimatedScreen>
     </ScreenContainer>
   );
 }

@@ -69,6 +69,7 @@ export default function ComposeScreen() {
   const [feedback, setFeedback] = useState<"saved" | "emitted" | "save-error" | "emit-error" | null>(null);
   const feedbackOpacity = useRef(new Animated.Value(0)).current;
   const feedbackScale = useRef(new Animated.Value(0.82)).current;
+  const feedbackIconScale = useRef(new Animated.Value(0.7)).current;
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const entranceProgress = useRef(new Animated.Value(0)).current;
   const { selectedImage, emit, templates, saveTemplate, removeTemplate } = useNotificationStore();
@@ -91,13 +92,18 @@ export default function ComposeScreen() {
     setFeedback(kind);
     feedbackOpacity.setValue(0);
     feedbackScale.setValue(0.82);
+    feedbackIconScale.setValue(0.7);
     Animated.parallel([
-      Animated.timing(feedbackOpacity, { toValue: 1, duration: 180, easing: Easing.out(Easing.quad), useNativeDriver: true }),
-      Animated.spring(feedbackScale, { toValue: 1, friction: 7, tension: 90, useNativeDriver: true }),
+      Animated.timing(feedbackOpacity, { toValue: 1, duration: 220, easing: Easing.out(Easing.quad), useNativeDriver: true }),
+      Animated.spring(feedbackScale, { toValue: 1, friction: 6, tension: 105, useNativeDriver: true }),
+      Animated.sequence([
+        Animated.spring(feedbackIconScale, { toValue: 1.18, friction: 5, tension: 120, useNativeDriver: true }),
+        Animated.spring(feedbackIconScale, { toValue: 1, friction: 6, tension: 100, useNativeDriver: true }),
+      ]),
     ]).start();
     feedbackTimer.current = setTimeout(() => {
       Animated.timing(feedbackOpacity, { toValue: 0, duration: 220, easing: Easing.in(Easing.quad), useNativeDriver: true }).start(() => setFeedback(null));
-    }, 2200);
+    }, 2600);
   };
 
   const showErrorFeedback = (kind: "save-error" | "emit-error") => {
@@ -282,13 +288,13 @@ export default function ComposeScreen() {
       contentInsetAdjustmentBehavior="never"
     >
       {feedback && (
-        <Animated.View style={[styles.successToast, feedback.endsWith("error") && styles.errorToast, { opacity: feedbackOpacity, transform: [{ scale: feedbackScale }] }]} accessibilityLiveRegion="polite">
-          <View style={[styles.successToastIcon, feedback.endsWith("error") && styles.errorToastIcon]}>
-            <MaterialIcons name={feedback.endsWith("error") ? "priority-high" : "check"} size={20} color={colors.white} />
-          </View>
+        <Animated.View style={[styles.successToast, feedback === "emitted" && styles.emittedToast, feedback.endsWith("error") && styles.errorToast, { opacity: feedbackOpacity, transform: [{ scale: feedbackScale }] }]} accessibilityLiveRegion="polite">
+          <Animated.View style={[styles.successToastIcon, feedback === "emitted" && styles.emittedToastIcon, feedback.endsWith("error") && styles.errorToastIcon, { transform: [{ scale: feedbackIconScale }] }]}>
+            <MaterialIcons name={feedback.endsWith("error") ? "priority-high" : feedback === "emitted" ? "notifications-active" : "check"} size={feedback === "emitted" ? 23 : 20} color={colors.white} />
+          </Animated.View>
           <View style={styles.flexCopy}>
-            <Text style={styles.successToastTitle}>{feedback === "saved" ? "Modelo salvo" : feedback === "emitted" ? "Notificação emitida" : feedback === "save-error" ? "Falha ao salvar" : "Falha ao emitir"}</Text>
-            <Text style={styles.successToastBody}>{feedback === "saved" ? "Sua predefinição foi guardada nesta tela." : feedback === "emitted" ? "A mensagem foi enviada para o iPhone." : feedback === "save-error" ? "Não foi possível guardar o modelo. Tente novamente." : "A mensagem não foi enviada. Verifique os dados e tente novamente."}</Text>
+            <Text style={[styles.successToastTitle, feedback === "emitted" && styles.emittedToastTitle]}>{feedback === "saved" ? "Modelo salvo" : feedback === "emitted" ? "Notificação emitida" : feedback === "save-error" ? "Falha ao salvar" : "Falha ao emitir"}</Text>
+            <Text style={[styles.successToastBody, feedback === "emitted" && styles.emittedToastBody]}>{feedback === "saved" ? "Sua predefinição foi guardada nesta tela." : feedback === "emitted" ? "A mensagem foi enviada para o iPhone." : feedback === "save-error" ? "Não foi possível guardar o modelo. Tente novamente." : "A mensagem não foi enviada. Verifique os dados e tente novamente."}</Text>
           </View>
         </Animated.View>
       )}
@@ -557,11 +563,15 @@ const styles = StyleSheet.create({
   confirmModalSendText: { color: colors.white, fontSize: 15, fontWeight: "900" },
 
   successToast: { flexDirection: "row", alignItems: "center", gap: 11, backgroundColor: colors.navy, borderRadius: 18, paddingHorizontal: 14, paddingVertical: 12, borderWidth: 1, borderColor: "#2F566C", shadowColor: "#102F49", shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 3 },
+  emittedToast: { backgroundColor: "#E9FBF2", borderColor: "#64C89A", shadowColor: "#3CA77A", shadowOpacity: 0.34, shadowRadius: 14, shadowOffset: { width: 0, height: 5 }, elevation: 6, paddingVertical: 14 },
   successToastIcon: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.green, alignItems: "center", justifyContent: "center" },
+  emittedToastIcon: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.teal, shadowColor: colors.teal, shadowOpacity: 0.35, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 4 },
   errorToast: { backgroundColor: "#7F2630", borderColor: "#A9434D" },
   errorToastIcon: { backgroundColor: "#D4515C" },
   successToastTitle: { color: colors.white, fontSize: 14, fontWeight: "900" },
+  emittedToastTitle: { color: colors.teal, fontSize: 16, fontWeight: "900" },
   successToastBody: { color: "#C6D7E1", fontSize: 12, lineHeight: 16, marginTop: 2 },
+  emittedToastBody: { color: "#357568", fontSize: 13, lineHeight: 18, marginTop: 3 },
   header: { flexDirection: "row", alignItems: "center", paddingTop: 8, gap: 12 },
   headerLogo: { width: 64, height: 64, borderRadius: 20 },
   headerCopy: { flex: 1 },

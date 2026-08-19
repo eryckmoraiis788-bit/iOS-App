@@ -490,4 +490,12 @@
 - [x] Exibir feedback visual imediato e claro ao salvar um modelo na aba Compor
 - [x] Validar o fluxo de salvamento com o novo feedback sem regressões
 
-- [ ] Gerar e auditar a IPA atualizada com feedback visual de salvamento para teste via SideStore
+- [x] Gerar e auditar a IPA atualizada com feedback visual de salvamento para teste via SideStore
+
+- [x] Definir e implementar animações sutis nas telas Compor, Agendar, Histórico e Ajustes
+- [x] Validar desempenho, acessibilidade e ausência de regressões nas animações
+
+- [x] Criar animação de sucesso mais marcante quando uma notificação for emitida
+- [x] Validar a animação de emissão sem regressões de funcionamento ou desempenho
+
+- [ ] Gerar e auditar nova IPA com a animação de sucesso aprimorada para teste no iPhone
