@@ -502,3 +502,6 @@
 
 - [x] Substituir a logo do Inter pelos assets escuros aprovados pelo usuário
 - [x] Gerar e auditar a IPA do Inter com a logo escura — versão 1.2.52/build 172, CFBundleDisplayName Inter
+
+- [x] Remover a borda branca da logo escura do Inter para igualá-la à referência aprovada
+- [x] Atualizar os assets e preparar IPA auditada após a remoção da borda branca
