@@ -522,3 +522,7 @@
 
 - [ ] Gerar IPA do Inter com a logo escura e símbolo laranja na proporção final aprovada
 - [ ] Auditar a IPA gerada antes de entregar para teste no SideStore
+
+- [x] Ajustar a escala do símbolo laranja da logo do Inter para corresponder à referência da direita.
+- [x] Atualizar todos os assets derivados da logo sem alterar o fundo escuro full-bleed.
+- [ ] Validar a nova logo e gerar uma IPA auditada para SideStore.
