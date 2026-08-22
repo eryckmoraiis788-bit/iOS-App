@@ -504,4 +504,7 @@
 - [x] Gerar e auditar a IPA do Inter com a logo escura — versão 1.2.52/build 172, CFBundleDisplayName Inter
 
 - [x] Remover a borda branca da logo escura do Inter para igualá-la à referência aprovada
-- [x] Atualizar os assets e preparar IPA auditada após a remoção da borda branca
+- [x] Atualizar os assets e gerar IPA auditada após a remoção da borda branca — versão 1.2.53/build 173
+
+- [ ] Refazer a logo usando diretamente a referência circulada da direita, eliminando qualquer borda ou halo branco
+- [ ] Atualizar os assets do Inter e gerar IPA auditada com a logo exatamente sem contorno
