@@ -499,3 +499,6 @@
 - [x] Validar a animação de emissão sem regressões de funcionamento ou desempenho
 
 - [ ] Gerar e auditar nova IPA com a animação de sucesso aprimorada para teste no iPhone
+
+- [x] Substituir a logo do Inter pelos assets escuros aprovados pelo usuário
+- [x] Gerar e auditar a IPA do Inter com a logo escura — versão 1.2.52/build 172, CFBundleDisplayName Inter
