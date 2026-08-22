@@ -506,5 +506,19 @@
 - [x] Remover a borda branca da logo escura do Inter para igualá-la à referência aprovada
 - [x] Atualizar os assets e gerar IPA auditada após a remoção da borda branca — versão 1.2.53/build 173
 
-- [ ] Refazer a logo usando diretamente a referência circulada da direita, eliminando qualquer borda ou halo branco
-- [ ] Atualizar os assets do Inter e gerar IPA auditada com a logo exatamente sem contorno
+- [x] Refazer a logo usando diretamente a referência circulada da direita, eliminando qualquer borda ou halo branco
+- [x] Atualizar os assets do Inter e gerar IPA auditada com a logo exatamente sem contorno — versão 1.2.54/build 174
+
+- [x] Recriar a logo do Inter com fundo escuro sólido ocupando 100% do quadrado, sem branco, transparência ou margens
+- [x] Atualizar os assets do Inter com a versão de preenchimento total e validar o resultado
+
+- [x] Criar mockup visual da tela inicial do iPhone com a nova logo escura do Inter aplicada
+
+- [x] Ajustar a proporção e o posicionamento do símbolo laranja dentro do quadrado escuro do Inter
+- [x] Atualizar o mockup com a nova proporção e aguardar aprovação antes da IPA
+
+- [x] Criar mockup da logo refinada do Inter aplicada no modo claro e no modo escuro do iOS
+- [x] Conferir contraste, escala e ausência de borda branca nos dois modos
+
+- [ ] Gerar IPA do Inter com a logo escura e símbolo laranja na proporção final aprovada
+- [ ] Auditar a IPA gerada antes de entregar para teste no SideStore
