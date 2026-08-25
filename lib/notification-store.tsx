@@ -5,6 +5,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { Alert, Linking, Platform } from "react-native";
 import { parseStoredNotificationRecords } from "./notification-storage";
 import { getStaleNotificationAttachmentUris, NOTIFICATION_ATTACHMENT_PREFIX } from "./notification-cache";
+import { parseStoredNotificationReceipts, type NotificationReceipt } from "./receipt-storage";
+import { createMaskedDocument, extractReceiptAmount, extractReceiptRecipientName, getReceiptTimestamp, getReceiptTransactionId } from "./receipt-utils";
 
 export type NotificationTemplate = {
   id: string;
@@ -54,12 +56,15 @@ type Store = {
   saveTemplate: (input: Omit<NotificationTemplate, "id" | "createdAt" | "updatedAt">, id?: string) => Promise<NotificationTemplate>;
   removeTemplate: (template: NotificationTemplate) => Promise<void>;
   refreshTemplates: () => Promise<void>;
+  receipts: NotificationReceipt[];
+  updateReceipt: (receiptId: string, input: Partial<Pick<NotificationReceipt, "amount" | "recipientName" | "document" | "institution">>) => Promise<void>;
 };
 
 const STORAGE_KEY = "notification-ios-records-v1";
 const TEMPLATES_KEY = "notification-ios-templates-v1";
 const IMAGE_KEY = "notification-ios-image-v1";
 const HAPTICS_KEY = "notification-ios-haptics-v1";
+const RECEIPTS_KEY = "notification-ios-receipts-v1";
 
 function normalizeTemplates(raw: unknown): NotificationTemplate[] {
   if (!Array.isArray(raw)) return [];
@@ -175,6 +180,10 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
   const selectedImageRef = useRef<string | undefined>(undefined);
   const [hapticsEnabled, setHapticsState] = useState(true);
   const [permission, setPermission] = useState<Notifications.PermissionStatus | "unknown">("unknown");
+  const [receipts, setReceipts] = useState<NotificationReceipt[]>([]);
+  const receiptsRef = useRef<NotificationReceipt[]>([]);
+  const receiptsLoadPromiseRef = useRef<Promise<void> | null>(null);
+  const receiptsWritePromiseRef = useRef<Promise<void>>(Promise.resolve());
 
   const refreshTemplates = useCallback(async () => {
     if (templatesWriteInProgressRef.current) return;
@@ -183,6 +192,43 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     templatesLoadedRef.current = true;
     setTemplates(parsedTemplates);
   }, []);
+
+  const updateReceipts = (updater: (current: NotificationReceipt[]) => NotificationReceipt[]) => {
+    const operation = receiptsWritePromiseRef.current.then(async () => {
+      if (receiptsLoadPromiseRef.current) await receiptsLoadPromiseRef.current;
+      const next = updater(receiptsRef.current);
+      await AsyncStorage.setItem(RECEIPTS_KEY, JSON.stringify(next));
+      receiptsRef.current = next;
+      setReceipts(next);
+    });
+    receiptsWritePromiseRef.current = operation.catch(() => undefined);
+    return operation;
+  };
+
+  const ensureReceiptsForRecords = async (sourceRecords: NotificationRecord[], eventTimes = new Map<string, string>()) => {
+    const eligibleRecords = sourceRecords.filter((record) => record.status === "sent" || record.status === "delivered");
+    if (eligibleRecords.length === 0) return;
+    await updateReceipts((current) => {
+      const existingRecordIds = new Set(current.map((receipt) => receipt.recordId));
+      const additions = eligibleRecords
+        .filter((record) => !existingRecordIds.has(record.id))
+        .map((record) => {
+          const eventAt = eventTimes.get(record.id) ?? getReceiptTimestamp(record);
+          return {
+            id: `receipt-${record.id}`,
+            recordId: record.id,
+            amount: extractReceiptAmount(record),
+            recipientName: extractReceiptRecipientName(record),
+            document: createMaskedDocument(),
+            institution: "Cloudwalk Ip LTDA",
+            transactionId: getReceiptTransactionId({ ...record, scheduledAt: eventAt }),
+            createdAt: new Date().toISOString(),
+            eventAt,
+          } satisfies NotificationReceipt;
+        });
+      return additions.length > 0 ? [...additions, ...current] : current;
+    });
+  };
 
   useEffect(() => {
     recordsLoadPromiseRef.current = (async () => {
@@ -194,6 +240,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
       const parsedRecords = parseStoredNotificationRecords(storedRecords);
       recordsRef.current = parsedRecords;
       setRecords(parsedRecords);
+      await ensureReceiptsForRecords(parsedRecords);
       await refreshTemplates();
       if (storedImage) {
         selectedImageRef.current = storedImage;
@@ -203,6 +250,11 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
       void cleanupCachedAttachments(parsedRecords, storedImage ?? undefined);
       await refreshPermission();
     })();
+    receiptsLoadPromiseRef.current = readStoredValue(RECEIPTS_KEY).then((stored) => {
+      const parsedReceipts = parseStoredNotificationReceipts(stored);
+      receiptsRef.current = parsedReceipts;
+      setReceipts(parsedReceipts);
+    });
     templatesLoadPromiseRef.current = recordsLoadPromiseRef.current;
   }, []);
 
@@ -270,6 +322,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     }
     const record: NotificationRecord = { ...input, id: `local-${Date.now()}`, kind: "immediate", status: "sent", createdAt: new Date().toISOString(), notificationId };
     await updateRecords((current) => [record, ...current]);
+    await ensureReceiptsForRecords([record]);
     return true;
   };
 
@@ -326,7 +379,23 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
       if (item.status !== "pending" || !item.notificationId || nativeIds.has(item.notificationId)) return item;
       return { ...item, status: "delivered" as const };
     }));
+    await ensureReceiptsForRecords(recordsRef.current);
     void cleanupCachedAttachments(recordsRef.current, selectedImageRef.current);
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+    const subscription = Notifications.addNotificationReceivedListener((notification) => {
+      const notificationId = notification.request.identifier;
+      const existing = recordsRef.current.find((record) => record.notificationId === notificationId);
+      if (!existing) return;
+      const eventAt = new Date().toISOString();
+      const delivered = existing.status === "pending" ? { ...existing, status: "delivered" as const } : existing;
+      void updateRecords((current) => current.map((item) => item.id === existing.id ? delivered : item))
+        .then(() => ensureReceiptsForRecords([delivered], new Map([[existing.id, eventAt]])))
+        .catch((error) => console.error("[receipts] failed to record received notification", error));
+    });
+    return () => subscription.remove();
   }, []);
 
   const clearScheduled = useCallback(async () => {
@@ -403,7 +472,11 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     await AsyncStorage.setItem(HAPTICS_KEY, String(value));
   };
 
-  const value = useMemo(() => ({ templates, records, selectedImage, hapticsEnabled, permission, setSelectedImage, setHapticsEnabled, refreshPermission, requestPermission, emit, schedule, updateScheduled, refreshScheduled, clearScheduled, cancel, remove, clearHistory, saveTemplate, removeTemplate, refreshTemplates }), [templates, records, selectedImage, hapticsEnabled, permission]);
+  const updateReceipt = async (receiptId: string, input: Partial<Pick<NotificationReceipt, "amount" | "recipientName" | "document" | "institution">>) => {
+    await updateReceipts((current) => current.map((receipt) => receipt.id === receiptId ? { ...receipt, ...input } : receipt));
+  };
+
+  const value = useMemo(() => ({ templates, records, selectedImage, hapticsEnabled, permission, receipts, setSelectedImage, setHapticsEnabled, refreshPermission, requestPermission, emit, schedule, updateScheduled, refreshScheduled, clearScheduled, cancel, remove, clearHistory, saveTemplate, removeTemplate, refreshTemplates, updateReceipt }), [templates, records, selectedImage, hapticsEnabled, permission, receipts]);
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 

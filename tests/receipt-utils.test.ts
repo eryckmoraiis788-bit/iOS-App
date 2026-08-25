@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { extractReceiptAmount, formatReceiptDate, formatReceiptTime, getReceiptTimestamp, getReceiptTransactionId } from "../lib/receipt-utils";
+import { createMaskedDocument, extractReceiptAmount, extractReceiptRecipientName, formatReceiptDate, formatReceiptTime, getReceiptTimestamp, getReceiptTransactionId } from "../lib/receipt-utils";
 
 describe("receipt utils", () => {
   const record = {
@@ -11,6 +11,16 @@ describe("receipt utils", () => {
   it("extrai o valor monetário da notificação", () => {
     expect(extractReceiptAmount(record)).toBe("1.234,50");
     expect(extractReceiptAmount({ ...record, body: "Notificação sem valor" })).toBe("0,00");
+  });
+
+  it("extrai o nome de quem recebeu do texto do Pix", () => {
+    expect(extractReceiptRecipientName({ title: "Pix enviado", body: "Você fez um Pix no valor de R$ 0,01 para Ana de Souza." })).toBe("Ana de Souza");
+    expect(extractReceiptRecipientName({ title: "Pix recebido", body: "Bruno te enviou um Pix de R$ 0,01." })).toBe("Bruno");
+  });
+
+  it("gera documento mascarado com números centrais", () => {
+    const document = createMaskedDocument();
+    expect(document).toMatch(/^\*\*\*\.\d{3}\.\d{3}-\d{2}$/);
   });
 
   it("formata data e horário do registro", () => {

@@ -33,11 +33,37 @@ export function formatReceiptTime(value: string) {
   return `${String(date.getHours()).padStart(2, "0")}h${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
+export function extractReceiptRecipientName(record: Pick<NotificationRecord, "title" | "body">) {
+  const sentMatch = record.body.match(/\bpara\s+(.+?)(?:\.|$)/i);
+  if (sentMatch?.[1]?.trim()) return sentMatch[1].trim();
+  const receivedMatch = record.body.match(/^(.+?)\s+te enviou\b/i);
+  if (receivedMatch?.[1]?.trim()) return receivedMatch[1].trim();
+  return record.title.trim() || "Nome do recebedor";
+}
+
+export function createMaskedDocument() {
+  const first = Math.floor(Math.random() * 1_000).toString().padStart(3, "0");
+  const second = Math.floor(Math.random() * 1_000).toString().padStart(3, "0");
+  const third = Math.floor(Math.random() * 1_000).toString().padStart(3, "0");
+  return `***.${first}.${second}-${third.slice(0, 2)}`;
+}
+
+export function normalizeReceiptAmount(value: string) {
+  const raw = value.trim().replace(/R\$\s*/i, "").replace(/\s/g, "");
+  if (!raw) return "0,00";
+  const hasComma = raw.includes(",");
+  const parts = raw.split(hasComma ? "," : ".");
+  const integerPart = (parts[0] ?? "").replace(/\D/g, "") || "0";
+  const decimalPart = hasComma
+    ? (parts[1] ?? "").replace(/\D/g, "")
+    : parts.length === 2 && (parts[1] ?? "").length <= 2 ? (parts[1] ?? "").replace(/\D/g, "") : "";
+  const groupedInteger = integerPart.replace(/^0+(?=\d)/, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".") || "0";
+  return `${groupedInteger},${decimalPart.padEnd(2, "0").slice(0, 2)}`;
+}
+
 export function extractReceiptAmount(record: Pick<NotificationRecord, "title" | "subtitle" | "body">) {
   const text = `${record.title} ${record.subtitle} ${record.body}`;
   const match = text.match(/R\$\s*([\d.]+(?:,[\d]{1,2})?|[\d]+(?:\.[\d]{1,2})?)/i);
   if (!match?.[1]) return "0,00";
-  const normalized = match[1].includes(",") ? match[1] : match[1].replace(".", ",");
-  const [integerPart, decimalPart = "00"] = normalized.split(",");
-  return `${integerPart},${decimalPart.padEnd(2, "0").slice(0, 2)}`;
+  return normalizeReceiptAmount(match[1]);
 }

@@ -657,3 +657,17 @@
 - [x] Incrementar a versão para Inter 1.2.67/build 187.
 - [x] Validar, compilar, auditar e arquivar a IPA 1.2.67/build 187; Action 32907555035 concluída com sucesso, auditoria estrutural e ZIP aprovados.
 - [ ] Instalar a IPA 1.2.67/build 187 no SideStore e confirmar a fidelidade visual no iPhone.
+
+# Campos editáveis dos Comprovantes — Inter 1.2.68/build 188
+- [x] Definir que valor, nome, CPF/CNPJ e instituição sejam editáveis ao tocar no comprovante.
+- [x] Criar armazenamento persistente separado para comprovantes, sem duplicar ou alterar o histórico de notificações.
+- [x] Gerar automaticamente um comprovante para cada emissão imediata e para cada agendamento reconhecido como entregue.
+- [x] Extrair o nome do recebedor das notificações Pix quando o texto indicar o destinatário.
+- [x] Gerar números centrais aleatórios em CPF/CNPJ mascarado a cada comprovante novo.
+- [x] Permitir editar e salvar os quatro campos no detalhe por meio de editor local.
+- [x] Manter a referência visual, o botão Compartilhar comprovante visível e inativo e os dados editados após reabrir.
+- [x] Adicionar testes de normalização, defaults, parsing seguro, timestamp, ID, valor e nome do recebedor.
+- [x] Criar o checkpoint `before-receipt-edit-1.2.67-build-187` antes da mudança.
+- [x] Incrementar a versão para Inter 1.2.68/build 188.
+- [ ] Validar, compilar, auditar e arquivar a IPA 1.2.68/build 188.
+- [ ] Instalar a IPA 1.2.68/build 188 no SideStore e confirmar edição e persistência dos campos.

@@ -4,7 +4,8 @@ import { FlatList, Image, Pressable, StyleSheet, Text, View } from "react-native
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore, type NotificationRecord } from "@/lib/notification-store";
-import { extractReceiptAmount, formatReceiptDate, formatReceiptTime, getReceiptTimestamp } from "@/lib/receipt-utils";
+import type { NotificationReceipt } from "@/lib/receipt-storage";
+import { formatReceiptDate, formatReceiptTime } from "@/lib/receipt-utils";
 
 const colors = {
   background: "#FFFFFF",
@@ -18,27 +19,27 @@ const colors = {
 
 export default function ReceiptsScreen() {
   const router = useRouter();
-  const { records, refreshScheduled } = useNotificationStore();
+  const { records, receipts, refreshScheduled } = useNotificationStore();
 
   useFocusEffect(useCallback(() => {
     void refreshScheduled();
   }, [refreshScheduled]));
 
-  const receipts = useMemo(
-    () => records
-      .filter((record) => record.status === "sent" || record.status === "delivered")
-      .sort((left, right) => new Date(getReceiptTimestamp(right)).getTime() - new Date(getReceiptTimestamp(left)).getTime()),
-    [records],
+  const receiptItems = useMemo(
+    () => receipts
+      .map((receipt) => ({ receipt, record: records.find((item) => item.id === receipt.recordId) }))
+      .sort((left, right) => new Date(right.receipt.eventAt).getTime() - new Date(left.receipt.eventAt).getTime()),
+    [records, receipts],
   );
 
   return (
     <ScreenContainer edges={["top", "left", "right"]} containerClassName="bg-white">
       <FlatList
-        data={receipts}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={[styles.content, receipts.length === 0 && styles.emptyContent]}
+        data={receiptItems}
+        keyExtractor={(item) => item.receipt.id}
+        contentContainerStyle={[styles.content, receiptItems.length === 0 && styles.emptyContent]}
         showsVerticalScrollIndicator={false}
-        ListHeaderComponent={<ReceiptsHeader count={receipts.length} />}
+        ListHeaderComponent={<ReceiptsHeader count={receiptItems.length} />}
         ListEmptyComponent={(
           <View style={styles.emptyCard}>
             <View style={styles.emptyIcon}><IconSymbol name="receipt" size={32} color={colors.orange} /></View>
@@ -48,8 +49,9 @@ export default function ReceiptsScreen() {
         )}
         renderItem={({ item }) => (
           <ReceiptCard
-            item={item}
-            onPress={() => router.push({ pathname: "/comprovante", params: { recordId: item.id } })}
+            receipt={item.receipt}
+            record={item.record}
+            onPress={() => router.push({ pathname: "/comprovante", params: { recordId: item.receipt.recordId } })}
           />
         )}
       />
@@ -73,22 +75,22 @@ function ReceiptsHeader({ count }: { count: number }) {
   );
 }
 
-function ReceiptCard({ item, onPress }: { item: NotificationRecord; onPress: () => void }) {
+function ReceiptCard({ receipt, record, onPress }: { receipt: NotificationReceipt; record?: NotificationRecord; onPress: () => void }) {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Abrir comprovante de ${item.title}`}
+      accessibilityLabel={`Abrir comprovante de ${record?.title ?? "Pix enviado"}`}
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
     >
       <View style={styles.successIcon}><IconSymbol name="check-circle" size={27} color={colors.green} /></View>
       <View style={styles.cardCopy}>
         <View style={styles.cardTop}>
-          <Text style={styles.cardTitle} numberOfLines={1}>{item.title || "Pix enviado"}</Text>
-          <Text style={styles.amount}>R$ {extractReceiptAmount(item)}</Text>
+          <Text style={styles.cardTitle} numberOfLines={1}>{record?.title || "Pix enviado"}</Text>
+          <Text style={styles.amount}>R$ {receipt.amount}</Text>
         </View>
-        <Text style={styles.cardMeta}>{formatReceiptDate(getReceiptTimestamp(item))} • {formatReceiptTime(getReceiptTimestamp(item))}</Text>
-        <Text style={styles.cardBody} numberOfLines={2}>{item.body}</Text>
+        <Text style={styles.cardMeta}>{formatReceiptDate(receipt.eventAt)} • {formatReceiptTime(receipt.eventAt)}</Text>
+        <Text style={styles.cardBody} numberOfLines={2}>{record?.body || `Recebido por ${receipt.recipientName}`}</Text>
         <View style={styles.openRow}>
           <Text style={styles.openText}>Ver comprovante</Text>
           <IconSymbol name="chevron.right" size={19} color={colors.orange} />
