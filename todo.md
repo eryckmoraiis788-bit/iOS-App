@@ -629,3 +629,18 @@
 - [x] Validar, compilar e auditar a IPA 1.2.65/build 185; Action 32899599671 concluída com sucesso, auditoria estrutural e ZIP aprovados.
 - [x] Instalar a IPA 1.2.65/build 185 no SideStore e confirmar que imagem escolhida, preview, notificação com anexo e agendamentos continuam funcionando; usuário informou que deu tudo certo.
 - [ ] Definir o próximo aprimoramento incremental após a aprovação da gestão de cache.
+
+# Aba Comprovantes — Inter 1.2.66/build 186
+- [x] Consolidar a referência visual enviada pelo usuário e preservar os textos/ações do comprovante antigo.
+- [x] Definir que comprovantes de notificações imediatas e agendadas serão salvos localmente sem abrir a tela automaticamente.
+- [x] Criar a aba Comprovantes imediatamente à direita de Agendar e antes de Ajustes.
+- [x] Criar a lista local de comprovantes derivada dos registros emitidos, sem duplicar a fonte de persistência.
+- [x] Criar a tela individual inspirada no print, com data, horário, ID, dados do recebedor e botão Compartilhar comprovante visível porém inativo.
+- [x] Manter o botão Realizar novo Pix visível e funcional, retornando para Compor.
+- [x] Adicionar os ícones e utilitários de formatação necessários.
+- [x] Adicionar testes de extração de valor, data, horário e fallbacks.
+- [x] Validar no preview web a ordem das abas, lista vazia, lista com comprovante e tela de detalhe.
+- [x] Criar o checkpoint `before-comprovantes-1.2.65-build-185` antes da mudança.
+- [x] Incrementar a versão para Inter 1.2.66/build 186.
+- [ ] Validar, compilar, auditar e arquivar a IPA 1.2.66/build 186.
+- [ ] Instalar a IPA 1.2.66/build 186 no SideStore e validar a nova aba no iPhone.

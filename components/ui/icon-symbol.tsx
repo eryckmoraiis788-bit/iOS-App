@@ -28,6 +28,9 @@ const MAPPING = {
   "bolt.fill": "bolt",
   "bell.fill": "notifications-active",
   "bookmark.fill": "bookmark",
+  receipt: "receipt-long",
+  check: "check",
+  "arrow-back": "arrow-back",
 } as unknown as IconMapping;
 
 export function IconSymbol({ name, size = 24, color, style }: { name: IconSymbolName; size?: number; color: string | OpaqueColorValue; style?: StyleProp<TextStyle>; weight?: SymbolWeight }) {

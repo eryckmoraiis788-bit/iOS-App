@@ -22,6 +22,7 @@ export default function TabLayout() {
       <Tabs.Screen name="index" options={{ title: "Compor", tabBarIcon: ({ color }) => <IconSymbol name="square.and.pencil" size={25} color={color} /> }} />
       <Tabs.Screen name="history" options={{ title: "Histórico", tabBarIcon: ({ color }) => <IconSymbol name="clock.arrow.circlepath" size={25} color={color} /> }} />
       <Tabs.Screen name="schedule" options={{ title: "Agendar", tabBarIcon: ({ color }) => <IconSymbol name="calendar.badge.clock" size={25} color={color} /> }} />
+      <Tabs.Screen name="receipts" options={{ title: "Comprovantes", tabBarLabelStyle: { fontSize: 10, fontWeight: "700" }, tabBarIcon: ({ color }) => <IconSymbol name="receipt" size={25} color={color} /> }} />
       <Tabs.Screen name="templates" options={{ href: null }} />
       <Tabs.Screen name="icon" options={{ href: null }} />
       <Tabs.Screen name="settings" options={{ title: "Ajustes", tabBarIcon: ({ color }) => <IconSymbol name="gearshape.fill" size={25} color={color} /> }} />
