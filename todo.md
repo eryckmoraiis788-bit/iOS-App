@@ -655,5 +655,5 @@
 - [x] Adicionar testes do timestamp e do formato determinístico do ID.
 - [x] Criar o checkpoint `before-receipt-fidelity-1.2.66-build-186` antes da correção.
 - [x] Incrementar a versão para Inter 1.2.67/build 187.
-- [ ] Validar, compilar, auditar e arquivar a IPA 1.2.67/build 187.
+- [x] Validar, compilar, auditar e arquivar a IPA 1.2.67/build 187; Action 32907555035 concluída com sucesso, auditoria estrutural e ZIP aprovados.
 - [ ] Instalar a IPA 1.2.67/build 187 no SideStore e confirmar a fidelidade visual no iPhone.
