@@ -4,6 +4,7 @@ import * as FileSystem from "expo-file-system/legacy";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Alert, Linking, Platform } from "react-native";
 import { parseStoredNotificationRecords } from "./notification-storage";
+import { getStaleNotificationAttachmentUris, NOTIFICATION_ATTACHMENT_PREFIX } from "./notification-cache";
 
 export type NotificationTemplate = {
   id: string;
@@ -112,13 +113,49 @@ Notifications.setNotificationHandler({
 });
 
 async function prepareAttachment(uri?: string) {
-  if (!uri || Platform.OS === "web") return undefined;
+  if (!uri || Platform.OS === "web" || !FileSystem.cacheDirectory) return undefined;
   try {
-    const destination = `${FileSystem.cacheDirectory}notification-attachment-${Date.now()}.jpg`;
+    const suffix = Math.random().toString(36).slice(2, 8);
+    const destination = `${FileSystem.cacheDirectory}${NOTIFICATION_ATTACHMENT_PREFIX}${Date.now()}-${suffix}.jpg`;
     await FileSystem.copyAsync({ from: uri, to: destination });
     return [{ identifier: "notification-image", url: destination, type: "jpg" }];
   } catch {
     return undefined;
+  }
+}
+
+async function cleanupCachedAttachments(records: NotificationRecord[], selectedImage?: string) {
+  if (Platform.OS === "web" || !FileSystem.cacheDirectory) return;
+  // We do not track the native copy URI in records. Keep all cached attachments
+  // while a scheduled record still references an image, avoiding a risky delete.
+  if (records.some((record) => record.status === "pending" && record.imageUri)) return;
+  const protectedUris = new Set(records.flatMap((record) => record.imageUri ? [record.imageUri] : []));
+  if (selectedImage) protectedUris.add(selectedImage);
+  try {
+    const names = await FileSystem.readDirectoryAsync(FileSystem.cacheDirectory);
+    const entries = (await Promise.all(names
+      .filter((name) => name.startsWith(NOTIFICATION_ATTACHMENT_PREFIX))
+      .map(async (name) => {
+        const uri = `${FileSystem.cacheDirectory}${name}`;
+        try {
+          const info = await FileSystem.getInfoAsync(uri);
+          const modificationTime = "modificationTime" in info && typeof info.modificationTime === "number"
+            ? info.modificationTime
+            : undefined;
+          return {
+            name,
+            uri,
+            modificationTimeMs: modificationTime === undefined ? undefined : modificationTime * 1000,
+            isDirectory: info.isDirectory,
+          };
+        } catch {
+          return null;
+        }
+      }))).flatMap((entry) => entry ? [entry] : []);
+    const staleUris = getStaleNotificationAttachmentUris(entries, protectedUris);
+    await Promise.all(staleUris.map((uri) => FileSystem.deleteAsync(uri, { idempotent: true })));
+  } catch (error) {
+    console.error("[attachments] failed to clean local cache", error);
   }
 }
 
@@ -135,6 +172,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
   const templatesLoadPromiseRef = useRef<Promise<void> | null>(null);
   const templatesWriteInProgressRef = useRef(false);
   const [selectedImage, setSelectedImageState] = useState<string>();
+  const selectedImageRef = useRef<string | undefined>(undefined);
   const [hapticsEnabled, setHapticsState] = useState(true);
   const [permission, setPermission] = useState<Notifications.PermissionStatus | "unknown">("unknown");
 
@@ -157,8 +195,12 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
       recordsRef.current = parsedRecords;
       setRecords(parsedRecords);
       await refreshTemplates();
-      if (storedImage) setSelectedImageState(storedImage);
+      if (storedImage) {
+        selectedImageRef.current = storedImage;
+        setSelectedImageState(storedImage);
+      }
       if (storedHaptics !== null) setHapticsState(storedHaptics !== "false");
+      void cleanupCachedAttachments(parsedRecords, storedImage ?? undefined);
       await refreshPermission();
     })();
     templatesLoadPromiseRef.current = recordsLoadPromiseRef.current;
@@ -284,25 +326,30 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
       if (item.status !== "pending" || !item.notificationId || nativeIds.has(item.notificationId)) return item;
       return { ...item, status: "delivered" as const };
     }));
+    void cleanupCachedAttachments(recordsRef.current, selectedImageRef.current);
   }, []);
 
   const clearScheduled = useCallback(async () => {
     if (Platform.OS !== "web") await Notifications.cancelAllScheduledNotificationsAsync();
     await updateRecords((current) => current.map((item) => item.status === "pending" ? { ...item, status: "cancelled" as const } : item));
+    void cleanupCachedAttachments(recordsRef.current, selectedImageRef.current);
   }, []);
 
   const cancel = async (record: NotificationRecord) => {
     if (Platform.OS !== "web" && record.notificationId) await Notifications.cancelScheduledNotificationAsync(record.notificationId);
     await updateRecords((current) => current.map((item) => item.id === record.id ? { ...item, status: "cancelled" as const } : item));
+    void cleanupCachedAttachments(recordsRef.current, selectedImageRef.current);
   };
 
   const remove = async (record: NotificationRecord) => {
     if (Platform.OS !== "web" && record.notificationId && record.status === "pending") await Notifications.cancelScheduledNotificationAsync(record.notificationId);
     await updateRecords((current) => current.filter((item) => item.id !== record.id));
+    void cleanupCachedAttachments(recordsRef.current, selectedImageRef.current);
   };
 
   const clearHistory = async () => {
     await updateRecords((current) => current.filter((item) => item.status === "pending"));
+    void cleanupCachedAttachments(recordsRef.current, selectedImageRef.current);
   };
 
   const saveTemplate = async (input: Omit<NotificationTemplate, "id" | "createdAt" | "updatedAt">, id?: string) => {
@@ -345,6 +392,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
   };
 
   const setSelectedImage = async (uri?: string) => {
+    selectedImageRef.current = uri;
     setSelectedImageState(uri);
     if (uri) await AsyncStorage.setItem(IMAGE_KEY, uri);
     else await AsyncStorage.removeItem(IMAGE_KEY);

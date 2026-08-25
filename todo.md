@@ -616,3 +616,15 @@
 - [x] Copiar `Inter-1.2.64-build-184.ipa` e `IPA_AUDIT_1.2.64-build-184.md` para o backup privado, preservando 1.2.63 como rollback aprovado.
 - [x] Instalar a Inter 1.2.64/build 184 no SideStore e validar criação/edição/exclusão de modelos, notificação imediata/histórico, ações rápidas em sequência, agendamento/cancelamento/reabertura e persistência após reinício; usuário informou que funcionou tudo perfeitamente.
 - [ ] Definir e iniciar o próximo aprimoramento de baixo risco do aplicativo, preservando a identidade visual aprovada.
+
+# Gestão segura do cache de imagens — Inter 1.2.65/build 185
+- [x] Auditar os usos de `imageUri`, `expo-file-system/legacy`, seleção de imagem, Histórico e agendamentos.
+- [x] Criar o checkpoint `before-cache-1.2.64-build-184` antes da mudança de comportamento.
+- [x] Definir retenção conservadora de sete dias e limpeza somente de arquivos com prefixo próprio, data confiável e nenhuma referência protegida.
+- [x] Adiar a limpeza quando existir agendamento pendente com imagem, pois a URI da cópia nativa não é persistida no registro atual.
+- [x] Criar testes unitários para anexos antigos, arquivos recentes, diretórios, entradas sem data, arquivos externos e URIs protegidas.
+- [x] Integrar limpeza tolerante a falhas na abertura e após sincronização, cancelamento, remoção e limpeza do histórico.
+- [x] Gerar nomes de anexos com sufixo aleatório para reduzir colisões em ações rápidas.
+- [x] Incrementar a versão para Inter 1.2.65/build 185.
+- [ ] Validar, compilar e auditar a IPA 1.2.65/build 185.
+- [ ] Instalar a IPA 1.2.65/build 185 no SideStore e confirmar que imagem escolhida, preview, notificação com anexo e agendamentos continuam funcionando.
