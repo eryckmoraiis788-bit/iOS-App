@@ -642,5 +642,5 @@
 - [x] Validar no preview web a ordem das abas, lista vazia, lista com comprovante e tela de detalhe.
 - [x] Criar o checkpoint `before-comprovantes-1.2.65-build-185` antes da mudança.
 - [x] Incrementar a versão para Inter 1.2.66/build 186.
-- [ ] Validar, compilar, auditar e arquivar a IPA 1.2.66/build 186.
+- [x] Validar, compilar, auditar e arquivar a IPA 1.2.66/build 186; Action 32905785782 concluída com sucesso, auditoria estrutural e ZIP aprovados.
 - [ ] Instalar a IPA 1.2.66/build 186 no SideStore e validar a nova aba no iPhone.
