@@ -626,5 +626,5 @@
 - [x] Integrar limpeza tolerante a falhas na abertura e após sincronização, cancelamento, remoção e limpeza do histórico.
 - [x] Gerar nomes de anexos com sufixo aleatório para reduzir colisões em ações rápidas.
 - [x] Incrementar a versão para Inter 1.2.65/build 185.
-- [ ] Validar, compilar e auditar a IPA 1.2.65/build 185.
+- [x] Validar, compilar e auditar a IPA 1.2.65/build 185; Action 32899599671 concluída com sucesso, auditoria estrutural e ZIP aprovados.
 - [ ] Instalar a IPA 1.2.65/build 185 no SideStore e confirmar que imagem escolhida, preview, notificação com anexo e agendamentos continuam funcionando.
