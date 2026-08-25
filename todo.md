@@ -574,5 +574,18 @@
 - [x] Fixar o laranja em `#F07800`, tom vivo e dourado de marca.
 - [x] Sincronizar os quatro assets full-color usados pelo projeto.
 - [x] Incrementar a versão para Inter 1.2.60/build 180.
-- [ ] Gerar e auditar a IPA 1.2.60/build 180.
+- [x] Gerar e auditar a IPA 1.2.60/build 180; Action 32856734892 concluída, auditoria estrutural AUDIT=PASS.
 - [ ] Instalar a IPA 1.2.60/build 180 no SideStore e confirmar a igualdade visual no iPhone.
+
+
+# Ajuste final de cores conforme IMG_0060
+
+- [x] Medir novamente o screenshot IMG_0060, sem reabrir a imagem anexada no visualizador.
+- [x] Confirmar que tamanho e posição da IPA já estavam praticamente iguais à referência.
+- [x] Manter o bounding box `421,441,1510,1510` e a escala do símbolo.
+- [x] Ajustar o fundo para `#2E2E2E`, tom medido no ícone da direita.
+- [x] Ajustar o laranja para `#EA702D`, tom medido no símbolo da direita.
+- [x] Sincronizar os quatro assets full-color do projeto.
+- [x] Incrementar a versão para Inter 1.2.61/build 181.
+- [ ] Gerar e auditar a IPA 1.2.61/build 181.
+- [ ] Instalar a IPA 1.2.61/build 181 no SideStore e confirmar visualmente com a referência.
