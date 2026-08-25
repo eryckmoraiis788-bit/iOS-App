@@ -587,5 +587,5 @@
 - [x] Ajustar o laranja para `#EA702D`, tom medido no símbolo da direita.
 - [x] Sincronizar os quatro assets full-color do projeto.
 - [x] Incrementar a versão para Inter 1.2.61/build 181.
-- [ ] Gerar e auditar a IPA 1.2.61/build 181.
-- [ ] Instalar a IPA 1.2.61/build 181 no SideStore e confirmar visualmente com a referência.
+- [x] Gerar e auditar a IPA 1.2.61/build 181; Action 32859644695 concluída, auditoria estrutural AUDIT=PASS.
+- [x] Instalar a IPA 1.2.61/build 181 no SideStore e confirmar visualmente com a referência; usuário informou que a atualização melhorou bastante.
