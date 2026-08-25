@@ -603,3 +603,15 @@
 - [x] Resolver os desalinhamentos restantes de patch do Expo SDK; Expo Doctor passou em 18/18 verificações.
 - [x] Gerar e auditar a nova IPA de teste após este lote; Inter 1.2.63/build 183, Action 32891997317, AUDIT=PASS.
 - [x] Validar no iPhone a permissão, imagem e modelos após a instalação da Inter 1.2.63/build 183; usuário informou que passou tudo e a versão foi aprovada.
+
+# Reforço de persistência local — Inter 1.2.64/build 184
+- [x] Criar parser seguro e normalizador para registros persistidos, descartando itens incompletos e JSON corrompido sem interromper o boot.
+- [x] Serializar gravações de `records` usando a referência mais recente, reduzindo sobrescritas por closures assíncronas.
+- [x] Migrar criação, edição, reagendamento, cancelamento, exclusão e limpeza de histórico para `updateRecords`.
+- [x] Adicionar testes unitários para dados válidos, campos opcionais, status inválido, recorrência inválida e JSON corrompido.
+- [x] Remover a cópia duplicada e não referenciada `notification-store.tsx` da raiz; manter o store ativo em `lib/notification-store.tsx`.
+- [x] Validar `pnpm check`, `pnpm test`, `pnpm lint`, `npx expo-doctor` e `git diff --check`; Expo Doctor passou em 18/18, testes passaram e lint ficou sem erros, com 4 warnings preexistentes.
+- [x] Incrementar a versão para Inter 1.2.64/build 184.
+- [x] Gerar a IPA pela Action 32894384278 e auditar o pacote; auditoria estrutural e ZIP passaram.
+- [x] Copiar `Inter-1.2.64-build-184.ipa` e `IPA_AUDIT_1.2.64-build-184.md` para o backup privado, preservando 1.2.63 como rollback aprovado.
+- [ ] Instalar a Inter 1.2.64/build 184 no SideStore e validar criação/edição/exclusão de modelos, notificação imediata/histórico, ações rápidas em sequência, agendamento/cancelamento/reabertura e persistência após reinício.
