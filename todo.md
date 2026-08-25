@@ -526,3 +526,14 @@
 - [x] Ajustar a escala do símbolo laranja da logo do Inter para corresponder à referência da direita.
 - [x] Atualizar todos os assets derivados da logo sem alterar o fundo escuro full-bleed.
 - [x] Validar a nova logo e gerar uma IPA auditada para SideStore.
+
+
+# Correção final da escala do ícone do Inter
+
+- [x] Comparar a IPA testada com a referência visual do ícone à direita.
+- [x] Reduzir moderadamente o símbolo laranja mantendo a geometria, a cor e o fundo escuro full-bleed.
+- [x] Sincronizar `icon.png`, `android-icon-foreground.png`, `favicon.png` e `splash-icon.png`.
+- [x] Incrementar a versão para Inter 1.2.57/build 177.
+- [x] Validar TypeScript, testes e configuração Expo antes do build.
+- [ ] Gerar e auditar a IPA 1.2.57/build 177.
+- [ ] Instalar a IPA 1.2.57/build 177 no SideStore e confirmar visualmente a escala do ícone no iPhone.
