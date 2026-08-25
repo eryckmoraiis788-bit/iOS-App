@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ActivityIndicator, Animated, Easing, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useNotificationStore, type NotificationTemplate } from "@/lib/notification-store";
@@ -52,7 +52,8 @@ type FieldProps = {
 };
 
 export default function ComposeScreen() {
-  const { historyTitle, historySubtitle, historyBody } = useLocalSearchParams<{ historyTitle?: string; historySubtitle?: string; historyBody?: string }>();
+  const { historyTitle, historySubtitle, historyBody, templateId, templateName, templateTitle, templateSubtitle, templateBody } = useLocalSearchParams<{ historyTitle?: string; historySubtitle?: string; historyBody?: string; templateId?: string; templateName?: string; templateTitle?: string; templateSubtitle?: string; templateBody?: string }>();
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [body, setBody] = useState("");
@@ -85,6 +86,17 @@ export default function ComposeScreen() {
       setSaveMessage("Notificação carregada do Histórico.");
     }
   }, [historyBody, historySubtitle, historyTitle]);
+
+  useEffect(() => {
+    if (!templateId && !templateName && !templateTitle && !templateSubtitle && !templateBody) return;
+    setTitle(templateTitle ?? templateName ?? "");
+    setSubtitle(templateSubtitle ?? "");
+    setBody(templateBody ?? "");
+    setModelName(templateId ? (templateName ?? "") : "");
+    setEditingTemplateId(templateId);
+    setSaveMessage(templateId ? "Modelo carregado para edição." : "Modelo aplicado.");
+  }, [templateBody, templateId, templateName, templateSubtitle, templateTitle]);
+
   const canSaveModel = body.trim().length > 0;
 
   const showSuccessFeedback = (kind: "saved" | "emitted") => {
@@ -350,13 +362,18 @@ export default function ComposeScreen() {
         <Field label="Mensagem" value={body} onChangeText={setBody} placeholder="Ex.: Pix recebido" maxLength={140} multiline />
       </View>
 
-      <Pressable style={({ pressed }) => [styles.optionCard, pressed && styles.pressed]}>
+      <Pressable
+        onPress={() => router.push("/icon")}
+        accessibilityRole="button"
+        accessibilityLabel={selectedImage ? "Trocar imagem da notificação" : "Escolher imagem da notificação"}
+        style={({ pressed }) => [styles.optionCard, pressed && styles.pressed]}
+      >
         <View style={styles.optionIcon}>
-          <MaterialIcons name="add-photo-alternate" size={31} color={colors.teal} />
+          <MaterialIcons name={selectedImage ? "image" : "add-photo-alternate"} size={31} color={colors.teal} />
         </View>
         <View style={styles.flexCopy}>
-          <Text style={styles.cardTitle}>Imagem da notificação</Text>
-          <Text style={styles.cardBody}>Escolha uma imagem para o preview.</Text>
+          <Text style={styles.cardTitle}>{selectedImage ? "Imagem selecionada" : "Imagem da notificação"}</Text>
+          <Text style={styles.cardBody}>{selectedImage ? "Toque para trocar a imagem do preview." : "Escolha uma imagem para o preview."}</Text>
         </View>
         <MaterialIcons name="chevron-right" size={30} color={colors.muted} />
       </Pressable>

@@ -59,6 +59,7 @@ module.exports = {
   plugins: [
     "expo-router",
     "expo-image-picker",
+    "expo-asset",
     ["expo-notifications", { icon: "./assets/images/icon.png", color: "#F07800" }],
     [
       "expo-audio",

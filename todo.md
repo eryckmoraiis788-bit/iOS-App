@@ -589,3 +589,17 @@
 - [x] Incrementar a versão para Inter 1.2.61/build 181.
 - [x] Gerar e auditar a IPA 1.2.61/build 181; Action 32859644695 concluída, auditoria estrutural AUDIT=PASS.
 - [x] Instalar a IPA 1.2.61/build 181 no SideStore e confirmar visualmente com a referência; usuário informou que a atualização melhorou bastante.
+
+
+# Correções de baixo risco após auditoria do aplicativo
+
+- [x] Criar e publicar o checkpoint `baseline-inter-1.2.61-build-181` da versão aprovada.
+- [x] Tornar o cartão de imagem da tela Compor acionável e acessível, abrindo a personalização existente.
+- [x] Consumir na tela Compor os parâmetros de uso e edição enviados pela biblioteca de Modelos.
+- [x] Exibir a versão dinâmica do aplicativo em Ajustes, incluindo build quando disponível no runtime nativo.
+- [x] Atualizar o estado de permissão ao voltar para o app usando `AppState`.
+- [x] Adicionar `expo-asset` e alinhar `expo-constants` para eliminar a duplicidade nativa.
+- [x] Validar preenchimento, salvamento e uso de um modelo no preview web.
+- [ ] Resolver os desalinhamentos restantes de patch do Expo SDK em uma etapa separada.
+- [ ] Gerar e auditar a nova IPA de teste após este lote.
+- [ ] Validar no iPhone a permissão, imagem e modelos após a instalação.
