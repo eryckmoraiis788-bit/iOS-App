@@ -614,4 +614,5 @@
 - [x] Incrementar a versão para Inter 1.2.64/build 184.
 - [x] Gerar a IPA pela Action 32894384278 e auditar o pacote; auditoria estrutural e ZIP passaram.
 - [x] Copiar `Inter-1.2.64-build-184.ipa` e `IPA_AUDIT_1.2.64-build-184.md` para o backup privado, preservando 1.2.63 como rollback aprovado.
-- [ ] Instalar a Inter 1.2.64/build 184 no SideStore e validar criação/edição/exclusão de modelos, notificação imediata/histórico, ações rápidas em sequência, agendamento/cancelamento/reabertura e persistência após reinício.
+- [x] Instalar a Inter 1.2.64/build 184 no SideStore e validar criação/edição/exclusão de modelos, notificação imediata/histórico, ações rápidas em sequência, agendamento/cancelamento/reabertura e persistência após reinício; usuário informou que funcionou tudo perfeitamente.
+- [ ] Definir e iniciar o próximo aprimoramento de baixo risco do aplicativo, preservando a identidade visual aprovada.
