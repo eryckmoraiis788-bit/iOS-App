@@ -644,3 +644,16 @@
 - [x] Incrementar a versão para Inter 1.2.66/build 186.
 - [x] Validar, compilar, auditar e arquivar a IPA 1.2.66/build 186; Action 32905785782 concluída com sucesso, auditoria estrutural e ZIP aprovados.
 - [ ] Instalar a IPA 1.2.66/build 186 no SideStore e validar a nova aba no iPhone.
+
+# Correção de fidelidade do comprovante — Inter 1.2.67/build 187
+- [x] Comparar a implementação da build 186 com o print de referência enviado pelo usuário.
+- [x] Ajustar o comprovante para usar a data e o horário reais da emissão imediata ou do horário programado agendado.
+- [x] Ajustar a escala do círculo, check, cabeçalho, espaçamentos, tipografia e botões para maior fidelidade ao print.
+- [x] Gerar ID visual determinístico iniciado por `E004`, incorporando o timestamp do evento sem expor diretamente o identificador nativo.
+- [x] Manter `Compartilhar comprovante` visível e desativado, conforme solicitado.
+- [x] Validar registros imediatos e agendados no preview web.
+- [x] Adicionar testes do timestamp e do formato determinístico do ID.
+- [x] Criar o checkpoint `before-receipt-fidelity-1.2.66-build-186` antes da correção.
+- [x] Incrementar a versão para Inter 1.2.67/build 187.
+- [ ] Validar, compilar, auditar e arquivar a IPA 1.2.67/build 187.
+- [ ] Instalar a IPA 1.2.67/build 187 no SideStore e confirmar a fidelidade visual no iPhone.

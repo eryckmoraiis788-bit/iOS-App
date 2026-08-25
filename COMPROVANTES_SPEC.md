@@ -9,3 +9,9 @@ A tela de detalhe deve reproduzir a referência visual enviada pelo usuário: fu
 Os rótulos e textos apresentados na referência não serão substituídos nesta etapa. A tela poderá preencher data, horário, identificador e valor a partir do registro emitido, mantendo a hierarquia e a linguagem visual do comprovante antigo. O compartilhamento ficará explicitamente inativo, sem implementação de exportação ou envio.
 
 A persistência será derivada dos registros locais já existentes do store, evitando uma segunda fonte de verdade. A aba deve atualizar os agendamentos ao receber foco para reconhecer notificações entregues. A identidade visual aprovada do aplicativo não será alterada.
+
+## Correção de fidelidade
+
+O detalhe deve usar `createdAt` para notificações imediatas e `scheduledAt` para notificações agendadas, garantindo que o dia e o horário correspondam ao evento representado. O ID mostrado ao usuário deve ser determinístico, começar com `E004` e incorporar a data/hora do evento, mantendo o aspecto de identificador Pix sem expor diretamente o identificador nativo do sistema.
+
+A composição visual utiliza o espaço horizontal de aproximadamente 16 pontos, círculo de sucesso compacto, tipografia e espaçamentos proporcionais ao print, rolagem vertical segura e botões no final do comprovante. O texto **Compartilhar comprovante** permanece visível e desativado.

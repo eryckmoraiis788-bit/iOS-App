@@ -1,9 +1,9 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore } from "@/lib/notification-store";
-import { extractReceiptAmount, formatReceiptDate, formatReceiptTime } from "@/lib/receipt-utils";
+import { extractReceiptAmount, formatReceiptDate, formatReceiptTime, getReceiptTimestamp, getReceiptTransactionId } from "@/lib/receipt-utils";
 
 const colors = {
   background: "#FFFFFF",
@@ -35,33 +35,34 @@ export default function ReceiptDetailScreen() {
     );
   }
 
-  const transactionId = record.notificationId || record.id;
+  const transactionId = getReceiptTransactionId(record);
   const amount = extractReceiptAmount(record);
+  const receiptTimestamp = getReceiptTimestamp(record);
 
   return (
     <ScreenContainer edges={["top", "bottom", "left", "right"]} containerClassName="bg-white">
       <View style={styles.screen}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} hitSlop={12} accessibilityRole="button" accessibilityLabel="Voltar">
-            <IconSymbol name="arrow-back" size={33} color={colors.orange} />
+            <IconSymbol name="arrow-back" size={28} color={colors.orange} />
           </Pressable>
           <Text style={styles.headerTitle}>Comprovante</Text>
           <Pressable onPress={() => router.replace("/")} hitSlop={12} accessibilityRole="button" accessibilityLabel="Ir para o início">
-            <IconSymbol name="house.fill" size={32} color={colors.orange} />
+            <IconSymbol name="house.fill" size={28} color={colors.orange} />
           </Pressable>
         </View>
 
-        <View style={styles.receiptBody}>
+        <ScrollView style={styles.receiptScroll} contentContainerStyle={styles.receiptBody} showsVerticalScrollIndicator={false}>
           <View style={styles.successCircle}>
-            <IconSymbol name="check" size={58} color={colors.background} />
+            <IconSymbol name="check" size={26} color={colors.background} />
           </View>
           <Text style={styles.successTitle}>Pix enviado</Text>
           <Text style={styles.amount}>R$ {amount}</Text>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Sobre a transação</Text>
-            <InfoRow label="Data do pagamento" value={formatReceiptDate(record.createdAt)} />
-            <InfoRow label="Horário" value={formatReceiptTime(record.createdAt)} />
+            <InfoRow label="Data do pagamento" value={formatReceiptDate(receiptTimestamp)} />
+            <InfoRow label="Horário" value={formatReceiptTime(receiptTimestamp)} />
             <View style={styles.idBlock}>
               <Text style={styles.infoLabel}>ID da transação</Text>
               <Text style={styles.idValue} selectable>{transactionId}</Text>
@@ -96,7 +97,7 @@ export default function ReceiptDetailScreen() {
               <Text style={styles.newPixText}>Realizar novo Pix</Text>
             </Pressable>
           </View>
-        </View>
+        </ScrollView>
       </View>
     </ScreenContainer>
   );
@@ -115,24 +116,25 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   header: { height: 68, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   headerTitle: { color: colors.ink, fontSize: 25, fontWeight: "800" },
-  receiptBody: { flex: 1, paddingHorizontal: 45, paddingTop: 56 },
-  successCircle: { alignSelf: "center", width: 118, height: 118, borderRadius: 59, alignItems: "center", justifyContent: "center", backgroundColor: colors.green },
-  successTitle: { color: colors.ink, fontSize: 43, lineHeight: 51, fontWeight: "800", textAlign: "center", marginTop: 35 },
-  amount: { color: colors.ink, fontSize: 43, lineHeight: 51, fontWeight: "800", textAlign: "center" },
-  section: { marginTop: 88 },
-  sectionTitle: { color: colors.ink, fontSize: 23, lineHeight: 28, fontWeight: "800", marginBottom: 27 },
-  infoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 20, marginBottom: 22 },
-  infoLabel: { color: colors.muted, fontSize: 17, lineHeight: 22, flexShrink: 0 },
-  infoValue: { color: colors.ink, fontSize: 17, lineHeight: 22, fontWeight: "800", textAlign: "right", flex: 1 },
+  receiptScroll: { flex: 1 },
+  receiptBody: { flexGrow: 1, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 20 },
+  successCircle: { alignSelf: "center", width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: colors.green },
+  successTitle: { color: colors.ink, fontSize: 31, lineHeight: 37, fontWeight: "800", textAlign: "center", marginTop: 24 },
+  amount: { color: colors.ink, fontSize: 31, lineHeight: 37, fontWeight: "800", textAlign: "center" },
+  section: { marginTop: 55 },
+  sectionTitle: { color: colors.ink, fontSize: 22, lineHeight: 27, fontWeight: "800", marginBottom: 23 },
+  infoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 18 },
+  infoLabel: { color: colors.muted, fontSize: 16, lineHeight: 21, flexShrink: 0 },
+  infoValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "800", textAlign: "right", flex: 1 },
   idBlock: { marginTop: 1 },
-  idValue: { color: colors.ink, fontSize: 17, lineHeight: 23, fontWeight: "800", marginTop: 8 },
-  separator: { borderTopWidth: 1, borderTopColor: colors.line, borderStyle: "dashed", marginTop: 54 },
-  recipientSection: { marginTop: 74 },
-  actions: { marginTop: "auto", paddingTop: 42, paddingBottom: 18 },
-  shareButton: { height: 68, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: "#F4A15C", opacity: 0.66 },
-  shareText: { color: colors.background, fontSize: 18, fontWeight: "800" },
-  newPixButton: { height: 68, marginTop: 17, borderRadius: 15, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#F2B16E" },
-  newPixText: { color: colors.orange, fontSize: 18, fontWeight: "800" },
+  idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "800", marginTop: 7 },
+  separator: { borderTopWidth: 1, borderTopColor: colors.line, borderStyle: "dashed", marginTop: 36 },
+  recipientSection: { marginTop: 51 },
+  actions: { marginTop: 36, paddingBottom: 12 },
+  shareButton: { height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#F4A15C", opacity: 0.66 },
+  shareText: { color: colors.background, fontSize: 17, fontWeight: "800" },
+  newPixButton: { height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#F2B16E" },
+  newPixText: { color: colors.orange, fontSize: 17, fontWeight: "800" },
   notFound: { flex: 1, alignItems: "center", justifyContent: "center", padding: 30, gap: 14 },
   notFoundTitle: { color: colors.ink, fontSize: 20, fontWeight: "800", textAlign: "center" },
   backFallback: { paddingHorizontal: 20, paddingVertical: 13, borderRadius: 14, backgroundColor: colors.orange },

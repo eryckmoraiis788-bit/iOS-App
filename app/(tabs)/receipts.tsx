@@ -4,7 +4,7 @@ import { FlatList, Image, Pressable, StyleSheet, Text, View } from "react-native
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore, type NotificationRecord } from "@/lib/notification-store";
-import { extractReceiptAmount, formatReceiptDate, formatReceiptTime } from "@/lib/receipt-utils";
+import { extractReceiptAmount, formatReceiptDate, formatReceiptTime, getReceiptTimestamp } from "@/lib/receipt-utils";
 
 const colors = {
   background: "#FFFFFF",
@@ -27,7 +27,7 @@ export default function ReceiptsScreen() {
   const receipts = useMemo(
     () => records
       .filter((record) => record.status === "sent" || record.status === "delivered")
-      .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()),
+      .sort((left, right) => new Date(getReceiptTimestamp(right)).getTime() - new Date(getReceiptTimestamp(left)).getTime()),
     [records],
   );
 
@@ -87,7 +87,7 @@ function ReceiptCard({ item, onPress }: { item: NotificationRecord; onPress: () 
           <Text style={styles.cardTitle} numberOfLines={1}>{item.title || "Pix enviado"}</Text>
           <Text style={styles.amount}>R$ {extractReceiptAmount(item)}</Text>
         </View>
-        <Text style={styles.cardMeta}>{formatReceiptDate(item.createdAt)} • {formatReceiptTime(item.createdAt)}</Text>
+        <Text style={styles.cardMeta}>{formatReceiptDate(getReceiptTimestamp(item))} • {formatReceiptTime(getReceiptTimestamp(item))}</Text>
         <Text style={styles.cardBody} numberOfLines={2}>{item.body}</Text>
         <View style={styles.openRow}>
           <Text style={styles.openText}>Ver comprovante</Text>

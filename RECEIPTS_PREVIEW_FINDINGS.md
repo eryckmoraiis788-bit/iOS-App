@@ -1,6 +1,6 @@
 
-## Detalhe do comprovante
+## Correção de fidelidade temporal e visual
 
-A rota `/comprovante?recordId=web-receipt-1` abriu corretamente e exibiu cabeçalho com retorno e início, círculo verde, **Pix enviado**, valor, seções de transação e recebedor, identificador, CPF/CNPJ mascarado, instituição e os dois botões do modelo antigo.
+A nova revisão reduziu a escala do círculo, do check e dos elementos do detalhe para proporções mais próximas do print do iPhone, manteve o cabeçalho e os dois botões na mesma hierarquia e conservou o botão de compartilhamento desativado.
 
-O botão **Compartilhar comprovante** está visível e desativado, conforme solicitado. **Realizar novo Pix** permanece ativo e retorna para Compor. No preview web, o conteúdo total ultrapassa a viewport em aproximadamente 93 px, permitindo rolagem; no iPhone o teste físico deve confirmar a proporção final e a leitura com a barra de abas fora da rota de detalhe.
+O ID exibido agora é determinístico, começa com `E004`, incorpora a data e o horário do evento e não expõe diretamente o identificador nativo. Para notificações imediatas, o comprovante usa `createdAt`; para notificações agendadas, usa `scheduledAt` quando disponível. O preview confirmou a exibição de `25/08/2026` e `19h07` no registro imediato e foi preparado para validar o horário programado no registro agendado.

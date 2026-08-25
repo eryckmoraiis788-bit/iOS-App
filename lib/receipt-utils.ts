@@ -2,6 +2,24 @@ import type { NotificationRecord } from "./notification-store";
 
 const weekdays = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
+export function getReceiptTimestamp(record: Pick<NotificationRecord, "kind" | "createdAt" | "scheduledAt">) {
+  return record.kind === "scheduled" ? record.scheduledAt ?? record.createdAt : record.createdAt;
+}
+
+export function getReceiptTransactionId(record: Pick<NotificationRecord, "id" | "notificationId" | "kind" | "createdAt" | "scheduledAt">) {
+  const timestamp = getReceiptTimestamp(record);
+  const date = new Date(timestamp);
+  const pad = (number: number) => String(number).padStart(2, "0");
+  const dateStamp = Number.isNaN(date.getTime())
+    ? "000000000000"
+    : `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}${pad(date.getHours())}${pad(date.getMinutes())}`;
+  const source = `${record.id}:${record.notificationId ?? ""}`;
+  let hash = 0;
+  for (const character of source) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
+  const token = hash.toString(36).toUpperCase().padStart(20, "0").slice(0, 20);
+  return `E004${dateStamp}${token}`;
+}
+
 export function formatReceiptDate(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Data indisponível";
