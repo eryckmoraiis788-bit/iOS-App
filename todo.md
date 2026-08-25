@@ -535,5 +535,44 @@
 - [x] Sincronizar `icon.png`, `android-icon-foreground.png`, `favicon.png` e `splash-icon.png`.
 - [x] Incrementar a versão para Inter 1.2.57/build 177.
 - [x] Validar TypeScript, testes e configuração Expo antes do build.
-- [ ] Gerar e auditar a IPA 1.2.57/build 177.
+- [x] Gerar e auditar a IPA 1.2.57/build 177; Action 32854183722 concluída, auditoria estrutural AUDIT=PASS.
 - [ ] Instalar a IPA 1.2.57/build 177 no SideStore e confirmar visualmente a escala do ícone no iPhone.
+
+
+# Ajuste fino do ícone conforme IMG_0059
+
+- [x] Medir os símbolos esquerdo e direito no screenshot de referência.
+- [x] Confirmar que o tamanho do símbolo da IPA 1.2.57 já estava praticamente correto.
+- [x] Corrigir o deslocamento horizontal, movendo o símbolo aproximadamente 140 px para a esquerda.
+- [x] Ajustar o laranja para um tom mais claro e dourado, próximo de `#F07800`.
+- [x] Manter o fundo carvão full-bleed, pois os dois ícones apresentam o mesmo tom visual.
+- [x] Sincronizar `icon.png`, `android-icon-foreground.png`, `favicon.png` e `splash-icon.png`.
+- [x] Incrementar a versão para Inter 1.2.58/build 178.
+- [ ] Gerar e auditar a IPA 1.2.58/build 178.
+- [ ] Instalar a IPA 1.2.58/build 178 no SideStore e comparar visualmente com a referência.
+
+
+# Ajuste final de cor, fundo e posição conforme IMG_0059
+
+- [x] Comparar objetivamente o ícone da IPA à esquerda com a referência da direita.
+- [x] Confirmar que o tamanho do símbolo já estava praticamente igual; não reduzir novamente.
+- [x] Deslocar o símbolo aproximadamente 140 px para a esquerda, preservando topo, base e geometria.
+- [x] Ajustar o laranja para `#F07800`, mais próximo do tom vivo e dourado da referência.
+- [x] Ajustar o fundo para `#2D2D2D`, tom carvão medido na área interna dos dois ícones.
+- [x] Sincronizar `icon.png`, `android-icon-foreground.png`, `favicon.png` e `splash-icon.png`.
+- [x] Incrementar a versão para Inter 1.2.59/build 179.
+- [ ] Gerar e auditar a IPA 1.2.59/build 179.
+- [ ] Instalar a IPA 1.2.59/build 179 no SideStore e confirmar a comparação visual final no iPhone.
+
+
+# Encaixe final medido conforme IMG_0059
+
+- [x] Medir os limites dos ícones e dos símbolos no screenshot, sem alterar a referência original.
+- [x] Confirmar que o tamanho anterior estava praticamente correto e aplicar redução leve de aproximadamente 2,4%.
+- [x] Ajustar o bounding box final do símbolo para `421,441,1510,1510` no canvas 1920 × 1920.
+- [x] Fixar o fundo em `#2D2D2D`, tom carvão medido nas áreas internas da referência.
+- [x] Fixar o laranja em `#F07800`, tom vivo e dourado de marca.
+- [x] Sincronizar os quatro assets full-color usados pelo projeto.
+- [x] Incrementar a versão para Inter 1.2.60/build 180.
+- [ ] Gerar e auditar a IPA 1.2.60/build 180.
+- [ ] Instalar a IPA 1.2.60/build 180 no SideStore e confirmar a igualdade visual no iPhone.
