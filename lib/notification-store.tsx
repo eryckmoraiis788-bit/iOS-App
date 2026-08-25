@@ -3,6 +3,7 @@ import * as Notifications from "expo-notifications";
 import * as FileSystem from "expo-file-system/legacy";
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Alert, Linking, Platform } from "react-native";
+import { parseStoredNotificationRecords } from "./notification-storage";
 
 export type NotificationTemplate = {
   id: string;
@@ -91,6 +92,15 @@ async function readTemplatesSafely(): Promise<NotificationTemplate[]> {
   }
 }
 
+async function readStoredValue(key: string): Promise<string | null> {
+  try {
+    return await AsyncStorage.getItem(key);
+  } catch (error) {
+    console.error(`[storage] failed to read ${key}`, error);
+    return null;
+  }
+}
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -116,6 +126,9 @@ const StoreContext = createContext<Store | null>(null);
 
 export function NotificationStoreProvider({ children }: { children: ReactNode }) {
   const [records, setRecords] = useState<NotificationRecord[]>([]);
+  const recordsRef = useRef<NotificationRecord[]>([]);
+  const recordsLoadPromiseRef = useRef<Promise<void> | null>(null);
+  const recordsWritePromiseRef = useRef<Promise<void>>(Promise.resolve());
   const [templates, setTemplates] = useState<NotificationTemplate[]>([]);
   const templatesRef = useRef<NotificationTemplate[]>([]);
   const templatesLoadedRef = useRef(false);
@@ -134,23 +147,33 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
   }, []);
 
   useEffect(() => {
-    templatesLoadPromiseRef.current = (async () => {
+    recordsLoadPromiseRef.current = (async () => {
       const [storedRecords, storedImage, storedHaptics] = await Promise.all([
-        AsyncStorage.getItem(STORAGE_KEY),
-        AsyncStorage.getItem(IMAGE_KEY),
-        AsyncStorage.getItem(HAPTICS_KEY),
+        readStoredValue(STORAGE_KEY),
+        readStoredValue(IMAGE_KEY),
+        readStoredValue(HAPTICS_KEY),
       ]);
-      if (storedRecords) setRecords(JSON.parse(storedRecords));
+      const parsedRecords = parseStoredNotificationRecords(storedRecords);
+      recordsRef.current = parsedRecords;
+      setRecords(parsedRecords);
       await refreshTemplates();
       if (storedImage) setSelectedImageState(storedImage);
       if (storedHaptics !== null) setHapticsState(storedHaptics !== "false");
       await refreshPermission();
     })();
+    templatesLoadPromiseRef.current = recordsLoadPromiseRef.current;
   }, []);
 
-  const persistRecords = async (next: NotificationRecord[]) => {
-    setRecords(next);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  const updateRecords = (updater: (current: NotificationRecord[]) => NotificationRecord[]) => {
+    const operation = recordsWritePromiseRef.current.then(async () => {
+      if (recordsLoadPromiseRef.current) await recordsLoadPromiseRef.current;
+      const next = updater(recordsRef.current);
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      recordsRef.current = next;
+      setRecords(next);
+    });
+    recordsWritePromiseRef.current = operation.catch(() => undefined);
+    return operation;
   };
 
   const refreshPermission = async () => {
@@ -204,7 +227,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
       }
     }
     const record: NotificationRecord = { ...input, id: `local-${Date.now()}`, kind: "immediate", status: "sent", createdAt: new Date().toISOString(), notificationId };
-    await persistRecords([record, ...records]);
+    await updateRecords((current) => [record, ...current]);
     return true;
   };
 
@@ -225,7 +248,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
         : { type: Notifications.SchedulableTriggerInputTypes.DATE, date: scheduledAt };
     const notificationId = await Notifications.scheduleNotificationAsync({ content: await buildContent(input), trigger });
     const record: NotificationRecord = { ...input, id: `scheduled-${Date.now()}`, kind: "scheduled", status: "pending", createdAt: new Date().toISOString(), scheduledAt: scheduledAt.toISOString(), notificationId, recurrence, ...(recurrence === "weekly" ? { repeatWeekday: weekday } : {}) };
-    await persistRecords([record, ...records]);
+    await updateRecords((current) => [record, ...current]);
   };
 
   const updateScheduled = async (record: NotificationRecord, input: Omit<NotificationRecord, "id" | "kind" | "status" | "createdAt" | "notificationId">) => {
@@ -234,7 +257,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     const recurrence = record.recurrence ?? "once";
     if (recurrence === "once" && scheduledAt.getTime() <= Date.now()) throw new Error("O horário deste agendamento já passou.");
     if (Platform.OS === "web") {
-      await persistRecords(records.map((item) => item.id === record.id ? { ...item, ...input } : item));
+      await updateRecords((current) => current.map((item) => item.id === record.id ? { ...item, ...input } : item));
       return;
     }
     const weekday = record.repeatWeekday ?? scheduledAt.getDay() + 1;
@@ -250,37 +273,36 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
       await Notifications.cancelScheduledNotificationAsync(replacementId).catch(() => undefined);
       throw error;
     }
-    await persistRecords(records.map((item) => item.id === record.id ? { ...item, ...input, notificationId: replacementId, recurrence, ...(recurrence === "weekly" ? { repeatWeekday: weekday } : {}) } : item));
+    await updateRecords((current) => current.map((item) => item.id === record.id ? { ...item, ...input, notificationId: replacementId, recurrence, ...(recurrence === "weekly" ? { repeatWeekday: weekday } : {}) } : item));
   };
 
   const refreshScheduled = useCallback(async () => {
     if (Platform.OS === "web") return;
     const scheduled = await Notifications.getAllScheduledNotificationsAsync();
     const nativeIds = new Set(scheduled.map((item) => item.identifier));
-    const next = records.map((item) => {
+    await updateRecords((current) => current.map((item) => {
       if (item.status !== "pending" || !item.notificationId || nativeIds.has(item.notificationId)) return item;
       return { ...item, status: "delivered" as const };
-    });
-    if (next.some((item, index) => item.status !== records[index]?.status)) await persistRecords(next);
-  }, [records]);
+    }));
+  }, []);
 
   const clearScheduled = useCallback(async () => {
     if (Platform.OS !== "web") await Notifications.cancelAllScheduledNotificationsAsync();
-    await persistRecords(records.map((item) => item.status === "pending" ? { ...item, status: "cancelled" as const } : item));
-  }, [records]);
+    await updateRecords((current) => current.map((item) => item.status === "pending" ? { ...item, status: "cancelled" as const } : item));
+  }, []);
 
   const cancel = async (record: NotificationRecord) => {
     if (Platform.OS !== "web" && record.notificationId) await Notifications.cancelScheduledNotificationAsync(record.notificationId);
-    await persistRecords(records.map((item) => item.id === record.id ? { ...item, status: "cancelled" as const } : item));
+    await updateRecords((current) => current.map((item) => item.id === record.id ? { ...item, status: "cancelled" as const } : item));
   };
 
   const remove = async (record: NotificationRecord) => {
     if (Platform.OS !== "web" && record.notificationId && record.status === "pending") await Notifications.cancelScheduledNotificationAsync(record.notificationId);
-    await persistRecords(records.filter((item) => item.id !== record.id));
+    await updateRecords((current) => current.filter((item) => item.id !== record.id));
   };
 
   const clearHistory = async () => {
-    await persistRecords(records.filter((item) => item.status === "pending"));
+    await updateRecords((current) => current.filter((item) => item.status === "pending"));
   };
 
   const saveTemplate = async (input: Omit<NotificationTemplate, "id" | "createdAt" | "updatedAt">, id?: string) => {
