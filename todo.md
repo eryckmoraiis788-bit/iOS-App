@@ -600,6 +600,6 @@
 - [x] Atualizar o estado de permissão ao voltar para o app usando `AppState`.
 - [x] Adicionar `expo-asset` e alinhar `expo-constants` para eliminar a duplicidade nativa.
 - [x] Validar preenchimento, salvamento e uso de um modelo no preview web.
-- [ ] Resolver os desalinhamentos restantes de patch do Expo SDK em uma etapa separada.
-- [x] Gerar e auditar a nova IPA de teste após este lote; Inter 1.2.62/build 182, Action 32877842471, AUDIT=PASS.
-- [ ] Validar no iPhone a permissão, imagem e modelos após a instalação da Inter 1.2.62/build 182.
+- [x] Resolver os desalinhamentos restantes de patch do Expo SDK; Expo Doctor passou em 18/18 verificações.
+- [x] Gerar e auditar a nova IPA de teste após este lote; Inter 1.2.63/build 183, Action 32891997317, AUDIT=PASS.
+- [ ] Validar no iPhone a permissão, imagem e modelos após a instalação da Inter 1.2.63/build 183; a 1.2.62/build 182 permanece como rollback.
