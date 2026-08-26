@@ -88,3 +88,9 @@ A próxima correção deve separar a grade em duas colunas estáveis. Os rótulo
 O preview da revisão atual mostra os rótulos em coluna fixa à esquerda e os valores em coluna única alinhada à direita. As três linhas de recebedor agora compartilham a mesma cadência, sem o `marginBottom` adicional de 6 pontos. O botão `Realizar novo Pix` permaneceu com quadro e texto centralizados.
 
 A confirmação física continua necessária porque o iOS pode aplicar diferenças próprias de métrica e safe area; por isso a próxima IPA será nativa e versionada, sem reutilizar o bundle anterior.
+
+## Preview da correção linha a linha — build 201 em preparação
+
+Após separar o `Pressable` da linha visual, o preview mostra `Nome` e o respectivo valor na mesma linha, `CPF/CNPJ` e sua máscara na mesma linha, e `Instituição` e seu valor na mesma linha. O contêiner de cada par tem altura fixa de 21 pontos, direção horizontal e alinhamento vertical central; a área de toque ocupa a linha inteira sem participar do layout.
+
+A próxima etapa é confirmar essa mesma estrutura no bundle nativo e no iPhone. O botão `Realizar novo Pix` continua intacto.
