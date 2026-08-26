@@ -705,4 +705,9 @@
 - [x] Criar o checkpoint `before-receipt-icons-header-1.2.70-build-190` antes da correção.
 - [x] Incrementar a versão para Inter 1.2.71/build 191.
 - [x] Validar, compilar, auditar e arquivar a IPA 1.2.71/build 191; Action 32965145173 concluída com sucesso, auditoria estrutural e ZIP aprovados.
-- [ ] Instalar no SideStore e comparar novamente com a referência no iPhone.
+- [x] Diagnosticar na captura física que o override `icon-symbol.ios.tsx` ainda convertia seta, casa e check para `help-outline`, mantendo os `?`.
+- [x] Criar o checkpoint `before-receipt-native-icons-safearea-1.2.71-build-191` antes da correção nativa.
+- [x] Corrigir os aliases no override efetivo do iOS e aplicar branco explícito ao container e à SafeAreaView do comprovante.
+- [x] Incrementar a versão para Inter 1.2.72/build 192.
+- [x] Validar, compilar, auditar e arquivar a IPA 1.2.72/build 192; Action 32967594886 concluída com sucesso, auditoria estrutural e ZIP aprovados.
+- [ ] Instalar a IPA 1.2.72/build 192 no SideStore e comparar novamente com a referência no iPhone.

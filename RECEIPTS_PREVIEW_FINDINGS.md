@@ -30,3 +30,13 @@ A imagem enviada pelo usuário passa a ser a referência visual principal para o
 ## Revisão do topo após o ajuste definitivo
 
 O preview atualizado mostra o cabeçalho, círculo verde de 64 pontos, check ampliado, `Pix enviado` e valor centralizados. O padding superior extra foi removido para aproximar o círculo da posição da referência. A máscara exibida continua no padrão `***.234.567-89`.
+
+## Captura física da build 1.2.71/build 191 — diagnóstico confirmado
+
+A captura enviada pelo usuário após instalar a build 191 mostrou que a seta de voltar, o atalho de início e o check continuavam como ícones de interrogação laranja/branco. A causa foi confirmada no código: o iOS resolve `components/ui/icon-symbol.ios.tsx`, que não havia recebido os aliases `arrow-back`, `house.fill`, `check` e `receipt`; nomes ausentes eram convertidos para `help-outline`.
+
+A mesma captura mostrou a área do status bar em cinza-claro, enquanto o corpo do comprovante permanecia branco. O `StatusBar backgroundColor` isolado não é suficiente para controlar a área segura no iOS. A próxima build aplica branco explicitamente ao container externo e à `SafeAreaView` da tela.
+
+A captura também confirma que a build 191 manteve os dados de data, horário, ID, nome, CPF/CNPJ e instituição, além de não exibir os lápis extras. Esses pontos não devem ser tratados como equivalência visual completa: a build 191 não foi aprovada, porque os ícones principais e a faixa superior ainda divergiam da referência.
+
+A build 1.2.72/build 192 foi criada exclusivamente para corrigir o caminho nativo real dos ícones e o fundo da área segura, mantendo a persistência e a edição por toque sem alterar a identidade visual geral.
