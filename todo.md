@@ -692,5 +692,5 @@
 - [x] Manter valor, nome, CPF/CNPJ e instituição editáveis e persistentes.
 - [x] Criar o checkpoint `before-receipt-top-1.2.69-build-189` antes da correção.
 - [x] Incrementar a versão para Inter 1.2.70/build 190.
-- [ ] Validar, compilar, auditar e arquivar a IPA 1.2.70/build 190.
+- [x] Validar, compilar, auditar e arquivar a IPA 1.2.70/build 190; Action 32961360388 concluída com sucesso, auditoria estrutural e ZIP aprovados.
 - [ ] Instalar no SideStore e comparar o topo diretamente com a referência no iPhone.
