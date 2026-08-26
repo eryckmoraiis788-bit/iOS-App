@@ -41,30 +41,22 @@ export function extractReceiptRecipientName(record: Pick<NotificationRecord, "ti
   return record.title.trim() || "Nome do recebedor";
 }
 
-function deterministicDocumentSuffix(seed: string) {
-  let hash = 0;
-  for (const character of seed) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
-  return String(hash % 100).padStart(2, "0");
-}
-
 export function createMaskedDocument() {
   const first = Math.floor(Math.random() * 1_000).toString().padStart(3, "0");
   const second = Math.floor(Math.random() * 1_000).toString().padStart(3, "0");
-  const suffix = Math.floor(Math.random() * 100).toString().padStart(2, "0");
-  return `***.${first}.${second}-${suffix}`;
+  return `***.${first}.${second}-**`;
 }
 
 export function normalizeReceiptDocument(value: string) {
   const trimmed = value.trim();
   const maskedMatch = trimmed.match(/^\*{3}\.(\d{3})\.(\d{3})-(\d{2}|\*{2})$/);
   if (maskedMatch) {
-    const suffix = maskedMatch[3] === "**" ? deterministicDocumentSuffix(`${maskedMatch[1]}.${maskedMatch[2]}`) : maskedMatch[3];
-    return `***.${maskedMatch[1]}.${maskedMatch[2]}-${suffix}`;
+    return `***.${maskedMatch[1]}.${maskedMatch[2]}-**`;
   }
   const digits = trimmed.replace(/\D/g, "");
-  if (digits.length >= 8) return `***.${digits.slice(-8, -5)}.${digits.slice(-5, -2)}-${digits.slice(-2)}`;
-  if (digits.length >= 6) return `***.${digits.slice(0, 3)}.${digits.slice(3, 6)}-${deterministicDocumentSuffix(digits)}`;
-  return trimmed || "***.000.000-00";
+  if (digits.length >= 8) return `***.${digits.slice(-8, -5)}.${digits.slice(-5, -2)}-**`;
+  if (digits.length >= 6) return `***.${digits.slice(0, 3)}.${digits.slice(3, 6)}-**`;
+  return trimmed || "***.000.000-**";
 }
 
 export function normalizeReceiptAmount(value: string) {

@@ -14,13 +14,13 @@ describe("receipt storage", () => {
       createdAt: "2026-08-25T19:07:00.000Z",
       eventAt: "2026-08-25T19:07:00.000Z",
     }]);
-    expect(receipt).toMatchObject({ recordId: "record-1", recipientName: "Pessoa Recebedora", document: "***.123.456-78", institution: "Instituição de teste" });
+    expect(receipt).toMatchObject({ recordId: "record-1", recipientName: "Pessoa Recebedora", document: "***.123.456-**", institution: "Instituição de teste" });
   });
 
   it("aplica defaults a campos ausentes e descarta itens sem recordId", () => {
     const result = normalizeNotificationReceipts([{ recordId: "record-2" }, { institution: "sem registro" }, "corrompido"]);
     expect(result).toHaveLength(1);
-    expect(result[0]).toMatchObject({ recordId: "record-2", amount: "0,00", recipientName: "Nome do recebedor", document: "***.000.000-00", institution: "Cloudwalk Ip LTDA" });
+    expect(result[0]).toMatchObject({ recordId: "record-2", amount: "0,00", recipientName: "Nome do recebedor", document: "***.000.000-**", institution: "Cloudwalk Ip LTDA" });
   });
 
   it("não interrompe a inicialização quando o JSON está corrompido", () => {

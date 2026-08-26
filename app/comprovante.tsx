@@ -115,15 +115,15 @@ export default function ReceiptDetailScreen() {
           </View>
 
           <View style={styles.actions}>
-            <Pressable
-              onPress={() => undefined}
+            <View
+              accessible
               accessibilityRole="button"
               accessibilityLabel="Compartilhar comprovante indisponível"
               accessibilityState={{ disabled: true }}
               style={styles.shareButton}
             >
               <Text style={styles.shareText}>Compartilhar comprovante</Text>
-            </Pressable>
+            </View>
             <Pressable
               onPress={() => router.replace("/")}
               accessibilityRole="button"
@@ -210,9 +210,9 @@ const styles = StyleSheet.create({
   separator: { height: 1, borderTopWidth: 1, borderTopColor: "#E4E4E4", borderStyle: "dashed", marginTop: 32 },
   recipientSection: { marginTop: 42 },
   actions: { width: "100%", alignItems: "stretch", marginTop: 24, paddingBottom: 12 },
-  shareButton: { width: "100%", height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: colors.orange, opacity: 1 },
+  shareButton: { width: "100%", height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#EA7900", opacity: 1 },
   shareText: { color: colors.background, fontSize: 17, fontWeight: "600" },
-  newPixButton: { width: "100%", height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: colors.background, borderWidth: 1.5, borderColor: "#F2B16E" },
+  newPixButton: { width: "100%", height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#F2B16E" },
   newPixText: { color: colors.orange, fontSize: 17, fontWeight: "600", textAlign: "center" },
   modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "rgba(0, 0, 0, 0.42)" },
   editorCard: { width: "100%", maxWidth: 390, borderRadius: 20, padding: 20, backgroundColor: colors.background },

@@ -33,7 +33,7 @@ export function normalizeNotificationReceipts(raw: unknown): NotificationReceipt
       recordId,
       amount: nonEmpty(candidate.amount, "0,00"),
       recipientName: nonEmpty(candidate.recipientName, "Nome do recebedor"),
-      document: normalizeReceiptDocument(nonEmpty(candidate.document, "***.000.000-00")),
+      document: normalizeReceiptDocument(nonEmpty(candidate.document, "***.000.000-**")),
       institution: nonEmpty(candidate.institution, "Cloudwalk Ip LTDA"),
       transactionId: nonEmpty(candidate.transactionId, `E004${Date.now()}${index}`),
       createdAt: nonEmpty(candidate.createdAt, now),

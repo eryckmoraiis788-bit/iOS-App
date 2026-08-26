@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createMaskedDocument, extractReceiptAmount, extractReceiptRecipientName, formatReceiptDate, formatReceiptTime, getReceiptTimestamp, getReceiptTransactionId } from "../lib/receipt-utils";
+import { createMaskedDocument, extractReceiptAmount, extractReceiptRecipientName, formatReceiptDate, formatReceiptTime, getReceiptTimestamp, getReceiptTransactionId, normalizeReceiptDocument } from "../lib/receipt-utils";
 
 describe("receipt utils", () => {
   const record = {
@@ -20,7 +20,13 @@ describe("receipt utils", () => {
 
   it("gera documento mascarado com números centrais", () => {
     const document = createMaskedDocument();
-    expect(document).toMatch(/^\*{3}\.\d{3}\.\d{3}-\d{2}$/);
+    expect(document).toMatch(/^\*{3}\.\d{3}\.\d{3}-\*{2}$/);
+  });
+
+  it("normaliza documentos no formato oculto da referência", () => {
+    expect(normalizeReceiptDocument("12345678901")).toBe("***.456.789-**");
+    expect(normalizeReceiptDocument("***.123.456-78")).toBe("***.123.456-**");
+    expect(normalizeReceiptDocument("***.123.456-**")).toBe("***.123.456-**");
   });
 
   it("formata data e horário do registro", () => {
