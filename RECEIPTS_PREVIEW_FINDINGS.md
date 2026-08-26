@@ -22,3 +22,11 @@ O preview mostrou o comprovante com pesos tipográficos reduzidos para o padrão
 O editor de CPF/CNPJ também abre com o mesmo formato corrigido, permitindo manter a máscara ao salvar.
 
 A edição de teste `123456789` foi salva e exibida como `***.234.567-89`, confirmando três asteriscos iniciais, seis números centrais, ponto entre blocos e dois dígitos finais visíveis, exatamente no padrão da referência antiga.
+
+## Referência superior definitiva
+
+A imagem enviada pelo usuário passa a ser a referência visual principal para o topo do comprovante. A composição deve manter o cabeçalho com voltar à esquerda, título centralizado e início à direita; o círculo verde grande com check centralizado; a sequência vertical com espaçamento amplo entre círculo, `Pix enviado` e o valor; e o peso tipográfico uniforme da referência antiga. O bloco de referência mostra o círculo ocupando aproximadamente 64 pontos lógicos em um iPhone de 393 pontos de largura, com o título e o valor centralizados e sem deslocamento horizontal.
+
+## Revisão do topo após o ajuste definitivo
+
+O preview atualizado mostra o cabeçalho, círculo verde de 64 pontos, check ampliado, `Pix enviado` e valor centralizados. O padding superior extra foi removido para aproximar o círculo da posição da referência. A máscara exibida continua no padrão `***.234.567-89`.

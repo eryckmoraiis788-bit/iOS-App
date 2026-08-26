@@ -78,17 +78,17 @@ export default function ReceiptDetailScreen() {
       <View style={styles.screen}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} hitSlop={12} accessibilityRole="button" accessibilityLabel="Voltar">
-            <IconSymbol name="arrow-back" size={28} color={colors.orange} />
+            <IconSymbol name="arrow-back" size={26} color={colors.orange} />
           </Pressable>
           <Text style={styles.headerTitle}>Comprovante</Text>
           <Pressable onPress={() => router.replace("/")} hitSlop={12} accessibilityRole="button" accessibilityLabel="Ir para o início">
-            <IconSymbol name="house.fill" size={28} color={colors.orange} />
+            <IconSymbol name="house.fill" size={26} color={colors.orange} />
           </Pressable>
         </View>
 
         <ScrollView style={styles.receiptScroll} contentContainerStyle={styles.receiptBody} showsVerticalScrollIndicator={false}>
           <View style={styles.successCircle}>
-            <IconSymbol name="check" size={26} color={colors.background} />
+            <IconSymbol name="check" size={40} color={colors.background} />
           </View>
           <Text style={styles.successTitle}>Pix enviado</Text>
           <Pressable onPress={() => openEditor("amount", receipt.amount)} accessibilityRole="button" accessibilityLabel="Editar valor do comprovante" style={({ pressed }) => [styles.amountPressable, pressed && styles.pressed]}>
@@ -191,10 +191,10 @@ function EditableInfoRow({ label, value, onPress }: { label: string; value: stri
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   header: { height: 68, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  headerTitle: { color: colors.ink, fontSize: 25, fontWeight: "700" },
+  headerTitle: { color: colors.ink, fontSize: 25, lineHeight: 31, fontWeight: "600" },
   receiptScroll: { flex: 1 },
-  receiptBody: { flexGrow: 1, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 20 },
-  successCircle: { alignSelf: "center", width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: colors.green },
+  receiptBody: { flexGrow: 1, paddingHorizontal: 16, paddingTop: 0, paddingBottom: 20 },
+  successCircle: { alignSelf: "center", width: 64, height: 64, borderRadius: 32, alignItems: "center", justifyContent: "center", backgroundColor: colors.green },
   successTitle: { color: colors.ink, fontSize: 31, lineHeight: 37, fontWeight: "700", textAlign: "center", marginTop: 24 },
   amountPressable: { alignSelf: "center", borderRadius: 8, paddingHorizontal: 8, marginHorizontal: -8 },
   amount: { color: colors.ink, fontSize: 31, lineHeight: 37, fontWeight: "700", textAlign: "center" },

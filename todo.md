@@ -682,3 +682,15 @@
 - [x] Incrementar a versão para Inter 1.2.69/build 189.
 - [x] Validar, compilar, auditar e arquivar a IPA 1.2.69/build 189; Action 32913489485 concluída com sucesso, auditoria estrutural e ZIP aprovados.
 - [ ] Instalar a IPA 1.2.69/build 189 no SideStore e comparar novamente com o print antigo.
+
+# Fidelidade exata da parte superior do comprovante — Inter 1.2.70/build 190
+- [x] Adotar a nova imagem enviada como referência definitiva do topo do comprovante.
+- [x] Ajustar o cabeçalho com voltar à esquerda, título centralizado e início à direita.
+- [x] Ampliar o círculo verde e o check para a proporção da referência.
+- [x] Ajustar o espaçamento vertical entre cabeçalho, círculo, Pix enviado e valor.
+- [x] Ajustar pesos tipográficos para aproximar o padrão visual do projeto antigo.
+- [x] Manter valor, nome, CPF/CNPJ e instituição editáveis e persistentes.
+- [x] Criar o checkpoint `before-receipt-top-1.2.69-build-189` antes da correção.
+- [x] Incrementar a versão para Inter 1.2.70/build 190.
+- [ ] Validar, compilar, auditar e arquivar a IPA 1.2.70/build 190.
+- [ ] Instalar no SideStore e comparar o topo diretamente com a referência no iPhone.
