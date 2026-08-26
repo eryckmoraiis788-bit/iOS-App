@@ -2,10 +2,12 @@
 // MaterialIcons is deliberately used here instead of SymbolView because an
 // unsupported SF Symbol can abort native route rendering in a release build.
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { SymbolView, type SymbolWeight } from "expo-symbols";
 import type { ComponentProps } from "react";
-import type { OpaqueColorValue, StyleProp, TextStyle } from "react-native";
+import type { OpaqueColorValue, StyleProp, TextStyle, ViewStyle } from "react-native";
 
 type MaterialIconName = ComponentProps<typeof MaterialIcons>["name"];
+type NativeIconName = ComponentProps<typeof SymbolView>["name"];
 
 const IOS_ICON_MAP: Record<string, MaterialIconName> = {
   "square.and.pencil": "edit",
@@ -39,18 +41,33 @@ const IOS_ICON_MAP: Record<string, MaterialIconName> = {
   edit: "edit",
 };
 
+// These symbols are present in the iOS 15 SF Symbols set and match the old receipt.
+// Keep the list intentionally small; all other app icons remain on the proven Material fallback.
+const RECEIPT_SF_SYMBOLS: Record<string, NativeIconName> = {
+  "arrow-back": "arrow.left",
+  "house.fill": "house",
+  check: "checkmark",
+  receipt: "doc.text",
+};
+
 export function IconSymbol({
   name,
   size = 24,
   color,
   style,
+  weight,
 }: {
   name: string;
   size?: number;
   color: string | OpaqueColorValue;
   style?: StyleProp<TextStyle>;
-  weight?: never;
+  weight?: SymbolWeight;
 }) {
+  const nativeName = RECEIPT_SF_SYMBOLS[name];
+  if (nativeName) {
+    return <SymbolView name={nativeName} size={size} tintColor={color} weight={weight ?? "regular"} style={style as StyleProp<ViewStyle>} />;
+  }
+
   const iconName = IOS_ICON_MAP[name] ?? "help-outline";
   return <MaterialIcons color={color} size={size} name={iconName} style={style} />;
 }

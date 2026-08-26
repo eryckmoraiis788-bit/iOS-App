@@ -16,7 +16,7 @@ export function getReceiptTransactionId(record: Pick<NotificationRecord, "id" | 
   const source = `${record.id}:${record.notificationId ?? ""}`;
   let hash = 0;
   for (const character of source) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
-  const token = hash.toString(36).toUpperCase().padStart(20, "0").slice(0, 20);
+  const token = hash.toString(36).toUpperCase().padStart(16, "0").slice(0, 16);
   return `E004${dateStamp}${token}`;
 }
 

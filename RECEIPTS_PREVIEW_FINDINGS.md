@@ -40,3 +40,15 @@ A mesma captura mostrou a área do status bar em cinza-claro, enquanto o corpo d
 A captura também confirma que a build 191 manteve os dados de data, horário, ID, nome, CPF/CNPJ e instituição, além de não exibir os lápis extras. Esses pontos não devem ser tratados como equivalência visual completa: a build 191 não foi aprovada, porque os ícones principais e a faixa superior ainda divergiam da referência.
 
 A build 1.2.72/build 192 foi criada exclusivamente para corrigir o caminho nativo real dos ícones e o fundo da área segura, mantendo a persistência e a edição por toque sem alterar a identidade visual geral.
+
+## Comparativo lado a lado — IPA 1.2.72 versus projeto antigo
+
+A captura lado a lado confirma que os ícones principais já foram corrigidos, mas a tipografia da IPA ainda está maior e mais pesada do que a referência antiga. A diferença é mais evidente em `Comprovante`, `Pix enviado`, o valor e `Sobre a transação`. A referência usa uma escala visual menor e mais compacta, com títulos fortes porém menos volumosos.
+
+A referência antiga usa conteúdo com margem horizontal maior: os rótulos começam mais para dentro e os valores terminam antes da borda. Na IPA, os rótulos estão próximos demais das laterais. O ID também quebra em duas linhas na IPA, enquanto aparece em uma linha na referência; isso é consequência combinada da fonte/tamanho e da largura interna disponível.
+
+A distância vertical na IPA fica excessiva após o círculo e entre o bloco da transação e o bloco `Quem recebeu`. A referência mostra o círculo, `Pix enviado` e o valor em uma composição mais compacta. A linha divisória tracejada da referência também precisa permanecer visível entre as duas seções. Como consequência do conteúdo mais alto e do ID quebrado, os botões inferiores não aparecem na captura da IPA, enquanto aparecem na referência.
+
+O ícone de início ainda difere na forma: a IPA usa casa preenchida e a referência usa casa contornada. Isso é uma diferença de ícone, não de fonte, e deve ser corrigido sem alterar a seta e o check já aprovados na build 192. O nome, documento, instituição, valor, data, horário e ID podem variar conforme o comprovante emitido; a comparação tipográfica deve usar a hierarquia visual, não substituir esses dados por valores fixos.
+
+Medidas-alvo controladas para a próxima revisão: cabeçalho menor, título/valor do Pix em torno de 25 pt, título de seção em torno de 20 pt, dados em torno de 15–16 pt, margem horizontal em torno de 24 pt, ID em uma linha quando possível e redução dos intervalos verticais sem remover edição, persistência, compartilhamento desativado ou o botão de novo Pix.

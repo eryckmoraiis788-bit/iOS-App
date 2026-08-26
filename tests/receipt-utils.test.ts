@@ -38,7 +38,7 @@ describe("receipt utils", () => {
   it("gera um ID determinístico no formato do comprovante Pix", () => {
     const input = { id: "record-1", notificationId: "notification-1", kind: "immediate" as const, createdAt: "2026-08-25T19:07:00.000Z" };
     const transactionId = getReceiptTransactionId(input);
-    expect(transactionId).toMatch(/^E004202608251907[A-Z0-9]{20}$/);
+    expect(transactionId).toMatch(/^E004202608251907[A-Z0-9]{16}$/);
     expect(getReceiptTransactionId(input)).toBe(transactionId);
   });
 

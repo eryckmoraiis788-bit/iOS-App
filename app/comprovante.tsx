@@ -101,7 +101,7 @@ export default function ReceiptDetailScreen() {
             <InfoRow label="Horário" value={formatReceiptTime(receiptTimestamp)} />
             <View style={styles.idBlock}>
               <Text style={styles.infoLabel}>ID da transação</Text>
-              <Text style={styles.idValue} selectable>{receipt.transactionId}</Text>
+              <Text style={styles.idValue} selectable numberOfLines={1}>{receipt.transactionId}</Text>
             </View>
           </View>
 
@@ -189,31 +189,31 @@ function EditableInfoRow({ label, value, onPress }: { label: string; value: stri
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  header: { height: 68, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  headerTitle: { color: colors.ink, fontSize: 25, lineHeight: 31, fontWeight: "600" },
+  header: { height: 56, paddingHorizontal: 24, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  headerTitle: { color: colors.ink, fontSize: 20, lineHeight: 24, fontWeight: "600" },
   receiptScroll: { flex: 1 },
-  receiptBody: { flexGrow: 1, paddingHorizontal: 16, paddingTop: 0, paddingBottom: 20 },
+  receiptBody: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 0, paddingBottom: 20 },
   successCircle: { alignSelf: "center", width: 64, height: 64, borderRadius: 32, alignItems: "center", justifyContent: "center", backgroundColor: colors.green },
-  successTitle: { color: colors.ink, fontSize: 31, lineHeight: 37, fontWeight: "700", textAlign: "center", marginTop: 24 },
+  successTitle: { color: colors.ink, fontSize: 25, lineHeight: 30, fontWeight: "600", textAlign: "center", marginTop: 16 },
   amountPressable: { alignSelf: "center", borderRadius: 8, paddingHorizontal: 8, marginHorizontal: -8 },
-  amount: { color: colors.ink, fontSize: 31, lineHeight: 37, fontWeight: "700", textAlign: "center" },
+  amount: { color: colors.ink, fontSize: 25, lineHeight: 30, fontWeight: "600", textAlign: "center" },
   pressed: { opacity: 0.6 },
-  section: { marginTop: 55 },
-  sectionTitle: { color: colors.ink, fontSize: 22, lineHeight: 27, fontWeight: "700", marginBottom: 23 },
-  infoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 18 },
+  section: { marginTop: 42 },
+  sectionTitle: { color: colors.ink, fontSize: 20, lineHeight: 24, fontWeight: "600", marginBottom: 22 },
+  infoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 16 },
   rowPressed: { opacity: 0.62 },
   infoLabel: { color: colors.muted, fontSize: 16, lineHeight: 21, flexShrink: 0 },
-  infoValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "700", textAlign: "right", flex: 1 },
+  infoValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", textAlign: "right", flex: 1 },
   editableValueWrap: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", flex: 1 },
   idBlock: { marginTop: 1 },
-  idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "700", marginTop: 7 },
-  separator: { borderTopWidth: 1, borderTopColor: colors.line, borderStyle: "dashed", marginTop: 36 },
-  recipientSection: { marginTop: 51 },
-  actions: { marginTop: 36, paddingBottom: 12 },
+  idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", marginTop: 6 },
+  separator: { borderTopWidth: 1, borderTopColor: colors.line, borderStyle: "dashed", marginTop: 32 },
+  recipientSection: { marginTop: 42 },
+  actions: { marginTop: 34, paddingBottom: 12 },
   shareButton: { height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#F4A15C", opacity: 0.66 },
-  shareText: { color: colors.background, fontSize: 17, fontWeight: "700" },
+  shareText: { color: colors.background, fontSize: 17, fontWeight: "600" },
   newPixButton: { height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#F2B16E" },
-  newPixText: { color: colors.orange, fontSize: 17, fontWeight: "700" },
+  newPixText: { color: colors.orange, fontSize: 17, fontWeight: "600" },
   modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "rgba(0, 0, 0, 0.42)" },
   editorCard: { width: "100%", maxWidth: 390, borderRadius: 20, padding: 20, backgroundColor: colors.background },
   editorHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
