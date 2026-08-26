@@ -794,4 +794,14 @@
 - [x] Validar TypeScript, testes, lint, Expo Doctor, configuração Expo e preview local; 21 testes passaram, 1 foi ignorado por configuração existente e lint permaneceu sem erros.
 - [x] Incrementar para Inter 1.2.81/build 201.
 - [x] Gerar e auditar a IPA pela Action 33011758434 no commit `ae13b74`; Info.plist 1.2.81/201 e ZIP aprovados.
-- [ ] Instalar a IPA 1.2.81/build 201 no SideStore e confirmar fisicamente que Nome/Eryck, CPF/CNPJ/máscara e Instituição/Cloudwalk ficam na mesma linha horizontal.
+- [x] Instalar a IPA 1.2.81/build 201 no SideStore e confirmar fisicamente que Nome/Eryck, CPF/CNPJ/máscara e Instituição/Cloudwalk ficam na mesma linha horizontal.
+
+# Refinamento após comparação com o projeto antigo — Inter 1.2.82/build 202
+- [x] Comparar detalhe por detalhe a captura do projeto antigo com a IPA, identificando principalmente a cadência vertical da grade, a distância até os botões e o divisor contínuo.
+- [x] Criar o checkpoint `before-receipt-spacing-1.2.81-build-201` antes dos ajustes.
+- [x] Aumentar em 8 pontos o espaçamento entre as duas primeiras linhas de `Quem recebeu`, sem alterar o alinhamento horizontal nem a área de toque.
+- [x] Trocar o divisor contínuo por divisor tracejado, preservando a posição e a cor geral.
+- [x] Validar TypeScript, testes, lint, Expo Doctor, configuração Expo e preview; 21 testes passaram, 1 foi ignorado por configuração existente e lint permaneceu sem erros.
+- [x] Incrementar para Inter 1.2.82/build 202.
+- [x] Gerar e auditar a IPA pela Action 33020848587 no commit `6ceab8c`; Info.plist 1.2.82/202 e ZIP aprovados.
+- [ ] Instalar a IPA 1.2.82/build 202 no SideStore e confirmar fisicamente se o espaçamento da grade, o divisor e a distância até os botões ficaram iguais ao projeto antigo.
