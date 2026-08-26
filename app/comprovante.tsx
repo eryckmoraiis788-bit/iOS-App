@@ -111,7 +111,7 @@ export default function ReceiptDetailScreen() {
             <Text style={styles.sectionTitle}>Quem recebeu</Text>
             <EditableInfoRow label="Nome" value={receipt.recipientName} onPress={() => openEditor("recipientName", receipt.recipientName)} />
             <EditableInfoRow label="CPF/CNPJ" value={receipt.document} onPress={() => openEditor("document", receipt.document)} />
-            <EditableInfoRow label="Instituição" value={receipt.institution} onPress={() => openEditor("institution", receipt.institution)} />
+            <EditableInfoRow label="Instituição" value={receipt.institution} onPress={() => openEditor("institution", receipt.institution)} isLast />
           </View>
 
           <View style={styles.actions}>
@@ -177,9 +177,9 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function EditableInfoRow({ label, value, onPress }: { label: string; value: string; onPress: () => void }) {
+function EditableInfoRow({ label, value, onPress, isLast = false }: { label: string; value: string; onPress: () => void; isLast?: boolean }) {
   return (
-    <View style={styles.recipientRow}>
+    <View style={[styles.recipientRow, !isLast && styles.recipientRowSpaced]}>
       <Text style={[styles.infoLabel, styles.recipientLabel]}>{label}</Text>
       <View style={styles.recipientValueColumn}>
         <Text style={styles.infoValue} numberOfLines={1}>{value}</Text>
@@ -215,12 +215,13 @@ const styles = StyleSheet.create({
   recipientValueColumn: { flex: 1, minWidth: 0, alignItems: "flex-end", paddingRight: 28 },
   idBlock: { marginTop: 1 },
   idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", marginTop: 6 },
-  separator: { height: 1, marginTop: 32, borderTopWidth: 1, borderTopColor: "#E4E4E4", borderStyle: "solid", opacity: 0.72 },
+  separator: { height: 1, marginTop: 32, borderTopWidth: 1, borderTopColor: "#E4E4E4", borderStyle: "dashed", opacity: 0.72 },
   recipientSection: { marginTop: 42 },
   actions: { width: "100%", alignItems: "stretch", marginTop: 24, paddingBottom: 12 },
   shareButton: { width: "100%", height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#EA7900", opacity: 1 },
   shareText: { color: colors.background, fontSize: 17, fontWeight: "600" },
   recipientRow: { position: "relative", width: "100%", minHeight: 21, height: 21, flexDirection: "row", alignItems: "center", marginBottom: 0 },
+  recipientRowSpaced: { marginBottom: 8 },
   newPixButtonFrame: { position: "relative", width: "100%", minHeight: 48, height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
   newPixText: { color: colors.orange, fontSize: 17, lineHeight: 21, fontWeight: "600", textAlign: "center" },
   buttonPressed: { opacity: 0.08 },

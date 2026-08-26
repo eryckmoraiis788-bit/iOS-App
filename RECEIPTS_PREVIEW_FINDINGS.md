@@ -94,3 +94,7 @@ A confirmação física continua necessária porque o iOS pode aplicar diferenç
 Após separar o `Pressable` da linha visual, o preview mostra `Nome` e o respectivo valor na mesma linha, `CPF/CNPJ` e sua máscara na mesma linha, e `Instituição` e seu valor na mesma linha. O contêiner de cada par tem altura fixa de 21 pontos, direção horizontal e alinhamento vertical central; a área de toque ocupa a linha inteira sem participar do layout.
 
 A próxima etapa é confirmar essa mesma estrutura no bundle nativo e no iPhone. O botão `Realizar novo Pix` continua intacto.
+
+## Refinamento visual — build 202 em preparação
+
+A rodada seguinte à comparação com as capturas antigas aplicou `marginBottom: 8` apenas nas duas primeiras linhas de `Quem recebeu`, preservando a linha visual horizontal e o overlay absoluto de toque. O divisor foi alterado de contínuo para `borderStyle: "dashed"`. O preview recarregado em 26/08/2026 exibiu Nome, CPF/CNPJ e Instituição na mesma linha de seus valores, com cadência vertical mais aberta e o divisor segmentado. O botão `Compartilhar comprovante` e o botão `Realizar novo Pix` permaneceram abaixo da seção, sem alteração estrutural.
