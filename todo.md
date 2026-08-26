@@ -737,3 +737,13 @@
 - [x] Preparar pacote sem assinatura 1.2.75/build 195 a partir da IPA 194 auditada, atualizando apenas os metadados de versão/build para permitir teste imediato.
 - [x] Auditar ZIP, Info.plist, bundle ID e igualdade byte a byte do executável e `main.jsbundle` com a build 194.
 - [ ] Instalar a IPA 1.2.75/build 195 no SideStore e testar os ajustes inferiores.
+
+# Máscara e botões do comprovante — Inter 1.2.76/build 196
+- [x] Comparar a captura física com o print antigo e confirmar divergência em `***.059.644-80` versus `***.484.813-**`, além dos dois botões.
+- [x] Criar o checkpoint `before-receipt-mask-buttons-1.2.75-build-195`.
+- [x] Alterar a geração e a normalização para três asteriscos iniciais, seis números centrais e dois asteriscos finais.
+- [x] Remover a opacidade automática do compartilhamento, mantendo-o visualmente laranja e sem ação funcional.
+- [x] Restaurar o botão `Realizar novo Pix` com fundo branco, contorno laranja claro, largura total e texto centralizado.
+- [x] Incrementar a versão para Inter 1.2.76/build 196.
+- [x] Validar, compilar, auditar e confirmar os marcadores da correção no `main.jsbundle`; Action 32986610649 concluída com sucesso.
+- [ ] Instalar a IPA 1.2.76/build 196 no SideStore e confirmar fisicamente a máscara e os botões.

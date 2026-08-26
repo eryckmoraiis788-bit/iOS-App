@@ -60,3 +60,11 @@ A captura lado a lado confirmou quatro divergências principais na parte inferio
 A build 1.2.74/build 194 aplica altura e cor explícitas ao divisor, compacta as linhas da seção inferior, força os valores a uma linha e faz os dois botões ocuparem toda a largura interna. O compartilhamento continua sem ação funcional, mas agora mantém a aparência laranja da referência; o novo Pix conserva fundo branco, borda laranja clara e texto centralizado.
 
 A diferença entre `Eryck` na IPA e `Eryck Darlisson dos Santos Morais` no projeto antigo é conteúdo do destinatário, não uma fonte fixa: a implementação continua usando o nome extraído da notificação e não deve inserir um nome hardcoded. A diferença entre `***.059.644-80` e `***.484.813-**` também é intencional nesta versão: o projeto atual segue o requisito definido anteriormente de gerar números variáveis e manter dois dígitos finais visíveis.
+
+## Máscara e botões — IPA 1.2.76/build 196
+
+A captura física confirmou que a IPA ainda mostrava `***.059.644-80`, enquanto o projeto antigo mostra três asteriscos iniciais, seis números centrais e dois asteriscos finais, como `***.484.813-**`. A normalização foi alterada para ocultar sempre os dois dígitos finais, inclusive ao carregar comprovantes antigos ou salvar uma edição.
+
+A captura também confirmou que `Compartilhar comprovante` estava visualmente esmaecido e que `Realizar novo Pix` não aparecia como o bloco contornado da referência. O compartilhamento passou a ser um bloco visual laranja, acessível como indisponível e sem ação funcional; o novo Pix passou a usar fundo branco, contorno laranja claro, largura total interna e texto centralizado.
+
+A Action 32986610649 compilou a build 1.2.76/196 a partir do commit 003c12d. A auditoria encontrou `***.000.000-**`, `Compartilhar comprovante`, `Realizar novo Pix`, `EA7900` e `F2B16E` no `main.jsbundle`, confirmando que a correção entrou no bundle e não ficou apenas no código-fonte.
