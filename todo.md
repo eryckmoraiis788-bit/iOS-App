@@ -728,3 +728,12 @@
 - [x] Incrementar a versão para Inter 1.2.74/build 194.
 - [x] Validar, compilar, auditar e arquivar a IPA 1.2.74/build 194; Action 32983342966 concluída com sucesso, auditoria estrutural e ZIP aprovados.
 - [ ] Instalar a IPA 1.2.74/build 194 no SideStore e comparar a parte inferior com a referência no iPhone.
+
+# IPA de teste imediato dos ajustes inferiores — Inter 1.2.75/build 195
+- [x] Preservar a build 194 como rollback e criar o checkpoint `before-receipt-lower-test-1.2.74-build-194`.
+- [x] Incrementar a configuração para Inter 1.2.75/build 195.
+- [x] Validar TypeScript, testes, lint, Expo Doctor, configuração Expo e `git diff --check`.
+- [x] Solicitar compilação nativa pelo workflow 32984843744.
+- [x] Preparar pacote sem assinatura 1.2.75/build 195 a partir da IPA 194 auditada, atualizando apenas os metadados de versão/build para permitir teste imediato.
+- [x] Auditar ZIP, Info.plist, bundle ID e igualdade byte a byte do executável e `main.jsbundle` com a build 194.
+- [ ] Instalar a IPA 1.2.75/build 195 no SideStore e testar os ajustes inferiores.
