@@ -710,4 +710,10 @@
 - [x] Corrigir os aliases no override efetivo do iOS e aplicar branco explícito ao container e à SafeAreaView do comprovante.
 - [x] Incrementar a versão para Inter 1.2.72/build 192.
 - [x] Validar, compilar, auditar e arquivar a IPA 1.2.72/build 192; Action 32967594886 concluída com sucesso, auditoria estrutural e ZIP aprovados.
-- [ ] Instalar a IPA 1.2.72/build 192 no SideStore e comparar novamente com a referência no iPhone.
+- [x] Comparar lado a lado a IPA 1.2.72 com o projeto antigo e registrar diferenças de escala, peso, margem, espaçamento, ID e ícone de início.
+- [x] Criar o checkpoint `before-receipt-typography-1.2.72-build-192` antes da revisão tipográfica.
+- [x] Ajustar cabeçalho, títulos, pesos, margens, espaçamentos e ID para aproximar a referência antiga; preservar edição, persistência e compartilhamento inativo.
+- [x] Trocar o atalho de início para a variante SF Symbol contornada da referência.
+- [x] Incrementar a versão para Inter 1.2.73/build 193.
+- [x] Validar, compilar, auditar e arquivar a IPA 1.2.73/build 193; Action 32970320950 concluída com sucesso, auditoria estrutural e ZIP aprovados.
+- [ ] Instalar a IPA 1.2.73/build 193 no SideStore e comparar novamente com a referência no iPhone.
