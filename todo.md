@@ -785,4 +785,13 @@
 - [x] Preservar o botão `Realizar novo Pix`, a máscara, a edição e a persistência.
 - [x] Incrementar para Inter 1.2.80/build 200.
 - [x] Validar, compilar, auditar e confirmar os marcadores no `main.jsbundle`; Action 33008956603 concluída com sucesso.
-- [ ] Instalar a IPA 1.2.80/build 200 no SideStore e confirmar fisicamente o alinhamento da grade.
+- [x] Instalar a IPA 1.2.80/build 200 no SideStore e confirmar fisicamente o alinhamento da grade — NÃO resolveu; os valores continuam abaixo dos rótulos.
+
+# Linha visual fixa do recebedor — Inter 1.2.81/build 201
+- [x] Registrar que o problema físico é estrutural: os valores renderizavam abaixo dos rótulos, e não apenas com distância de coluna incorreta.
+- [x] Criar o checkpoint `before-receipt-recipient-rows-1.2.80-build-200` antes da alteração.
+- [x] Separar a linha visual em `View` horizontal fixa e manter o `Pressable` como overlay absoluto de toque, preservando edição e persistência.
+- [x] Validar TypeScript, testes, lint, Expo Doctor, configuração Expo e preview local; 21 testes passaram, 1 foi ignorado por configuração existente e lint permaneceu sem erros.
+- [x] Incrementar para Inter 1.2.81/build 201.
+- [x] Gerar e auditar a IPA pela Action 33011758434 no commit `ae13b74`; Info.plist 1.2.81/201 e ZIP aprovados.
+- [ ] Instalar a IPA 1.2.81/build 201 no SideStore e confirmar fisicamente que Nome/Eryck, CPF/CNPJ/máscara e Instituição/Cloudwalk ficam na mesma linha horizontal.
