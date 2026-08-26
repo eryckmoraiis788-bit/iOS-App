@@ -125,14 +125,13 @@ export default function ReceiptDetailScreen() {
               <Text style={styles.shareText}>Compartilhar comprovante</Text>
             </View>
             <View style={styles.newPixButtonFrame}>
+              <Text style={styles.newPixText}>Realizar novo Pix</Text>
               <Pressable
                 onPress={() => router.replace("/")}
                 accessibilityRole="button"
                 accessibilityLabel="Realizar novo Pix"
-                style={({ pressed }) => [styles.newPixButton, pressed && styles.pressed]}
-              >
-                <Text style={styles.newPixText}>Realizar novo Pix</Text>
-              </Pressable>
+                style={({ pressed }) => [StyleSheet.absoluteFillObject, pressed && styles.buttonPressed]}
+              />
             </View>
           </View>
         </ScrollView>
@@ -215,9 +214,9 @@ const styles = StyleSheet.create({
   shareButton: { width: "100%", height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#EA7900", opacity: 1 },
   shareText: { color: colors.background, fontSize: 17, fontWeight: "600" },
   recipientRow: { marginBottom: 6 },
-  newPixButtonFrame: { width: "100%", minHeight: 48, height: 48, marginTop: 13, borderRadius: 9, backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
-  newPixButton: { flex: 1, width: "100%", alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF" },
-  newPixText: { color: colors.orange, fontSize: 17, fontWeight: "600", textAlign: "center" },
+  newPixButtonFrame: { position: "relative", width: "100%", minHeight: 48, height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
+  newPixText: { color: colors.orange, fontSize: 17, lineHeight: 21, fontWeight: "600", textAlign: "center" },
+  buttonPressed: { opacity: 0.08 },
   modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "rgba(0, 0, 0, 0.42)" },
   editorCard: { width: "100%", maxWidth: 390, borderRadius: 20, padding: 20, backgroundColor: colors.background },
   editorHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
