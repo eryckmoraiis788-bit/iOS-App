@@ -180,8 +180,8 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 function EditableInfoRow({ label, value, onPress }: { label: string; value: string; onPress: () => void }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`Editar ${label}`} style={({ pressed }) => [styles.infoRow, styles.recipientRow, pressed && styles.rowPressed]}>
-      <Text style={styles.infoLabel}>{label}</Text>
-      <View style={styles.editableValueWrap}>
+      <Text style={[styles.infoLabel, styles.recipientLabel]}>{label}</Text>
+      <View style={styles.recipientValueColumn}>
         <Text style={styles.infoValue} numberOfLines={1}>{value}</Text>
       </View>
     </Pressable>
@@ -204,8 +204,9 @@ const styles = StyleSheet.create({
   infoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 12 },
   rowPressed: { opacity: 0.62 },
   infoLabel: { color: colors.muted, fontSize: 16, lineHeight: 21, flexShrink: 0 },
-  infoValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", textAlign: "right", flex: 1 },
-  editableValueWrap: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", flex: 1 },
+  infoValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", textAlign: "right", flex: 1, minWidth: 0 },
+  recipientLabel: { width: 92 },
+  recipientValueColumn: { flex: 1, minWidth: 0, alignItems: "flex-end", paddingRight: 28 },
   idBlock: { marginTop: 1 },
   idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", marginTop: 6 },
   separator: { height: 1, marginTop: 32, borderTopWidth: 1, borderTopColor: "#E4E4E4", borderStyle: "solid", opacity: 0.72 },
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
   actions: { width: "100%", alignItems: "stretch", marginTop: 24, paddingBottom: 12 },
   shareButton: { width: "100%", height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#EA7900", opacity: 1 },
   shareText: { color: colors.background, fontSize: 17, fontWeight: "600" },
-  recipientRow: { marginBottom: 6 },
+  recipientRow: { marginBottom: 0, alignItems: "center" },
   newPixButtonFrame: { position: "relative", width: "100%", minHeight: 48, height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
   newPixText: { color: colors.orange, fontSize: 17, lineHeight: 21, fontWeight: "600", textAlign: "center" },
   buttonPressed: { opacity: 0.08 },

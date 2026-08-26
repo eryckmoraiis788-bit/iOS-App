@@ -76,3 +76,15 @@ A nova captura física confirmou que a máscara já estava correta na build 196,
 A revisão 197 reduz o intervalo das linhas da seção de recebedor para 6 pontos e cria uma superfície interna explícita no botão `Realizar novo Pix`, com altura mínima, contorno de 1,5 ponto, fundo branco, largura total e recorte de conteúdo. O compartilhamento permanece laranja, visível e sem função.
 
 A auditoria da Action 32988945980 confirmou no `main.jsbundle` os marcadores `recipientRow`, `newPixButtonSurface`, `F2B16E`, `EA7900`, `Compartilhar comprovante` e `Realizar novo Pix`, demonstrando que essa correção foi incorporada à IPA nativa.
+
+## Nova captura física — build 199 e grade inferior ainda desalinhada
+
+A captura mais recente confirma que a build 199 centralizou o texto do botão `Realizar novo Pix`, mas não corrigiu a grade de recebedor. O erro persistente está entre o rótulo e o valor de cada linha: a implementação continua usando `justifyContent: space-between` com uma composição de linhas que não fixa uma coluna de valor única, e o espaçamento vertical não reproduz a cadência do print antigo.
+
+A próxima correção deve separar a grade em duas colunas estáveis. Os rótulos devem ocupar uma coluna fixa à esquerda; os valores devem ocupar uma coluna fixa à direita, com cada linha tendo a mesma altura e o mesmo alinhamento vertical. Não se deve alterar o texto real recebido da notificação nem o botão já validado.
+
+## Preview da grade determinística — build 200 em preparação
+
+O preview da revisão atual mostra os rótulos em coluna fixa à esquerda e os valores em coluna única alinhada à direita. As três linhas de recebedor agora compartilham a mesma cadência, sem o `marginBottom` adicional de 6 pontos. O botão `Realizar novo Pix` permaneceu com quadro e texto centralizados.
+
+A confirmação física continua necessária porque o iOS pode aplicar diferenças próprias de métrica e safe area; por isso a próxima IPA será nativa e versionada, sem reutilizar o bundle anterior.
