@@ -11,7 +11,7 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <ThemeProvider>
       <NotificationStoreProvider>
-        <StatusBar style="dark" />
+        <StatusBar style="dark" backgroundColor="#FFFFFF" />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
         </Stack>

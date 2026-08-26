@@ -182,7 +182,6 @@ function EditableInfoRow({ label, value, onPress }: { label: string; value: stri
       <Text style={styles.infoLabel}>{label}</Text>
       <View style={styles.editableValueWrap}>
         <Text style={styles.infoValue} numberOfLines={2}>{value}</Text>
-        <IconSymbol name="edit" size={16} color={colors.orange} />
       </View>
     </Pressable>
   );
@@ -205,7 +204,7 @@ const styles = StyleSheet.create({
   rowPressed: { opacity: 0.62 },
   infoLabel: { color: colors.muted, fontSize: 16, lineHeight: 21, flexShrink: 0 },
   infoValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "700", textAlign: "right", flex: 1 },
-  editableValueWrap: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 6, flex: 1 },
+  editableValueWrap: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", flex: 1 },
   idBlock: { marginTop: 1 },
   idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "700", marginTop: 7 },
   separator: { borderTopWidth: 1, borderTopColor: colors.line, borderStyle: "dashed", marginTop: 36 },

@@ -694,3 +694,15 @@
 - [x] Incrementar a versão para Inter 1.2.70/build 190.
 - [x] Validar, compilar, auditar e arquivar a IPA 1.2.70/build 190; Action 32961360388 concluída com sucesso, auditoria estrutural e ZIP aprovados.
 - [ ] Instalar no SideStore e comparar o topo diretamente com a referência no iPhone.
+
+# Correção final de ícones e comparação do comprovante — Inter 1.2.71/build 191
+- [x] Comparar a captura da IPA com a referência antiga do usuário.
+- [x] Identificar os ícones `?` como fallback incorreto para seta, casa e check.
+- [x] Trocar o componente por SF Symbols nativos no iPhone, mantendo Material Icons como fallback web/Android.
+- [x] Fixar a barra de status com fundo branco.
+- [x] Remover os ícones extras de edição ao lado de Nome, CPF/CNPJ e Instituição; os campos continuam editáveis ao tocar.
+- [x] Manter o topo com círculo verde grande, check proporcional e pesos tipográficos da referência.
+- [x] Criar o checkpoint `before-receipt-icons-header-1.2.70-build-190` antes da correção.
+- [x] Incrementar a versão para Inter 1.2.71/build 191.
+- [ ] Validar, compilar, auditar e arquivar a IPA 1.2.71/build 191.
+- [ ] Instalar no SideStore e comparar novamente com a referência no iPhone.
