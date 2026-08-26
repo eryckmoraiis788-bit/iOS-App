@@ -717,3 +717,14 @@
 - [x] Incrementar a versão para Inter 1.2.73/build 193.
 - [x] Validar, compilar, auditar e arquivar a IPA 1.2.73/build 193; Action 32970320950 concluída com sucesso, auditoria estrutural e ZIP aprovados.
 - [ ] Instalar a IPA 1.2.73/build 193 no SideStore e comparar novamente com a referência no iPhone.
+
+# Parte inferior do comprovante — Inter 1.2.74/build 194
+- [x] Comparar lado a lado a IPA 1.2.73 com o projeto antigo e identificar divisor ausente, seção inferior deslocada, valores em linha e botões divergentes.
+- [x] Criar o checkpoint `before-receipt-lower-1.2.73-build-193` antes da correção.
+- [x] Tornar o divisor tracejado visível e manter a seção `Quem recebeu` mais compacta.
+- [x] Manter valores de data, hora, ID, nome, documento e instituição em uma linha quando couber, sem hardcode de dados.
+- [x] Fazer `Compartilhar comprovante` ocupar a largura da referência, permanecer inativo e não ficar esmaecido pelo `disabled` nativo.
+- [x] Fazer `Realizar novo Pix` ocupar a largura da referência, com fundo branco, borda laranja clara e texto centralizado.
+- [x] Incrementar a versão para Inter 1.2.74/build 194.
+- [x] Validar, compilar, auditar e arquivar a IPA 1.2.74/build 194; Action 32983342966 concluída com sucesso, auditoria estrutural e ZIP aprovados.
+- [ ] Instalar a IPA 1.2.74/build 194 no SideStore e comparar a parte inferior com a referência no iPhone.

@@ -52,3 +52,11 @@ A distância vertical na IPA fica excessiva após o círculo e entre o bloco da 
 O ícone de início ainda difere na forma: a IPA usa casa preenchida e a referência usa casa contornada. Isso é uma diferença de ícone, não de fonte, e deve ser corrigido sem alterar a seta e o check já aprovados na build 192. O nome, documento, instituição, valor, data, horário e ID podem variar conforme o comprovante emitido; a comparação tipográfica deve usar a hierarquia visual, não substituir esses dados por valores fixos.
 
 Medidas-alvo controladas para a próxima revisão: cabeçalho menor, título/valor do Pix em torno de 25 pt, título de seção em torno de 20 pt, dados em torno de 15–16 pt, margem horizontal em torno de 24 pt, ID em uma linha quando possível e redução dos intervalos verticais sem remover edição, persistência, compartilhamento desativado ou o botão de novo Pix.
+
+## Comparativo inferior — IPA 1.2.73/build 193 versus projeto antigo
+
+A captura lado a lado confirmou quatro divergências principais na parte inferior: o divisor tracejado não ficava visível na IPA; a seção `Quem recebeu` e seus campos estavam deslocados em relação à referência; os valores inferiores precisavam permanecer em uma linha para reproduzir o alinhamento; e os botões não correspondiam ao bloco antigo. Na IPA, `Compartilhar comprovante` aparecia desbotado porque o `Pressable` nativo estava com `disabled`, e `Realizar novo Pix` aparecia sem o contorno e sem a largura da referência.
+
+A build 1.2.74/build 194 aplica altura e cor explícitas ao divisor, compacta as linhas da seção inferior, força os valores a uma linha e faz os dois botões ocuparem toda a largura interna. O compartilhamento continua sem ação funcional, mas agora mantém a aparência laranja da referência; o novo Pix conserva fundo branco, borda laranja clara e texto centralizado.
+
+A diferença entre `Eryck` na IPA e `Eryck Darlisson dos Santos Morais` no projeto antigo é conteúdo do destinatário, não uma fonte fixa: a implementação continua usando o nome extraído da notificação e não deve inserir um nome hardcoded. A diferença entre `***.059.644-80` e `***.484.813-**` também é intencional nesta versão: o projeto atual segue o requisito definido anteriormente de gerar números variáveis e manter dois dígitos finais visíveis.
