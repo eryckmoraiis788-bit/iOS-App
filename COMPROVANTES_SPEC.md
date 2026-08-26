@@ -14,7 +14,7 @@ A persistência será derivada dos registros locais já existentes do store, evi
 
 O detalhe deve usar `createdAt` para notificações imediatas e `scheduledAt` para notificações agendadas, garantindo que o dia e o horário correspondam ao evento representado. O ID mostrado ao usuário deve ser determinístico, começar com `E004` e incorporar a data/hora do evento, mantendo o aspecto de identificador Pix sem expor diretamente o identificador nativo do sistema.
 
-A composição visual utiliza o espaço horizontal de aproximadamente 16 pontos, círculo de sucesso compacto, tipografia e espaçamentos proporcionais ao print, rolagem vertical segura e botões no final do comprovante. O texto **Compartilhar comprovante** permanece visível e desativado.
+A composição visual utiliza margem horizontal interna de aproximadamente 24 pontos, círculo de sucesso compacto, tipografia e espaçamentos proporcionais ao print, rolagem vertical segura e botões no final do comprovante. O botão **Compartilhar comprovante** permanece visível, com aparência laranja da referência, mas sem ação funcional. O botão **Realizar novo Pix** usa fundo branco, contorno laranja claro e texto centralizado.
 
 ## Campos editáveis por comprovante
 
@@ -24,4 +24,4 @@ As alterações são persistidas em `notification-ios-receipts-v1`, uma fonte se
 
 ## Máscara visual do CPF/CNPJ
 
-O formato final deve ser `***.516.969-93`: três asteriscos no início, dois blocos de três números centrais, hífen e dois números finais visíveis. Os seis números centrais e os dois dígitos finais são gerados para cada comprovante novo; ao editar o campo, a entrada numérica é reorganizada para esse mesmo padrão.
+O formato final deve ser `***.484.813-**`: três asteriscos no início, dois blocos de três números centrais, hífen e dois asteriscos finais. Os seis números centrais são gerados para cada comprovante novo; os dígitos finais permanecem ocultos como no print antigo. Ao editar o campo, a entrada numérica é reorganizada para esse mesmo padrão.
