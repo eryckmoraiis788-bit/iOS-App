@@ -766,3 +766,13 @@
 - [x] Incrementar para Inter 1.2.78/build 198.
 - [x] Validar, compilar, auditar e confirmar os marcadores no `main.jsbundle`; Action 32992586772 concluída com sucesso.
 - [ ] Instalar a IPA 1.2.78/build 198 no SideStore e confirmar fisicamente o contorno, o divisor e os espaçamentos.
+
+# Centralização do botão Realizar novo Pix — Inter 1.2.79/build 199
+- [x] Registrar na nova captura que o quadro do botão já aparece, mas o texto permanece no topo do retângulo.
+- [x] Criar o checkpoint `before-receipt-newpix-center-1.2.78-build-198`.
+- [x] Colocar o texto diretamente no `newPixButtonFrame`, com `alignItems` e `justifyContent` centralizados.
+- [x] Transformar o `Pressable` em camada absoluta de toque, sem deslocar o texto visual.
+- [x] Manter o topo sem redesenho: a captura mostra o conteúdo rolado no `ScrollView`, com o cabeçalho fixo.
+- [x] Incrementar para Inter 1.2.79/build 199.
+- [x] Validar, compilar, auditar e confirmar os marcadores no `main.jsbundle`; Action 33000479444 concluída com sucesso.
+- [ ] Instalar a IPA 1.2.79/build 199 no SideStore e confirmar fisicamente a centralização do texto no botão.
