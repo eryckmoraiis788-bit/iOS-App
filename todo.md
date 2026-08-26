@@ -704,5 +704,5 @@
 - [x] Manter o topo com círculo verde grande, check proporcional e pesos tipográficos da referência.
 - [x] Criar o checkpoint `before-receipt-icons-header-1.2.70-build-190` antes da correção.
 - [x] Incrementar a versão para Inter 1.2.71/build 191.
-- [ ] Validar, compilar, auditar e arquivar a IPA 1.2.71/build 191.
+- [x] Validar, compilar, auditar e arquivar a IPA 1.2.71/build 191; Action 32965145173 concluída com sucesso, auditoria estrutural e ZIP aprovados.
 - [ ] Instalar no SideStore e comparar novamente com a referência no iPhone.
