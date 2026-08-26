@@ -68,3 +68,11 @@ A captura física confirmou que a IPA ainda mostrava `***.059.644-80`, enquanto 
 A captura também confirmou que `Compartilhar comprovante` estava visualmente esmaecido e que `Realizar novo Pix` não aparecia como o bloco contornado da referência. O compartilhamento passou a ser um bloco visual laranja, acessível como indisponível e sem ação funcional; o novo Pix passou a usar fundo branco, contorno laranja claro, largura total interna e texto centralizado.
 
 A Action 32986610649 compilou a build 1.2.76/196 a partir do commit 003c12d. A auditoria encontrou `***.000.000-**`, `Compartilhar comprovante`, `Realizar novo Pix`, `EA7900` e `F2B16E` no `main.jsbundle`, confirmando que a correção entrou no bundle e não ficou apenas no código-fonte.
+
+## Revisão fina inferior — IPA 1.2.77/build 197
+
+A nova captura física confirmou que a máscara já estava correta na build 196, mas a parte inferior ainda divergía: as linhas de `Nome`, `CPF/CNPJ` e `Instituição` estavam mais espaçadas na IPA, o bloco de ações começava mais abaixo e o quadro do `Realizar novo Pix` não permanecia visível como contorno completo.
+
+A revisão 197 reduz o intervalo das linhas da seção de recebedor para 6 pontos e cria uma superfície interna explícita no botão `Realizar novo Pix`, com altura mínima, contorno de 1,5 ponto, fundo branco, largura total e recorte de conteúdo. O compartilhamento permanece laranja, visível e sem função.
+
+A auditoria da Action 32988945980 confirmou no `main.jsbundle` os marcadores `recipientRow`, `newPixButtonSurface`, `F2B16E`, `EA7900`, `Compartilhar comprovante` e `Realizar novo Pix`, demonstrando que essa correção foi incorporada à IPA nativa.

@@ -747,3 +747,12 @@
 - [x] Incrementar a versão para Inter 1.2.76/build 196.
 - [x] Validar, compilar, auditar e confirmar os marcadores da correção no `main.jsbundle`; Action 32986610649 concluída com sucesso.
 - [ ] Instalar a IPA 1.2.76/build 196 no SideStore e confirmar fisicamente a máscara e os botões.
+
+# Revisão fina da parte inferior — Inter 1.2.77/build 197
+- [x] Comparar a captura física com a referência e confirmar espaçamento excessivo entre recebedor, ações deslocadas e contorno invisível do novo Pix.
+- [x] Criar o checkpoint `before-receipt-lower-fine-1.2.76-build-196`.
+- [x] Reduzir o espaçamento entre `Nome`, `CPF/CNPJ` e `Instituição`.
+- [x] Criar uma superfície interna explícita para o botão `Realizar novo Pix`, com altura, borda, fundo, largura e recorte estáveis no iOS.
+- [x] Incrementar para Inter 1.2.77/build 197.
+- [x] Validar, compilar, auditar e confirmar os marcadores no `main.jsbundle`; Action 32988945980 concluída com sucesso.
+- [ ] Instalar a IPA 1.2.77/build 197 no SideStore e comparar novamente a parte inferior.
