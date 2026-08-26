@@ -116,7 +116,7 @@ export default function ReceiptDetailScreen() {
 
           <View style={styles.actions}>
             <Pressable
-              disabled
+              onPress={() => undefined}
               accessibilityRole="button"
               accessibilityLabel="Compartilhar comprovante indisponível"
               accessibilityState={{ disabled: true }}
@@ -171,7 +171,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.infoRow}>
       <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue} numberOfLines={2}>{value}</Text>
+      <Text style={styles.infoValue} numberOfLines={1}>{value}</Text>
     </View>
   );
 }
@@ -181,7 +181,7 @@ function EditableInfoRow({ label, value, onPress }: { label: string; value: stri
     <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`Editar ${label}`} style={({ pressed }) => [styles.infoRow, pressed && styles.rowPressed]}>
       <Text style={styles.infoLabel}>{label}</Text>
       <View style={styles.editableValueWrap}>
-        <Text style={styles.infoValue} numberOfLines={2}>{value}</Text>
+        <Text style={styles.infoValue} numberOfLines={1}>{value}</Text>
       </View>
     </Pressable>
   );
@@ -198,22 +198,22 @@ const styles = StyleSheet.create({
   amountPressable: { alignSelf: "center", borderRadius: 8, paddingHorizontal: 8, marginHorizontal: -8 },
   amount: { color: colors.ink, fontSize: 25, lineHeight: 30, fontWeight: "600", textAlign: "center" },
   pressed: { opacity: 0.6 },
-  section: { marginTop: 42 },
-  sectionTitle: { color: colors.ink, fontSize: 20, lineHeight: 24, fontWeight: "600", marginBottom: 22 },
-  infoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 16 },
+  section: { marginTop: 54 },
+  sectionTitle: { color: colors.ink, fontSize: 20, lineHeight: 24, fontWeight: "600", marginBottom: 16 },
+  infoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 12 },
   rowPressed: { opacity: 0.62 },
   infoLabel: { color: colors.muted, fontSize: 16, lineHeight: 21, flexShrink: 0 },
   infoValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", textAlign: "right", flex: 1 },
   editableValueWrap: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", flex: 1 },
   idBlock: { marginTop: 1 },
   idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", marginTop: 6 },
-  separator: { borderTopWidth: 1, borderTopColor: colors.line, borderStyle: "dashed", marginTop: 32 },
+  separator: { height: 1, borderTopWidth: 1, borderTopColor: "#E4E4E4", borderStyle: "dashed", marginTop: 32 },
   recipientSection: { marginTop: 42 },
-  actions: { marginTop: 34, paddingBottom: 12 },
-  shareButton: { height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#F4A15C", opacity: 0.66 },
+  actions: { width: "100%", alignItems: "stretch", marginTop: 24, paddingBottom: 12 },
+  shareButton: { width: "100%", height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: colors.orange, opacity: 1 },
   shareText: { color: colors.background, fontSize: 17, fontWeight: "600" },
-  newPixButton: { height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#F2B16E" },
-  newPixText: { color: colors.orange, fontSize: 17, fontWeight: "600" },
+  newPixButton: { width: "100%", height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: colors.background, borderWidth: 1.5, borderColor: "#F2B16E" },
+  newPixText: { color: colors.orange, fontSize: 17, fontWeight: "600", textAlign: "center" },
   modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "rgba(0, 0, 0, 0.42)" },
   editorCard: { width: "100%", maxWidth: 390, borderRadius: 20, padding: 20, backgroundColor: colors.background },
   editorHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
