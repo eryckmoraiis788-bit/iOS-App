@@ -21,3 +21,7 @@ A composição visual utiliza o espaço horizontal de aproximadamente 16 pontos,
 O valor exibido abaixo de **Pix enviado** pode ser tocado e alterado. O campo **Nome** recebe inicialmente o destinatário identificado no texto da notificação e pode ser editado. O campo **CPF/CNPJ** recebe uma máscara com números centrais novos a cada comprovante criado e também pode ser editado. O campo **Instituição** começa com **Cloudwalk Ip LTDA** e pode ser alterado.
 
 As alterações são persistidas em `notification-ios-receipts-v1`, uma fonte separada dos registros de notificações. Assim, editar um comprovante não altera o texto da notificação no Histórico. O comprovante é criado automaticamente para emissões imediatas e quando uma notificação agendada é recebida ou reconhecida como entregue.
+
+## Máscara visual do CPF/CNPJ
+
+O formato final deve ser `***.516.969-93`: três asteriscos no início, dois blocos de três números centrais, hífen e dois números finais visíveis. Os seis números centrais e os dois dígitos finais são gerados para cada comprovante novo; ao editar o campo, a entrada numérica é reorganizada para esse mesmo padrão.

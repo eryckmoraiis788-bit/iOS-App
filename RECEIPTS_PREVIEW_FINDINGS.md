@@ -14,3 +14,11 @@ O preview confirmou que o detalhe exibe o valor como ação editável e os campo
 O preview confirmou que tocar no valor abre um editor modal com campo numérico e ações Cancelar/Salvar. O campo aceitou `123,45`; a validação do salvamento ainda precisa ser concluída, seguida de verificações equivalentes para Nome, CPF/CNPJ e Instituição.
 
 O valor foi salvo como `R$ 123,45` e permaneceu após recarregar a rota do comprovante. Os campos Nome, CPF/CNPJ e Instituição continuaram tocáveis e editáveis, confirmando o comportamento persistente no preview web.
+
+## Fonte e máscara na correção 1.2.69
+
+O preview mostrou o comprovante com pesos tipográficos reduzidos para o padrão de negrito do sistema usado na referência antiga. O documento passou a aparecer no formato `***.182.515-06`, com três asteriscos iniciais, seis números centrais e dois dígitos finais visíveis, em vez do formato incorreto com asteriscos no final.
+
+O editor de CPF/CNPJ também abre com o mesmo formato corrigido, permitindo manter a máscara ao salvar.
+
+A edição de teste `123456789` foi salva e exibida como `***.234.567-89`, confirmando três asteriscos iniciais, seis números centrais, ponto entre blocos e dois dígitos finais visíveis, exatamente no padrão da referência antiga.

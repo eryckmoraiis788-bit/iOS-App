@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleShee
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore } from "@/lib/notification-store";
-import { normalizeReceiptAmount, formatReceiptDate, formatReceiptTime } from "@/lib/receipt-utils";
+import { normalizeReceiptAmount, normalizeReceiptDocument, formatReceiptDate, formatReceiptTime } from "@/lib/receipt-utils";
 
 const colors = {
   background: "#FFFFFF",
@@ -57,7 +57,11 @@ export default function ReceiptDetailScreen() {
 
   const saveEditor = async () => {
     if (!editingField || isSaving) return;
-    const nextValue = editingField === "amount" ? normalizeReceiptAmount(draftValue) : draftValue.trim();
+    const nextValue = editingField === "amount"
+      ? normalizeReceiptAmount(draftValue)
+      : editingField === "document"
+        ? normalizeReceiptDocument(draftValue)
+        : draftValue.trim();
     if (!nextValue) return;
     setIsSaving(true);
     try {
@@ -187,43 +191,43 @@ function EditableInfoRow({ label, value, onPress }: { label: string; value: stri
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   header: { height: 68, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  headerTitle: { color: colors.ink, fontSize: 25, fontWeight: "800" },
+  headerTitle: { color: colors.ink, fontSize: 25, fontWeight: "700" },
   receiptScroll: { flex: 1 },
   receiptBody: { flexGrow: 1, paddingHorizontal: 16, paddingTop: 10, paddingBottom: 20 },
   successCircle: { alignSelf: "center", width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: colors.green },
-  successTitle: { color: colors.ink, fontSize: 31, lineHeight: 37, fontWeight: "800", textAlign: "center", marginTop: 24 },
+  successTitle: { color: colors.ink, fontSize: 31, lineHeight: 37, fontWeight: "700", textAlign: "center", marginTop: 24 },
   amountPressable: { alignSelf: "center", borderRadius: 8, paddingHorizontal: 8, marginHorizontal: -8 },
-  amount: { color: colors.ink, fontSize: 31, lineHeight: 37, fontWeight: "800", textAlign: "center" },
+  amount: { color: colors.ink, fontSize: 31, lineHeight: 37, fontWeight: "700", textAlign: "center" },
   pressed: { opacity: 0.6 },
   section: { marginTop: 55 },
-  sectionTitle: { color: colors.ink, fontSize: 22, lineHeight: 27, fontWeight: "800", marginBottom: 23 },
+  sectionTitle: { color: colors.ink, fontSize: 22, lineHeight: 27, fontWeight: "700", marginBottom: 23 },
   infoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 18 },
   rowPressed: { opacity: 0.62 },
   infoLabel: { color: colors.muted, fontSize: 16, lineHeight: 21, flexShrink: 0 },
-  infoValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "800", textAlign: "right", flex: 1 },
+  infoValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "700", textAlign: "right", flex: 1 },
   editableValueWrap: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 6, flex: 1 },
   idBlock: { marginTop: 1 },
-  idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "800", marginTop: 7 },
+  idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "700", marginTop: 7 },
   separator: { borderTopWidth: 1, borderTopColor: colors.line, borderStyle: "dashed", marginTop: 36 },
   recipientSection: { marginTop: 51 },
   actions: { marginTop: 36, paddingBottom: 12 },
   shareButton: { height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#F4A15C", opacity: 0.66 },
-  shareText: { color: colors.background, fontSize: 17, fontWeight: "800" },
+  shareText: { color: colors.background, fontSize: 17, fontWeight: "700" },
   newPixButton: { height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#F2B16E" },
-  newPixText: { color: colors.orange, fontSize: 17, fontWeight: "800" },
+  newPixText: { color: colors.orange, fontSize: 17, fontWeight: "700" },
   modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "rgba(0, 0, 0, 0.42)" },
   editorCard: { width: "100%", maxWidth: 390, borderRadius: 20, padding: 20, backgroundColor: colors.background },
   editorHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
-  editorTitle: { flex: 1, color: colors.ink, fontSize: 20, fontWeight: "800" },
+  editorTitle: { flex: 1, color: colors.ink, fontSize: 20, fontWeight: "700" },
   editorInput: { height: 54, marginTop: 18, paddingHorizontal: 15, borderRadius: 13, borderWidth: 1, borderColor: "#D8D8D8", backgroundColor: colors.input, color: colors.ink, fontSize: 17 },
   editorActions: { flexDirection: "row", justifyContent: "flex-end", gap: 10, marginTop: 18 },
   cancelButton: { minWidth: 100, height: 46, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: "#F1F1F1" },
-  cancelText: { color: colors.ink, fontSize: 15, fontWeight: "800" },
+  cancelText: { color: colors.ink, fontSize: 15, fontWeight: "700" },
   saveButton: { minWidth: 100, height: 46, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: colors.orange },
   saveButtonDisabled: { opacity: 0.5 },
-  saveText: { color: colors.background, fontSize: 15, fontWeight: "800" },
+  saveText: { color: colors.background, fontSize: 15, fontWeight: "700" },
   notFound: { flex: 1, alignItems: "center", justifyContent: "center", padding: 30, gap: 14 },
-  notFoundTitle: { color: colors.ink, fontSize: 20, fontWeight: "800", textAlign: "center" },
+  notFoundTitle: { color: colors.ink, fontSize: 20, fontWeight: "700", textAlign: "center" },
   backFallback: { paddingHorizontal: 20, paddingVertical: 13, borderRadius: 14, backgroundColor: colors.orange },
-  backFallbackText: { color: colors.background, fontSize: 15, fontWeight: "800" },
+  backFallbackText: { color: colors.background, fontSize: 15, fontWeight: "700" },
 });

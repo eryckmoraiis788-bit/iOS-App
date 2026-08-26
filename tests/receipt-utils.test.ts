@@ -20,7 +20,7 @@ describe("receipt utils", () => {
 
   it("gera documento mascarado com números centrais", () => {
     const document = createMaskedDocument();
-    expect(document).toMatch(/^\*\*\*\.\d{3}\.\d{3}-\d{2}$/);
+    expect(document).toMatch(/^\*{3}\.\d{3}\.\d{3}-\d{2}$/);
   });
 
   it("formata data e horário do registro", () => {

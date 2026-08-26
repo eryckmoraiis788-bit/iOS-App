@@ -671,3 +671,14 @@
 - [x] Incrementar a versão para Inter 1.2.68/build 188.
 - [x] Validar, compilar, auditar e arquivar a IPA 1.2.68/build 188; Action 32911547414 concluída com sucesso, auditoria estrutural e ZIP aprovados.
 - [ ] Instalar a IPA 1.2.68/build 188 no SideStore e confirmar edição e persistência dos campos.
+
+# Fidelidade tipográfica e CPF/CNPJ — Inter 1.2.69/build 189
+- [x] Comparar os prints da IPA e do projeto antigo enviados pelo usuário.
+- [x] Ajustar a tipografia do detalhe para pesos e tamanhos mais próximos da referência antiga.
+- [x] Corrigir o CPF/CNPJ para o padrão `***.000.000-**`, mantendo três asteriscos no início e dois no final.
+- [x] Normalizar documentos antigos e documentos editados para preservar a máscara.
+- [x] Manter os seis números centrais variáveis a cada comprovante novo.
+- [x] Criar o checkpoint `before-receipt-font-1.2.68-build-188` antes da correção.
+- [x] Incrementar a versão para Inter 1.2.69/build 189.
+- [ ] Validar, compilar, auditar e arquivar a IPA 1.2.69/build 189.
+- [ ] Instalar a IPA 1.2.69/build 189 no SideStore e comparar novamente com o print antigo.
