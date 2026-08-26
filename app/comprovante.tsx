@@ -105,7 +105,7 @@ export default function ReceiptDetailScreen() {
             </View>
           </View>
 
-          <View style={styles.separator} />
+          <View style={styles.separator} accessibilityElementsHidden />
 
           <View style={[styles.section, styles.recipientSection]}>
             <Text style={styles.sectionTitle}>Quem recebeu</Text>
@@ -124,16 +124,16 @@ export default function ReceiptDetailScreen() {
             >
               <Text style={styles.shareText}>Compartilhar comprovante</Text>
             </View>
-            <Pressable
-              onPress={() => router.replace("/")}
-              accessibilityRole="button"
-              accessibilityLabel="Realizar novo Pix"
-              style={({ pressed }) => [styles.newPixButton, pressed && styles.pressed]}
-            >
-              <View pointerEvents="none" style={styles.newPixButtonSurface}>
+            <View style={styles.newPixButtonFrame}>
+              <Pressable
+                onPress={() => router.replace("/")}
+                accessibilityRole="button"
+                accessibilityLabel="Realizar novo Pix"
+                style={({ pressed }) => [styles.newPixButton, pressed && styles.pressed]}
+              >
                 <Text style={styles.newPixText}>Realizar novo Pix</Text>
-              </View>
-            </Pressable>
+              </Pressable>
+            </View>
           </View>
         </ScrollView>
       </View>
@@ -209,14 +209,14 @@ const styles = StyleSheet.create({
   editableValueWrap: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", flex: 1 },
   idBlock: { marginTop: 1 },
   idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", marginTop: 6 },
-  separator: { height: 1, borderTopWidth: 1, borderTopColor: "#E4E4E4", borderStyle: "dashed", marginTop: 32 },
+  separator: { height: 1, marginTop: 32, borderTopWidth: 1, borderTopColor: "#E4E4E4", borderStyle: "solid", opacity: 0.72 },
   recipientSection: { marginTop: 42 },
   actions: { width: "100%", alignItems: "stretch", marginTop: 24, paddingBottom: 12 },
   shareButton: { width: "100%", height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#EA7900", opacity: 1 },
   shareText: { color: colors.background, fontSize: 17, fontWeight: "600" },
   recipientRow: { marginBottom: 6 },
-  newPixButton: { width: "100%", minHeight: 48, height: 48, marginTop: 13, borderRadius: 9, alignItems: "stretch", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
-  newPixButtonSurface: { flex: 1, width: "100%", alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF" },
+  newPixButtonFrame: { width: "100%", minHeight: 48, height: 48, marginTop: 13, borderRadius: 9, backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
+  newPixButton: { flex: 1, width: "100%", alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF" },
   newPixText: { color: colors.orange, fontSize: 17, fontWeight: "600", textAlign: "center" },
   modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "rgba(0, 0, 0, 0.42)" },
   editorCard: { width: "100%", maxWidth: 390, borderRadius: 20, padding: 20, backgroundColor: colors.background },
