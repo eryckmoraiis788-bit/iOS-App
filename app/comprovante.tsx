@@ -37,7 +37,7 @@ export default function ReceiptDetailScreen() {
 
   if (!record || !receipt) {
     return (
-      <ScreenContainer edges={["top", "bottom", "left", "right"]} containerClassName="bg-white">
+      <ScreenContainer edges={["top", "bottom", "left", "right"]} containerClassName="bg-white" safeAreaClassName="bg-white" containerStyle={styles.screen}>
         <View style={styles.notFound}>
           <IconSymbol name="receipt" size={42} color={colors.orange} />
           <Text style={styles.notFoundTitle}>{record ? "Comprovante sendo preparado" : "Comprovante não encontrado"}</Text>
@@ -74,7 +74,7 @@ export default function ReceiptDetailScreen() {
   };
 
   return (
-    <ScreenContainer edges={["top", "bottom", "left", "right"]} containerClassName="bg-white">
+    <ScreenContainer edges={["top", "bottom", "left", "right"]} containerClassName="bg-white" safeAreaClassName="bg-white" containerStyle={styles.screen}>
       <View style={styles.screen}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} hitSlop={12} accessibilityRole="button" accessibilityLabel="Voltar">

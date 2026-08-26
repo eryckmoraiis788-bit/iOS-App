@@ -28,7 +28,15 @@ const IOS_ICON_MAP: Record<string, MaterialIconName> = {
   "bolt.fill": "bolt",
   bookmark: "bookmark",
   "bookmark.fill": "bookmark",
-  xmark: "close",
+  "xmark": "close",
+  // These aliases are used by the receipt detail. Keep them explicit here:
+  // this .ios.tsx override takes precedence over icon-symbol.tsx in the IPA.
+  "arrow-back": "arrow-back",
+  "house.fill": "home",
+  check: "check",
+  receipt: "receipt-long",
+  "paperplane.fill": "send",
+  edit: "edit",
 };
 
 export function IconSymbol({
