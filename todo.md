@@ -756,3 +756,13 @@
 - [x] Incrementar para Inter 1.2.77/build 197.
 - [x] Validar, compilar, auditar e confirmar os marcadores no `main.jsbundle`; Action 32988945980 concluída com sucesso.
 - [ ] Instalar a IPA 1.2.77/build 197 no SideStore e comparar novamente a parte inferior.
+
+# Correção estrutural da parte inferior — Inter 1.2.78/build 198
+- [x] Registrar que a build 197 não resolveu o problema físico e reabrir o diagnóstico sem presumir sucesso.
+- [x] Confirmar no preview que o quadro aparece na web, mas separar a renderização visual do `Pressable` para eliminar a divergência nativa.
+- [x] Criar o checkpoint `before-receipt-lower-structure-1.2.77-build-197`.
+- [x] Criar `newPixButtonFrame` externo com borda, fundo, raio, altura e largura explícitos.
+- [x] Tornar o divisor entre as seções sólido e explícito para não depender do tracejado no iOS.
+- [x] Incrementar para Inter 1.2.78/build 198.
+- [x] Validar, compilar, auditar e confirmar os marcadores no `main.jsbundle`; Action 32992586772 concluída com sucesso.
+- [ ] Instalar a IPA 1.2.78/build 198 no SideStore e confirmar fisicamente o contorno, o divisor e os espaçamentos.

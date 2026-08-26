@@ -23,3 +23,9 @@ A primeira tentativa de executar a semeadura via console falhou por sintaxe; a s
 ## Evidência adicional do preview
 
 Após semear um registro sintético, a tela `/comprovante?recordId=preview-record` renderizou o botão `Realizar novo Pix` com contorno completo no navegador. O preview também mostra o divisor, embora muito discreto. Como a captura física reportada pelo usuário continua sem o quadro do botão e sem um divisor claramente visível, a próxima correção deve retirar esses elementos de qualquer dependência do `Pressable` e do `borderStyle: dashed`: usar um contêiner visual externo para o botão e um divisor desenhado de modo explícito. A IPA 197 não deve ser considerada resolvida apenas porque o preview web está correto.
+
+## Correção estrutural preparada — build 198
+
+A build 198 substitui o quadro dependente do `Pressable` por `newPixButtonFrame`, um `View` externo que desenha a borda independentemente da interação. O `Pressable` interno ficou responsável apenas pelo toque e pelo texto. O divisor também deixou de depender do modo tracejado e passou a usar uma linha sólida explícita. O espaçamento da seção de recebedor permanece em 6 pontos entre linhas.
+
+O preview web confirmou a estrutura do frame, mas a confirmação decisiva continua sendo a captura física no iPhone. Nenhuma aprovação deve ser registrada antes desse teste.
