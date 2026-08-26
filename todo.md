@@ -776,3 +776,13 @@
 - [x] Incrementar para Inter 1.2.79/build 199.
 - [x] Validar, compilar, auditar e confirmar os marcadores no `main.jsbundle`; Action 33000479444 concluída com sucesso.
 - [ ] Instalar a IPA 1.2.79/build 199 no SideStore e confirmar fisicamente a centralização do texto no botão.
+
+# Grade determinística de recebedor — Inter 1.2.80/build 200
+- [x] Registrar que a build 199 corrigiu apenas o botão, mas a grade de Nome, CPF/CNPJ e Instituição continuou desalinhada.
+- [x] Criar o checkpoint `before-receipt-recipient-grid-1.2.79-build-199`.
+- [x] Fixar a largura da coluna de rótulos em 92 pontos e recuar a coluna de valores em 28 pontos.
+- [x] Remover o espaçamento adicional das linhas de recebedor e manter cada linha com 21 pontos de altura tipográfica.
+- [x] Preservar o botão `Realizar novo Pix`, a máscara, a edição e a persistência.
+- [x] Incrementar para Inter 1.2.80/build 200.
+- [x] Validar, compilar, auditar e confirmar os marcadores no `main.jsbundle`; Action 33008956603 concluída com sucesso.
+- [ ] Instalar a IPA 1.2.80/build 200 no SideStore e confirmar fisicamente o alinhamento da grade.
