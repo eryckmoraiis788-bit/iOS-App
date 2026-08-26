@@ -130,7 +130,9 @@ export default function ReceiptDetailScreen() {
               accessibilityLabel="Realizar novo Pix"
               style={({ pressed }) => [styles.newPixButton, pressed && styles.pressed]}
             >
-              <Text style={styles.newPixText}>Realizar novo Pix</Text>
+              <View pointerEvents="none" style={styles.newPixButtonSurface}>
+                <Text style={styles.newPixText}>Realizar novo Pix</Text>
+              </View>
             </Pressable>
           </View>
         </ScrollView>
@@ -178,7 +180,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 
 function EditableInfoRow({ label, value, onPress }: { label: string; value: string; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`Editar ${label}`} style={({ pressed }) => [styles.infoRow, pressed && styles.rowPressed]}>
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={`Editar ${label}`} style={({ pressed }) => [styles.infoRow, styles.recipientRow, pressed && styles.rowPressed]}>
       <Text style={styles.infoLabel}>{label}</Text>
       <View style={styles.editableValueWrap}>
         <Text style={styles.infoValue} numberOfLines={1}>{value}</Text>
@@ -212,7 +214,9 @@ const styles = StyleSheet.create({
   actions: { width: "100%", alignItems: "stretch", marginTop: 24, paddingBottom: 12 },
   shareButton: { width: "100%", height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#EA7900", opacity: 1 },
   shareText: { color: colors.background, fontSize: 17, fontWeight: "600" },
-  newPixButton: { width: "100%", height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#F2B16E" },
+  recipientRow: { marginBottom: 6 },
+  newPixButton: { width: "100%", minHeight: 48, height: 48, marginTop: 13, borderRadius: 9, alignItems: "stretch", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
+  newPixButtonSurface: { flex: 1, width: "100%", alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF" },
   newPixText: { color: colors.orange, fontSize: 17, fontWeight: "600", textAlign: "center" },
   modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "rgba(0, 0, 0, 0.42)" },
   editorCard: { width: "100%", maxWidth: 390, borderRadius: 20, padding: 20, backgroundColor: colors.background },
