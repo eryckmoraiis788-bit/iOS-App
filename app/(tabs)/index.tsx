@@ -3,6 +3,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ActivityIndicator, Animated, Easing, Image, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useNotificationStore, type NotificationTemplate } from "@/lib/notification-store";
+import { RANDOM_BRAZILIAN_NAMES } from "@/constants/random-names";
 
 const colors = {
   bg: "#EAF4F8",
@@ -39,6 +40,10 @@ function formatPixValue(value: string): string {
   integerDigits = integerDigits.replace(/^0+(?=\d)/, "") || "0";
   const groupedInteger = integerDigits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   return `${groupedInteger},${centsDigits}`;
+}
+
+function pickRandomBrazilianName(): string {
+  return RANDOM_BRAZILIAN_NAMES[Math.floor(Math.random() * RANDOM_BRAZILIAN_NAMES.length)] ?? "";
 }
 
 
@@ -204,6 +209,13 @@ export default function ComposeScreen() {
     setModelName("");
     setEditingTemplateId(undefined);
     setSaveMessage(kind === "received" ? "Modelo Pix recebido aplicado." : "Modelo Pix enviado aplicado.");
+  };
+
+  const generateRandomName = (kind: "received" | "sent") => {
+    const name = pickRandomBrazilianName();
+    if (kind === "received") setReceivedName(name);
+    else setSentName(name);
+    setSaveMessage("Nome aleatório preenchido. Você ainda pode editá-lo.");
   };
 
   const emitPixDirectly = async (kind: "received" | "sent") => {
@@ -425,7 +437,12 @@ export default function ComposeScreen() {
           </View>
         </View>
         <View style={styles.presetInputsRow}>
-          <TextInput value={receivedName} onChangeText={setReceivedName} placeholder="Digite o nome de quem enviou" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
+          <View style={styles.nameInputGroup}>
+            <TextInput value={receivedName} onChangeText={setReceivedName} placeholder="Digite o nome de quem enviou" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
+            <Pressable onPress={() => generateRandomName("received")} style={({ pressed }) => [styles.randomNameButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Gerar nome aleatório para Pix recebido" testID="random-name-received-button">
+              <MaterialIcons name="shuffle" size={21} color={colors.teal} />
+            </Pressable>
+          </View>
           <TextInput value={receivedValue} onChangeText={setReceivedValue} onBlur={() => setReceivedValue(formatPixValue(receivedValue))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
         </View>
       </View>
@@ -447,7 +464,12 @@ export default function ComposeScreen() {
           </View>
         </View>
         <View style={styles.presetInputsRow}>
-          <TextInput value={sentName} onChangeText={setSentName} placeholder="Digite o nome de quem recebeu" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
+          <View style={styles.nameInputGroup}>
+            <TextInput value={sentName} onChangeText={setSentName} placeholder="Digite o nome de quem recebeu" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
+            <Pressable onPress={() => generateRandomName("sent")} style={({ pressed }) => [styles.randomNameButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Gerar nome aleatório para Pix enviado" testID="random-name-sent-button">
+              <MaterialIcons name="shuffle" size={21} color={colors.navy} />
+            </Pressable>
+          </View>
           <TextInput value={sentValue} onChangeText={setSentValue} onBlur={() => setSentValue(formatPixValue(sentValue))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
         </View>
       </View>
@@ -630,7 +652,9 @@ const styles = StyleSheet.create({
   presetTitle: { color: colors.ink, fontSize: 17, fontWeight: "900" },
   presetDescription: { color: colors.muted, fontSize: 13, marginTop: 3 },
   presetInputsRow: { flexDirection: "row", gap: 8 },
-  presetInput: { flex: 1, minWidth: 0, height: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 12, color: colors.ink, fontSize: 13, backgroundColor: "#FCFCFC" },
+  nameInputGroup: { flex: 1, minWidth: 0, height: 48, flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: colors.border, borderRadius: 14, backgroundColor: "#FCFCFC", overflow: "hidden" },
+  presetInput: { flex: 1, minWidth: 0, height: 46, paddingHorizontal: 12, color: colors.ink, fontSize: 13 },
+  randomNameButton: { width: 42, height: 46, alignItems: "center", justifyContent: "center", borderLeftWidth: 1, borderLeftColor: colors.border, backgroundColor: "#F0FAF8" },
   presetValueInput: { width: 94, height: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 10, color: colors.ink, fontSize: 13, backgroundColor: "#FCFCFC" },
 
   applyPresetButton: { width: "100%", height: 48, borderRadius: 14, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", paddingHorizontal: 12 },
