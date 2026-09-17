@@ -13,6 +13,12 @@ export const users = mysqlTable("users", {
   id: int("id").autoincrement().primaryKey(),
   /** Manus OAuth identifier (openId) returned from the OAuth callback. Unique per user. */
   openId: varchar("openId", { length: 64 }).notNull().unique(),
+  username: varchar("username", { length: 80 }).unique(),
+  passwordHash: text("passwordHash"),
+  licenseKeyHash: varchar("licenseKeyHash", { length: 128 }).unique(),
+  licenseExpiresAt: timestamp("licenseExpiresAt"),
+  licenseStatus: mysqlEnum("licenseStatus", ["active", "revoked"]).default("active").notNull(),
+  deviceId: varchar("deviceId", { length: 128 }).unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),

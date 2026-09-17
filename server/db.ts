@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users } from "../drizzle/schema";
 import { ENV } from "./_core/env";
@@ -87,6 +87,50 @@ export async function getUserByOpenId(openId: string) {
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getUserByUsername(username: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+  return result[0];
+}
+
+export async function getUserById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  return result[0];
+}
+
+export async function listLocalUsers() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select({
+    id: users.id,
+    username: users.username,
+    name: users.name,
+    role: users.role,
+    licenseExpiresAt: users.licenseExpiresAt,
+    licenseStatus: users.licenseStatus,
+    deviceId: users.deviceId,
+    lastSignedIn: users.lastSignedIn,
+    createdAt: users.createdAt,
+  }).from(users).where(eq(users.loginMethod, "local")).orderBy(desc(users.createdAt));
+}
+
+export async function createLocalUser(input: InsertUser) {
+  const db = await getDb();
+  if (!db) throw new Error("Banco de dados indisponível.");
+  await db.insert(users).values(input);
+  return getUserByUsername(input.username ?? "");
+}
+
+export async function updateLocalUser(id: number, values: Partial<InsertUser>) {
+  const db = await getDb();
+  if (!db) throw new Error("Banco de dados indisponível.");
+  await db.update(users).set(values).where(eq(users.id, id));
+  return getUserById(id);
 }
 
 // TODO: add feature queries here as your schema grows.
