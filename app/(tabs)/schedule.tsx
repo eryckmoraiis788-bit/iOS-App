@@ -8,6 +8,7 @@ import { AnimatedScreen } from "@/components/animated-screen";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore, type NotificationRecurrence, type NotificationTemplate } from "@/lib/notification-store";
 import { formatNotificationTime } from "@/lib/format-notification-time";
+import { RANDOM_BRAZILIAN_NAMES } from "@/constants/random-names";
 
 const teal = "#0E8278";
 
@@ -52,6 +53,10 @@ function formatPixValue(value: string): string {
   }
   integerDigits = integerDigits.replace(/^0+(?=\d)/, "") || "0";
   return `${integerDigits.replace(/\B(?=(\d{3})+(?!\d))/g, ".")},${centsDigits}`;
+}
+
+function pickRandomBrazilianName(): string {
+  return RANDOM_BRAZILIAN_NAMES[Math.floor(Math.random() * RANDOM_BRAZILIAN_NAMES.length)] ?? "";
 }
 
 export default function ScheduleScreen() {
@@ -114,6 +119,12 @@ export default function ScheduleScreen() {
     setTitle(payload.title);
     setSubtitle(payload.subtitle);
     setBody(payload.body);
+  };
+
+  const generateRandomName = (kind: "received" | "sent") => {
+    const name = pickRandomBrazilianName();
+    if (kind === "received") setReceivedName(name);
+    else setSentName(name);
   };
 
   const schedulePixDirectly = async (kind: "received" | "sent") => {
@@ -247,6 +258,7 @@ export default function ScheduleScreen() {
           value={receivedValue}
           onNameChange={setReceivedName}
           onValueChange={setReceivedValue}
+          onRandomName={() => generateRandomName("received")}
           onSchedule={() => void schedulePixDirectly("received")}
           onApply={() => applyPixPreset("received")}
         />
@@ -256,6 +268,7 @@ export default function ScheduleScreen() {
           value={sentValue}
           onNameChange={setSentName}
           onValueChange={setSentValue}
+          onRandomName={() => generateRandomName("sent")}
           onSchedule={() => void schedulePixDirectly("sent")}
           onApply={() => applyPixPreset("sent")}
         />
@@ -366,7 +379,7 @@ export default function ScheduleScreen() {
   );
 }
 
-function QuickPresetCard({ kind, name, value, onNameChange, onValueChange, onSchedule, onApply }: { kind: "received" | "sent"; name: string; value: string; onNameChange: (value: string) => void; onValueChange: (value: string) => void; onSchedule: () => void; onApply: () => void }) {
+function QuickPresetCard({ kind, name, value, onNameChange, onValueChange, onRandomName, onSchedule, onApply }: { kind: "received" | "sent"; name: string; value: string; onNameChange: (value: string) => void; onValueChange: (value: string) => void; onRandomName: () => void; onSchedule: () => void; onApply: () => void }) {
   const received = kind === "received";
   return <>
     <View style={styles.presetsCard}>
@@ -375,7 +388,12 @@ function QuickPresetCard({ kind, name, value, onNameChange, onValueChange, onSch
         <View style={{ flex: 1 }}><Text style={styles.presetTitle}>Pix {received ? "recebido" : "enviado"}</Text><Text style={styles.presetDescription}>{received ? "Notificação de valor creditado." : "Notificação de transferência realizada."}</Text></View>
       </View>
       <View style={styles.presetInputsRow}>
-        <TextInput value={name} onChangeText={onNameChange} placeholder={received ? "Digite o nome de quem enviou" : "Digite o nome de quem recebeu"} placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
+        <View style={styles.nameInputGroup}>
+          <TextInput value={name} onChangeText={onNameChange} placeholder={received ? "Digite o nome de quem enviou" : "Digite o nome de quem recebeu"} placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
+          <Pressable onPress={onRandomName} style={({ pressed }) => [styles.randomNameButton, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel={`Gerar nome aleatório para Pix ${received ? "recebido" : "enviado"}`} testID={`random-name-schedule-${kind}-button`}>
+            <MaterialIcons name="shuffle" size={23} color={received ? teal : "#163D59"} />
+          </Pressable>
+        </View>
         <TextInput value={value} onChangeText={onValueChange} onBlur={() => onValueChange(formatPixValue(value))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
       </View>
     </View>
@@ -427,7 +445,9 @@ const styles = StyleSheet.create({
   presetTitle: { color: ink, fontSize: 24, fontWeight: "900" },
   presetDescription: { color: muted, fontSize: 16, marginTop: 3 },
   presetInputsRow: { flexDirection: "row", gap: 12 },
-  presetInput: { flex: 1, minWidth: 0, flexShrink: 1, minHeight: 58, borderWidth: 1, borderColor: border, borderRadius: 18, paddingHorizontal: 16, color: ink, fontSize: 16 },
+  nameInputGroup: { flex: 1, minWidth: 0, flexShrink: 1, minHeight: 58, flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: border, borderRadius: 18, overflow: "hidden" },
+  presetInput: { flex: 1, minWidth: 0, height: 56, paddingHorizontal: 16, color: ink, fontSize: 16 },
+  randomNameButton: { width: 50, height: 56, alignItems: "center", justifyContent: "center", borderLeftWidth: 1, borderLeftColor: border, backgroundColor: "#F0FAF8" },
   presetValueInput: { width: 118, minWidth: 0, flexShrink: 1, minHeight: 58, borderWidth: 1, borderColor: border, borderRadius: 18, paddingHorizontal: 12, color: ink, fontSize: 16 },
   presetActionPanel: { backgroundColor: "#F4FBFC", borderWidth: 1, borderColor: border, borderRadius: 22, padding: 13, gap: 12 },
   directPresetButton: { minHeight: 58, borderRadius: 18, backgroundColor: orange, alignItems: "center", justifyContent: "center", paddingHorizontal: 12 },
