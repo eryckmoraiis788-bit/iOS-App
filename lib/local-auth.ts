@@ -76,3 +76,4 @@ export async function clearAuth() {
 export async function listUsers() { return request<{ users: LocalUser[] }>("/api/local-auth/admin/users"); }
 export async function createUser(input: { username: string; password: string; name: string; expiresAt: string }) { return request<{ user: LocalUser; licenseKey: string }>("/api/local-auth/admin/users", { method: "POST", body: JSON.stringify(input) }); }
 export async function updateUser(id: number, input: { expiresAt?: string; status?: "active" | "revoked" }) { return request<{ user: LocalUser }>(`/api/local-auth/admin/users/${id}`, { method: "PATCH", body: JSON.stringify(input) }); }
+export async function deleteUser(id: number) { return request<{ success: true }>(`/api/local-auth/admin/users/${id}`, { method: "DELETE" }); }

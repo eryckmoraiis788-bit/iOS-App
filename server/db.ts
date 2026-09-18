@@ -133,4 +133,13 @@ export async function updateLocalUser(id: number, values: Partial<InsertUser>) {
   return getUserById(id);
 }
 
+export async function deleteLocalUser(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Banco de dados indisponível.");
+  const existing = await getUserById(id);
+  if (!existing) return false;
+  await db.delete(users).where(eq(users.id, id));
+  return true;
+}
+
 // TODO: add feature queries here as your schema grows.

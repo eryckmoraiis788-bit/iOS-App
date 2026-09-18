@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { useRouter } from "expo-router";
-import { createUser, listUsers, updateUser, type LocalUser } from "@/lib/local-auth";
+import { createUser, deleteUser, listUsers, updateUser, type LocalUser } from "@/lib/local-auth";
 
 export default function AdminScreen() {
   const router = useRouter();
@@ -38,6 +38,18 @@ export default function AdminScreen() {
       try { await updateUser(user.id, { expiresAt: value, status: "active" }); await refresh(); }
       catch (e) { Alert.alert("Erro", e instanceof Error ? e.message : "Não foi possível renovar."); }
     },
+  );
+
+  const remove = (user: LocalUser) => Alert.alert(
+    "Excluir acesso?",
+    `O usuário ${user.username} perderá o acesso imediatamente. Esta ação não pode ser desfeita.`,
+    [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Excluir", style: "destructive", onPress: async () => {
+        try { await deleteUser(user.id); await refresh(); }
+        catch (e) { Alert.alert("Erro", e instanceof Error ? e.message : "Não foi possível excluir o usuário."); }
+      } },
+    ],
   );
 
   return (
@@ -81,6 +93,7 @@ export default function AdminScreen() {
           </View>
           <Pressable onPress={() => renew(user)} style={styles.small}><Text style={styles.smallText}>Renovar</Text></Pressable>
           <Pressable onPress={async () => { await updateUser(user.id, { status: user.licenseStatus === "active" ? "revoked" : "active" }); await refresh(); }} style={[styles.small, styles.revoke]}><Text style={styles.smallText}>{user.licenseStatus === "active" ? "Bloquear" : "Ativar"}</Text></Pressable>
+          <Pressable onPress={() => remove(user)} style={[styles.small, styles.deleteButton]}><Text style={styles.deleteText}>Excluir</Text></Pressable>
         </View>
       ))}
     </ScrollView>
@@ -112,4 +125,6 @@ const styles = StyleSheet.create({
   small: { backgroundColor: "#E5F5F2", paddingHorizontal: 9, paddingVertical: 8, borderRadius: 9 },
   smallText: { color: "#0E8278", fontSize: 11, fontWeight: "900" },
   revoke: { backgroundColor: "#FFF0EF" },
+  deleteButton: { backgroundColor: "#FCE4E4" },
+  deleteText: { color: "#A53E45", fontSize: 11, fontWeight: "900" },
 });

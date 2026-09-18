@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { randomBytes } from "node:crypto";
-import { createLocalUser, getUserById, listLocalUsers, updateLocalUser } from "./db";
+import { createLocalUser, deleteLocalUser, getUserById, listLocalUsers, updateLocalUser } from "./db";
 import { ENV } from "./_core/env";
 import { authenticateLocal, expirationFromDate, generateLicenseKey, getAuthenticatedLocalUser, hashLicenseKey, hashPassword, normalizeUsername, publicUser, signLocalSession, verifyLocalSession } from "./local-auth";
 
@@ -84,6 +84,16 @@ export function registerLocalAuthRoutes(app: Express) {
     if (Object.keys(values).length === 0) return res.status(400).json({ message: "Nenhuma alteração informada." });
     const updated = await updateLocalUser(id, values);
     return updated ? res.json({ user: publicUser(updated) }) : res.status(404).json({ message: "Usuário não encontrado." });
+  });
+
+  app.delete("/api/local-auth/admin/users/:id", async (req, res) => {
+    const owner = await requireLocal(req, res);
+    if (!owner) return;
+    if (owner.role !== "admin") return res.status(403).json({ message: "Acesso exclusivo do proprietário." });
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) return res.status(400).json({ message: "Usuário inválido." });
+    const deleted = await deleteLocalUser(id);
+    return deleted ? res.json({ success: true }) : res.status(404).json({ message: "Usuário não encontrado." });
   });
 }
 
