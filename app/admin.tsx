@@ -1,15 +1,22 @@
 import { useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import * as Clipboard from "expo-clipboard";
 import { useRouter } from "expo-router";
 import { createUser, deleteUser, listUsers, updateUser, type LocalUser } from "@/lib/local-auth";
+
+function generatePassword() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%";
+  return Array.from({ length: 14 }, (_, index) => chars[(Date.now() + index * 17 + Math.floor(Math.random() * chars.length)) % chars.length]).join("");
+}
 
 export default function AdminScreen() {
   const router = useRouter();
   const [users, setUsers] = useState<LocalUser[]>([]);
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(generatePassword);
   const [name, setName] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
+  const [createdAccess, setCreatedAccess] = useState<{ username: string; password: string; licenseKey: string; expiresAt: string } | null>(null);
 
   const refresh = async () => {
     try { setUsers((await listUsers()).users); }
@@ -25,7 +32,8 @@ export default function AdminScreen() {
         "Acesso criado",
         `Envie ao usuário:\n\nUsuário: ${result.user.username}\nSenha: ${password}\nChave de licença: ${result.licenseKey}\nVálida até: ${expiresAt}\n\nA chave aparece somente agora. Salve estas informações antes de fechar.`,
       );
-      setUsername(""); setPassword(""); setName(""); setExpiresAt("");
+      setCreatedAccess({ username: result.user.username ?? username, password, licenseKey: result.licenseKey, expiresAt });
+      setUsername(""); setPassword(generatePassword()); setName(""); setExpiresAt("");
       await refresh();
     } catch (e) { Alert.alert("Não foi possível criar", e instanceof Error ? e.message : "Revise os dados."); }
   };
@@ -52,6 +60,12 @@ export default function AdminScreen() {
     ],
   );
 
+  const copyAccess = async () => {
+    if (!createdAccess) return;
+    await Clipboard.setStringAsync(`Usuário: ${createdAccess.username}\nSenha: ${createdAccess.password}\nChave de licença: ${createdAccess.licenseKey}\nVálida até: ${createdAccess.expiresAt}`);
+    Alert.alert("Copiado", "Usuário, senha e chave de licença foram copiados.");
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <Pressable onPress={() => router.back()}><Text style={styles.back}>‹ Voltar</Text></Pressable>
@@ -72,8 +86,9 @@ export default function AdminScreen() {
         <TextInput value={username} onChangeText={setUsername} autoCapitalize="none" autoCorrect={false} placeholder="Ex.: joao.silva" placeholderTextColor="#87949C" style={styles.input} />
 
         <Text style={styles.label}>Senha do usuário</Text>
-        <Text style={styles.help}>Crie uma senha com pelo menos 8 caracteres e envie-a junto com o login.</Text>
-        <TextInput value={password} onChangeText={setPassword} secureTextEntry placeholder="Ex.: SenhaForte2026!" placeholderTextColor="#87949C" style={styles.input} />
+        <Text style={styles.help}>Uma senha forte já é gerada automaticamente. Você pode gerar outra antes de criar o acesso.</Text>
+        <TextInput value={password} onChangeText={setPassword} autoCapitalize="none" autoCorrect={false} placeholder="Senha gerada automaticamente" placeholderTextColor="#87949C" style={styles.input} />
+        <Pressable onPress={() => setPassword(generatePassword())} style={styles.secondary}><Text style={styles.secondaryText}>Gerar outra senha</Text></Pressable>
 
         <Text style={styles.label}>Data de vencimento</Text>
         <Text style={styles.help}>Até essa data o acesso ficará ativo. Use exatamente o formato ano-mês-dia.</Text>
@@ -82,6 +97,16 @@ export default function AdminScreen() {
         <View style={styles.summary}><Text style={styles.summaryTitle}>O usuário receberá:</Text><Text style={styles.summaryText}>1. Usuário/login</Text><Text style={styles.summaryText}>2. Senha</Text><Text style={styles.summaryText}>3. Chave de licença</Text></View>
         <Pressable onPress={() => void create()} style={styles.primary}><Text style={styles.primaryText}>Gerar acesso e chave</Text></Pressable>
       </View>
+
+      {createdAccess && <View style={styles.credentialsCard}>
+        <Text style={styles.cardTitle}>Último acesso criado</Text>
+        <Text style={styles.help}>Copie estas informações e envie ao usuário. A chave não poderá ser recuperada depois.</Text>
+        <Text style={styles.credentialsText}>Usuário: {createdAccess.username}</Text>
+        <Text style={styles.credentialsText}>Senha: {createdAccess.password}</Text>
+        <Text style={styles.credentialsText}>Chave: {createdAccess.licenseKey}</Text>
+        <Text style={styles.credentialsText}>Válida até: {createdAccess.expiresAt}</Text>
+        <Pressable onPress={() => void copyAccess()} style={styles.copyButton}><Text style={styles.copyText}>Copiar tudo</Text></Pressable>
+      </View>}
 
       <Text style={styles.section}>USUÁRIOS AUTORIZADOS ({users.length})</Text>
       {users.map((user) => (
@@ -117,6 +142,12 @@ const styles = StyleSheet.create({
   summaryText: { color: "#667580", fontSize: 12 },
   primary: { height: 50, borderRadius: 14, backgroundColor: "#0E8278", alignItems: "center", justifyContent: "center", marginTop: 7 },
   primaryText: { color: "#FFF", fontWeight: "900" },
+  secondary: { alignSelf: "flex-start", paddingVertical: 5, paddingHorizontal: 4 },
+  secondaryText: { color: "#0E8278", fontSize: 12, fontWeight: "900" },
+  credentialsCard: { backgroundColor: "#FFFBEA", borderRadius: 18, padding: 16, borderWidth: 1, borderColor: "#E9D98A", gap: 5 },
+  credentialsText: { color: "#3D3822", fontSize: 13, lineHeight: 19 },
+  copyButton: { height: 46, borderRadius: 13, backgroundColor: "#D5A928", alignItems: "center", justifyContent: "center", marginTop: 8 },
+  copyText: { color: "#FFF", fontWeight: "900" },
   section: { color: "#667580", letterSpacing: 2, fontSize: 11, fontWeight: "900", marginTop: 10 },
   userCard: { backgroundColor: "#FFF", borderRadius: 18, padding: 14, borderWidth: 1, borderColor: "#D4E0E5", flexDirection: "row", alignItems: "center", gap: 7 },
   userName: { color: "#121B24", fontSize: 16, fontWeight: "900" },
