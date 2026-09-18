@@ -18,7 +18,8 @@ export const users = mysqlTable("users", {
   licenseKeyHash: varchar("licenseKeyHash", { length: 128 }).unique(),
   licenseExpiresAt: timestamp("licenseExpiresAt"),
   licenseStatus: mysqlEnum("licenseStatus", ["active", "revoked"]).default("active").notNull(),
-  deviceId: varchar("deviceId", { length: 128 }).unique(),
+  // O mesmo aparelho pode ser usado para testar contas diferentes; a vinculação é por usuário.
+  deviceId: varchar("deviceId", { length: 128 }),
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
