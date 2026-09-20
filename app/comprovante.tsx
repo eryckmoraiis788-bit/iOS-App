@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore } from "@/lib/notification-store";
@@ -73,7 +74,7 @@ export default function ReceiptDetailScreen() {
         </View>
 
         <ScrollView style={styles.receiptScroll} contentContainerStyle={styles.receiptBody} showsVerticalScrollIndicator={false}>
-          <View style={styles.directionCircle}><IconSymbol name={isReceivedPix ? "arrow-downward" : "arrow-upward"} size={43} color={colors.ink} /></View>
+          <View style={styles.directionCircle}><MaterialIcons name={isReceivedPix ? "south" : "north"} size={43} color={colors.ink} /></View>
           <Pressable onPress={() => openEditor("amount", receipt.amount)} accessibilityRole="button" accessibilityLabel="Editar valor do comprovante" style={({ pressed }) => [styles.amountPressable, pressed && styles.pressed]}>
             <Text style={styles.amount}>R$ {receipt.amount}</Text>
           </Pressable>
@@ -85,11 +86,11 @@ export default function ReceiptDetailScreen() {
 
           <View style={styles.transactionSection}>
             <Text style={styles.sectionTitle}>Sobre a transação</Text>
-            <InfoRow label="Data da transação" value={formatReceiptDate(receiptTimestamp)} />
+            <InfoRow label="Data da transação" value={formatReceiptDate(receiptTimestamp)} allowWrap />
             <InfoRow label="Horário" value={formatReceiptTime(receiptTimestamp)} />
             <View style={styles.idBlock}>
               <Text style={styles.infoLabel}>ID da transação</Text>
-              <View style={styles.idRow}><Text style={styles.idValue} selectable numberOfLines={1}>{receipt.transactionId}</Text><Pressable hitSlop={10} accessibilityRole="button" accessibilityLabel="Copiar ID da transação"><IconSymbol name="content-copy" size={28} color={colors.orange} /></Pressable></View>
+              <View style={styles.idRow}><Text style={styles.idValue} selectable>{receipt.transactionId}</Text><Pressable hitSlop={10} accessibilityRole="button" accessibilityLabel="Copiar ID da transação"><MaterialIcons name="content-copy" size={27} color={colors.orange} /></Pressable></View>
             </View>
             <Pressable style={styles.descriptionLink} accessibilityRole="button" accessibilityLabel="Adicionar descrição"><Text style={styles.descriptionText}>Adicionar descrição</Text></Pressable>
           </View>
@@ -118,8 +119,8 @@ export default function ReceiptDetailScreen() {
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return <View style={styles.infoRow}><Text style={styles.infoLabel}>{label}</Text><Text style={styles.infoValue} numberOfLines={1}>{value}</Text></View>;
+function InfoRow({ label, value, allowWrap = false }: { label: string; value: string; allowWrap?: boolean }) {
+  return <View style={styles.infoRow}><Text style={styles.infoLabel}>{label}</Text><Text style={styles.infoValue} numberOfLines={allowWrap ? 2 : 1}>{value}</Text></View>;
 }
 
 function EditableInfoRow({ label, value, onPress, isLast = false }: { label: string; value: string; onPress: () => void; isLast?: boolean }) {
@@ -132,26 +133,26 @@ const styles = StyleSheet.create({
   headerTitle: { color: colors.ink, fontSize: 18, lineHeight: 22, fontWeight: "700", textAlign: "center", flex: 1 },
   receiptScroll: { flex: 1 },
   receiptBody: { paddingBottom: 35 },
-  directionCircle: { alignSelf: "center", width: 92, height: 92, borderRadius: 46, marginTop: 38, alignItems: "center", justifyContent: "center", backgroundColor: "#29292B" },
-  amountPressable: { alignSelf: "center", borderRadius: 8, paddingHorizontal: 8, marginTop: 38 },
-  amount: { color: colors.ink, fontSize: 34, lineHeight: 41, fontWeight: "700", textAlign: "center" },
-  personName: { color: colors.muted, fontSize: 18, lineHeight: 23, textAlign: "center", marginTop: 9, paddingHorizontal: 20 },
-  categoryPill: { alignSelf: "center", minWidth: 214, height: 52, borderRadius: 26, marginTop: 44, paddingLeft: 22, paddingRight: 7, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#F4F4F6" },
+  directionCircle: { alignSelf: "center", width: 82, height: 82, borderRadius: 41, marginTop: 20, alignItems: "center", justifyContent: "center", backgroundColor: "#29292B" },
+  amountPressable: { alignSelf: "center", borderRadius: 8, paddingHorizontal: 8, marginTop: 25 },
+  amount: { color: colors.ink, fontSize: 31, lineHeight: 37, fontWeight: "700", textAlign: "center" },
+  personName: { color: colors.muted, fontSize: 17, lineHeight: 22, textAlign: "center", marginTop: 7, paddingHorizontal: 20 },
+  categoryPill: { alignSelf: "center", width: 174, height: 44, borderRadius: 22, marginTop: 30, paddingLeft: 17, paddingRight: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#F4F4F6" },
   categoryText: { color: "#242428", fontSize: 16 },
-  transactionSection: { marginTop: 68, paddingHorizontal: 45 },
-  sectionTitle: { color: colors.ink, fontSize: 22, lineHeight: 27, fontWeight: "700", marginBottom: 30 },
-  infoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 18, marginBottom: 25 },
-  infoLabel: { color: colors.muted, fontSize: 16, lineHeight: 21, flexShrink: 0 },
-  infoValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "700", textAlign: "right", flex: 1, minWidth: 0 },
+  transactionSection: { marginTop: 56, paddingHorizontal: 45 },
+  sectionTitle: { color: colors.ink, fontSize: 21, lineHeight: 26, fontWeight: "700", marginBottom: 25 },
+  infoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 14, marginBottom: 20 },
+  infoLabel: { color: colors.muted, fontSize: 15, lineHeight: 20, flexShrink: 0 },
+  infoValue: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: "700", textAlign: "right", flex: 1, minWidth: 0 },
   idBlock: { marginTop: 2 },
   idRow: { flexDirection: "row", alignItems: "center", gap: 10, marginTop: 8 },
-  idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "700", flex: 1 },
-  descriptionLink: { marginTop: 28 },
-  descriptionText: { color: colors.orange, fontSize: 16, fontWeight: "700" },
-  divider: { height: 58, marginTop: 54, backgroundColor: colors.panel },
-  participantSection: { paddingHorizontal: 45, paddingTop: 50, paddingBottom: 36 },
+  idValue: { color: colors.ink, fontSize: 15, lineHeight: 20, fontWeight: "700", flex: 1 },
+  descriptionLink: { marginTop: 24 },
+  descriptionText: { color: colors.orange, fontSize: 15, fontWeight: "700" },
+  divider: { height: 50, marginTop: 42, backgroundColor: colors.panel },
+  participantSection: { paddingHorizontal: 45, paddingTop: 42, paddingBottom: 32 },
   participantRow: { position: "relative", width: "100%", minHeight: 21, flexDirection: "row", alignItems: "center" },
-  participantRowSpaced: { marginBottom: 25 },
+  participantRowSpaced: { marginBottom: 20 },
   participantValueColumn: { flex: 1, minWidth: 0, alignItems: "flex-end", paddingLeft: 18 },
   rowPressed: { opacity: 0.62 },
   pressed: { opacity: 0.6 },
