@@ -49,6 +49,7 @@ export default function ReceiptDetailScreen() {
     );
   }
 
+  const isReceivedPix = record.title.trim().toLowerCase() === "pix recebido";
   const receiptTimestamp = receipt.eventAt;
   const openEditor = (field: EditableField, value: string) => {
     setEditingField(field);
@@ -90,7 +91,7 @@ export default function ReceiptDetailScreen() {
           <View style={styles.successCircle}>
             <IconSymbol name="check" size={40} color={colors.background} />
           </View>
-          <Text style={styles.successTitle}>Pix enviado</Text>
+          <Text style={styles.successTitle}>{record.title || (isReceivedPix ? "Pix recebido" : "Pix enviado")}</Text>
           <Pressable onPress={() => openEditor("amount", receipt.amount)} accessibilityRole="button" accessibilityLabel="Editar valor do comprovante" style={({ pressed }) => [styles.amountPressable, pressed && styles.pressed]}>
             <Text style={styles.amount}>R$ {receipt.amount}</Text>
           </Pressable>
@@ -108,7 +109,7 @@ export default function ReceiptDetailScreen() {
           <View style={styles.separator} accessibilityElementsHidden />
 
           <View style={[styles.section, styles.recipientSection]}>
-            <Text style={styles.sectionTitle}>Quem recebeu</Text>
+            <Text style={styles.sectionTitle}>{isReceivedPix ? "Quem enviou" : "Quem recebeu"}</Text>
             <EditableInfoRow label="Nome" value={receipt.recipientName} onPress={() => openEditor("recipientName", receipt.recipientName)} />
             <EditableInfoRow label="CPF/CNPJ" value={receipt.document} onPress={() => openEditor("document", receipt.document)} />
             <EditableInfoRow label="Instituição" value={receipt.institution} onPress={() => openEditor("institution", receipt.institution)} isLast />
