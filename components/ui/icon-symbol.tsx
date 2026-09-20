@@ -33,6 +33,10 @@ const IOS_MAPPING: Record<string, NativeIconName> = {
   check: "checkmark",
   "arrow-back": "arrow.left",
   edit: "pencil",
+  help: "questionmark.circle",
+  "arrow-downward": "arrow.down",
+  "arrow-upward": "arrow.up",
+  "content-copy": "doc.on.doc",
 };
 
 const ANDROID_MAPPING: Record<string, MaterialIconName> = {
@@ -61,6 +65,10 @@ const ANDROID_MAPPING: Record<string, MaterialIconName> = {
   check: "check",
   "arrow-back": "arrow-back",
   edit: "edit",
+  help: "help-outline",
+  "arrow-downward": "south",
+  "arrow-upward": "north",
+  "content-copy": "content-copy",
 };
 
 export function IconSymbol({
