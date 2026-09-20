@@ -74,7 +74,7 @@ export default function ReceiptDetailScreen() {
         </View>
 
         <ScrollView style={styles.receiptScroll} contentContainerStyle={styles.receiptBody} showsVerticalScrollIndicator={false}>
-          <View style={styles.directionCircle}><MaterialIcons name={isReceivedPix ? "south" : "north"} size={43} color={colors.ink} /></View>
+          <View style={styles.directionCircle}><MaterialIcons name={isReceivedPix ? "arrow-downward" : "arrow-upward"} size={43} color={colors.ink} /></View>
           <Pressable onPress={() => openEditor("amount", receipt.amount)} accessibilityRole="button" accessibilityLabel="Editar valor do comprovante" style={({ pressed }) => [styles.amountPressable, pressed && styles.pressed]}>
             <Text style={styles.amount}>R$ {receipt.amount}</Text>
           </Pressable>
@@ -90,7 +90,7 @@ export default function ReceiptDetailScreen() {
             <InfoRow label="Horário" value={formatReceiptTime(receiptTimestamp)} />
             <View style={styles.idBlock}>
               <Text style={styles.infoLabel}>ID da transação</Text>
-              <View style={styles.idRow}><Text style={styles.idValue} selectable>{receipt.transactionId}</Text><Pressable hitSlop={10} accessibilityRole="button" accessibilityLabel="Copiar ID da transação"><MaterialIcons name="content-copy" size={27} color={colors.orange} /></Pressable></View>
+              <View style={styles.idRow}><Text style={styles.idValue} selectable numberOfLines={2}>{receipt.transactionId}</Text><Pressable hitSlop={10} accessibilityRole="button" accessibilityLabel="Copiar ID da transação"><MaterialIcons name="content-copy" size={27} color={colors.orange} /></Pressable></View>
             </View>
             <Pressable style={styles.descriptionLink} accessibilityRole="button" accessibilityLabel="Adicionar descrição"><Text style={styles.descriptionText}>Adicionar descrição</Text></Pressable>
           </View>
