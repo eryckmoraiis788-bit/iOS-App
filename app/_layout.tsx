@@ -13,17 +13,14 @@ function ProtectedNavigation() {
   const currentRoute = segments[0];
 
   if (loading) {
-    return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#EAF4F8" }}>
-        <ActivityIndicator size="large" color="#0E8278" />
-      </View>
-    );
+    return <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: "#EAF4F8" }}><ActivityIndicator size="large" color="#0E8278" /></View>;
   }
 
   if (!user && currentRoute !== "login") return <Redirect href="/login" />;
   if (user && currentRoute === "login") return <Redirect href="/(tabs)" />;
+  if (!user) return <Stack screenOptions={{ headerShown: false }} />;
 
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return <NotificationStoreProvider storageScope={`user-${user.id}`} migrateLegacy={user.role === "admin"}><Stack screenOptions={{ headerShown: false }} /></NotificationStoreProvider>;
 }
 
 export default function RootLayout() {
@@ -32,10 +29,8 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <ThemeProvider>
           <LocalAuthProvider>
-            <NotificationStoreProvider>
-              <StatusBar style="dark" backgroundColor="#FFFFFF" />
-              <ProtectedNavigation />
-            </NotificationStoreProvider>
+            <StatusBar style="dark" backgroundColor="#FFFFFF" />
+            <ProtectedNavigation />
           </LocalAuthProvider>
         </ThemeProvider>
       </SafeAreaProvider>

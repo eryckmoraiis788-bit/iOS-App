@@ -66,6 +66,10 @@ const IMAGE_KEY = "notification-ios-image-v1";
 const HAPTICS_KEY = "notification-ios-haptics-v1";
 const RECEIPTS_KEY = "notification-ios-receipts-v1";
 
+function scopedStorageKey(baseKey: string, scope: string) {
+  return `${baseKey}:${scope}`;
+}
+
 function normalizeTemplates(raw: unknown): NotificationTemplate[] {
   if (!Array.isArray(raw)) return [];
   return raw.flatMap((item, index) => {
@@ -87,9 +91,9 @@ function normalizeTemplates(raw: unknown): NotificationTemplate[] {
   });
 }
 
-async function readTemplatesSafely(): Promise<NotificationTemplate[]> {
+async function readTemplatesSafely(key: string): Promise<NotificationTemplate[]> {
   try {
-    const stored = await AsyncStorage.getItem(TEMPLATES_KEY);
+    const stored = await AsyncStorage.getItem(key);
     if (!stored) return [];
     return normalizeTemplates(JSON.parse(stored));
   } catch (error) {
@@ -105,6 +109,12 @@ async function readStoredValue(key: string): Promise<string | null> {
     console.error(`[storage] failed to read ${key}`, error);
     return null;
   }
+}
+
+async function migrateLegacyValue(scopedKey: string, legacyKey: string, enabled: boolean) {
+  if (!enabled || await AsyncStorage.getItem(scopedKey)) return;
+  const legacyValue = await AsyncStorage.getItem(legacyKey);
+  if (legacyValue !== null) await AsyncStorage.setItem(scopedKey, legacyValue);
 }
 
 Notifications.setNotificationHandler({
@@ -166,7 +176,14 @@ async function cleanupCachedAttachments(records: NotificationRecord[], selectedI
 
 const StoreContext = createContext<Store | null>(null);
 
-export function NotificationStoreProvider({ children }: { children: ReactNode }) {
+export function NotificationStoreProvider({ children, storageScope, migrateLegacy = false }: { children: ReactNode; storageScope: string; migrateLegacy?: boolean }) {
+  const storageKeys = useMemo(() => ({
+    records: scopedStorageKey(STORAGE_KEY, storageScope),
+    templates: scopedStorageKey(TEMPLATES_KEY, storageScope),
+    image: scopedStorageKey(IMAGE_KEY, storageScope),
+    haptics: scopedStorageKey(HAPTICS_KEY, storageScope),
+    receipts: scopedStorageKey(RECEIPTS_KEY, storageScope),
+  }), [storageScope]);
   const [records, setRecords] = useState<NotificationRecord[]>([]);
   const recordsRef = useRef<NotificationRecord[]>([]);
   const recordsLoadPromiseRef = useRef<Promise<void> | null>(null);
@@ -187,17 +204,17 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
 
   const refreshTemplates = useCallback(async () => {
     if (templatesWriteInProgressRef.current) return;
-    const parsedTemplates = await readTemplatesSafely();
+    const parsedTemplates = await readTemplatesSafely(storageKeys.templates);
     templatesRef.current = parsedTemplates;
     templatesLoadedRef.current = true;
     setTemplates(parsedTemplates);
-  }, []);
+  }, [storageKeys.templates]);
 
   const updateReceipts = (updater: (current: NotificationReceipt[]) => NotificationReceipt[]) => {
     const operation = receiptsWritePromiseRef.current.then(async () => {
       if (receiptsLoadPromiseRef.current) await receiptsLoadPromiseRef.current;
       const next = updater(receiptsRef.current);
-      await AsyncStorage.setItem(RECEIPTS_KEY, JSON.stringify(next));
+      await AsyncStorage.setItem(storageKeys.receipts, JSON.stringify(next));
       receiptsRef.current = next;
       setReceipts(next);
     });
@@ -232,10 +249,17 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
 
   useEffect(() => {
     recordsLoadPromiseRef.current = (async () => {
+      await Promise.all([
+        migrateLegacyValue(storageKeys.records, STORAGE_KEY, migrateLegacy),
+        migrateLegacyValue(storageKeys.templates, TEMPLATES_KEY, migrateLegacy),
+        migrateLegacyValue(storageKeys.image, IMAGE_KEY, migrateLegacy),
+        migrateLegacyValue(storageKeys.haptics, HAPTICS_KEY, migrateLegacy),
+        migrateLegacyValue(storageKeys.receipts, RECEIPTS_KEY, migrateLegacy),
+      ]);
       const [storedRecords, storedImage, storedHaptics] = await Promise.all([
-        readStoredValue(STORAGE_KEY),
-        readStoredValue(IMAGE_KEY),
-        readStoredValue(HAPTICS_KEY),
+        readStoredValue(storageKeys.records),
+        readStoredValue(storageKeys.image),
+        readStoredValue(storageKeys.haptics),
       ]);
       const parsedRecords = parseStoredNotificationRecords(storedRecords);
       recordsRef.current = parsedRecords;
@@ -250,19 +274,19 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
       void cleanupCachedAttachments(parsedRecords, storedImage ?? undefined);
       await refreshPermission();
     })();
-    receiptsLoadPromiseRef.current = readStoredValue(RECEIPTS_KEY).then((stored) => {
+    receiptsLoadPromiseRef.current = readStoredValue(storageKeys.receipts).then((stored) => {
       const parsedReceipts = parseStoredNotificationReceipts(stored);
       receiptsRef.current = parsedReceipts;
       setReceipts(parsedReceipts);
     });
     templatesLoadPromiseRef.current = recordsLoadPromiseRef.current;
-  }, []);
+  }, [migrateLegacy, refreshTemplates, storageKeys]);
 
   const updateRecords = (updater: (current: NotificationRecord[]) => NotificationRecord[]) => {
     const operation = recordsWritePromiseRef.current.then(async () => {
       if (recordsLoadPromiseRef.current) await recordsLoadPromiseRef.current;
       const next = updater(recordsRef.current);
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      await AsyncStorage.setItem(storageKeys.records, JSON.stringify(next));
       recordsRef.current = next;
       setRecords(next);
     });
@@ -437,8 +461,8 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     try {
       templatesRef.current = next;
       setTemplates(next);
-      await AsyncStorage.setItem(TEMPLATES_KEY, JSON.stringify(next));
-      const persistedTemplates = await readTemplatesSafely();
+      await AsyncStorage.setItem(storageKeys.templates, JSON.stringify(next));
+      const persistedTemplates = await readTemplatesSafely(storageKeys.templates);
       if (!persistedTemplates.some((item) => item.id === template.id)) {
         throw new Error("O iPhone não confirmou a gravação do modelo.");
       }
@@ -453,7 +477,7 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
     templatesRef.current = next;
     setTemplates(next);
     try {
-      await AsyncStorage.setItem(TEMPLATES_KEY, JSON.stringify(next));
+      await AsyncStorage.setItem(storageKeys.templates, JSON.stringify(next));
     } catch (error) {
       console.error("[templates] failed to remove local item", error);
       throw new Error("Não foi possível atualizar os modelos salvos.");
@@ -463,13 +487,13 @@ export function NotificationStoreProvider({ children }: { children: ReactNode })
   const setSelectedImage = async (uri?: string) => {
     selectedImageRef.current = uri;
     setSelectedImageState(uri);
-    if (uri) await AsyncStorage.setItem(IMAGE_KEY, uri);
-    else await AsyncStorage.removeItem(IMAGE_KEY);
+    if (uri) await AsyncStorage.setItem(storageKeys.image, uri);
+    else await AsyncStorage.removeItem(storageKeys.image);
   };
 
   const setHapticsEnabled = async (value: boolean) => {
     setHapticsState(value);
-    await AsyncStorage.setItem(HAPTICS_KEY, String(value));
+    await AsyncStorage.setItem(storageKeys.haptics, String(value));
   };
 
   const updateReceipt = async (receiptId: string, input: Partial<Pick<NotificationReceipt, "amount" | "recipientName" | "document" | "institution">>) => {
