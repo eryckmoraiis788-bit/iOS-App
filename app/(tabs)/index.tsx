@@ -80,6 +80,11 @@ export default function ComposeScreen() {
   const entranceProgress = useRef(new Animated.Value(0)).current;
   const { selectedImage, emit, templates, saveTemplate, removeTemplate } = useNotificationStore();
   const canEmit = title.trim().length > 0 && body.trim().length > 0;
+  const previewPayload = receivedName.trim() || receivedValue.trim()
+    ? { title: "Pix recebido", subtitle: "Notificação de valor creditado.", body: receivedName.trim() && receivedValue.trim() ? `${receivedName.trim()} te enviou um Pix de R$ ${formatPixValue(receivedValue)} creditado na sua conta final ***15448-3.` : "Preencha o nome e o valor para visualizar o Pix recebido." }
+    : sentName.trim() || sentValue.trim()
+      ? { title: "Pix enviado", subtitle: "Notificação de transferência realizada.", body: sentName.trim() && sentValue.trim() ? `Você fez um Pix no valor de R$ ${formatPixValue(sentValue)} para ${sentName.trim()}.` : "Preencha o nome e o valor para visualizar o Pix enviado." }
+      : { title: title.trim() || "Nome exibido", subtitle: subtitle.trim() || "O assunto aparecerá aqui antes do envio.", body: body.trim() };
 
   useEffect(() => {
     if (historyTitle || historySubtitle || historyBody) {
@@ -363,6 +368,21 @@ export default function ComposeScreen() {
         <MaterialIcons name="chevron-right" size={30} color={colors.muted} />
       </View>
 
+      <View style={styles.previewHeading}>
+        <Text style={styles.sectionTitle}>Pré-visualização</Text>
+        <Text style={styles.nowLabel}><Text style={styles.greenDot}>●</Text> AGORA</Text>
+      </View>
+      <View style={styles.previewOuter}>
+        <View style={styles.preview}>
+          <View style={styles.previewIcon}><MaterialIcons name="notifications-none" size={30} color={colors.white} /></View>
+          <View style={styles.flexCopy}>
+            <View style={styles.previewTop}><Text style={styles.previewTitle}>{previewPayload.title}</Text><Text style={styles.previewTime}>agora</Text></View>
+            <Text style={styles.previewSubtitle}>{previewPayload.subtitle}</Text>
+            {!!previewPayload.body && <Text style={styles.previewBody}>{previewPayload.body}</Text>}
+          </View>
+        </View>
+      </View>
+
       <Pressable
         onPress={() => router.push("/icon")}
         accessibilityRole="button"
@@ -378,36 +398,6 @@ export default function ComposeScreen() {
         </View>
         <MaterialIcons name="chevron-right" size={30} color={colors.muted} />
       </Pressable>
-
-      <View style={styles.modelsHeading}>
-        <View>
-          <Text style={styles.sectionTitle}>Modelos predefinidos</Text>
-          <Text style={styles.sectionLabel}>SALVE PARA USAR DE NOVO</Text>
-        </View>
-        <Pressable
-          onPress={handleSaveModel}
-          disabled={isSavingModel || isEmitting}
-          hitSlop={14}
-          accessibilityRole="button"
-          accessibilityLabel="Salvar modelo predefinido"
-          testID="save-template-header-button"
-          style={({ pressed }) => [styles.bookmarkAction, pressed && styles.pressed]}
-        >
-          {isSavingModel ? <ActivityIndicator size="small" color={colors.teal} /> : <MaterialIcons name="bookmark-border" size={27} color={colors.teal} />}
-        </Pressable>
-      </View>
-
-      <View style={styles.modelsCard}>
-        <View style={styles.modelRow}>
-          <TextInput value={modelName} onChangeText={(value) => { setModelName(value); setSaveMessage(""); }} placeholder="Nome do modelo (opcional)" placeholderTextColor="#87949C" style={styles.modelInput} maxLength={40} />
-          <Pressable onPress={handleSaveModel} disabled={isSavingModel || isEmitting || !canSaveModel} hitSlop={12} style={({ pressed }) => [styles.saveButton, canSaveModel ? styles.saveReady : styles.saveDisabled, (pressed || isSavingModel) && styles.pressed]} accessibilityRole="button" accessibilityLabel={isSavingModel ? "Salvando modelo" : "Salvar modelo"} testID="save-template-button">
-            {isSavingModel ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="bookmark" size={23} color={colors.white} />}
-            <Text style={styles.saveText}>{isSavingModel ? "Salvando…" : "Salvar"}</Text>
-          </Pressable>
-        </View>
-        <Text style={styles.modelHint}>{editingTemplateId ? "Edite os campos e salve para atualizar este modelo." : "Seus modelos salvos aparecerão aqui."}</Text>
-        {!!saveMessage && <View style={[styles.saveMessageCard, saveMessage.startsWith("Informe") && styles.saveMessageError]} accessibilityLiveRegion="polite"><View style={[styles.saveMessageIcon, saveMessage.startsWith("Informe") && styles.saveMessageErrorIcon]}><MaterialIcons name={saveMessage.startsWith("Informe") ? "priority-high" : "check"} size={17} color={colors.white} /></View><Text style={[styles.saveMessage, saveMessage.startsWith("Informe") && styles.saveMessageErrorText]}>{saveMessage}</Text></View>}
-      </View>
 
       <View style={styles.presetsHeading}>
         <View style={styles.flexCopy}>
@@ -505,25 +495,25 @@ export default function ComposeScreen() {
         </View>
       )}
 
-      <View style={styles.previewHeading}>
-        <Text style={styles.sectionTitle}>Pré-visualização</Text>
-        <Text style={styles.nowLabel}><Text style={styles.greenDot}>●</Text> AGORA</Text>
-      </View>
-
-      <View style={styles.previewOuter}>
-        <View style={styles.preview}>
-          <View style={styles.previewIcon}>
-            <MaterialIcons name="notifications-none" size={30} color={colors.white} />
-          </View>
-          <View style={styles.flexCopy}>
-            <View style={styles.previewTop}>
-              <Text style={styles.previewTitle}>{title || "Nome exibido"}</Text>
-              <Text style={styles.previewTime}>agora</Text>
-            </View>
-            <Text style={styles.previewSubtitle}>{subtitle || "O assunto aparecerá aqui antes do envio."}</Text>
-            {!!body && <Text style={styles.previewBody}>{body}</Text>}
-          </View>
+      <View style={styles.modelsHeading}>
+        <View>
+          <Text style={styles.sectionTitle}>Modelos predefinidos</Text>
+          <Text style={styles.sectionLabel}>SALVE PARA USAR DE NOVO</Text>
         </View>
+        <Pressable onPress={handleSaveModel} disabled={isSavingModel || isEmitting} hitSlop={14} accessibilityRole="button" accessibilityLabel="Salvar modelo predefinido" testID="save-template-header-button" style={({ pressed }) => [styles.bookmarkAction, pressed && styles.pressed]}>
+          {isSavingModel ? <ActivityIndicator size="small" color={colors.teal} /> : <MaterialIcons name="bookmark-border" size={27} color={colors.teal} />}
+        </Pressable>
+      </View>
+      <View style={styles.modelsCard}>
+        <View style={styles.modelRow}>
+          <TextInput value={modelName} onChangeText={(value) => { setModelName(value); setSaveMessage(""); }} placeholder="Nome do modelo (opcional)" placeholderTextColor="#87949C" style={styles.modelInput} maxLength={40} />
+          <Pressable onPress={handleSaveModel} disabled={isSavingModel || isEmitting || !canSaveModel} hitSlop={12} style={({ pressed }) => [styles.saveButton, canSaveModel ? styles.saveReady : styles.saveDisabled, (pressed || isSavingModel) && styles.pressed]} accessibilityRole="button" accessibilityLabel={isSavingModel ? "Salvando modelo" : "Salvar modelo"} testID="save-template-button">
+            {isSavingModel ? <ActivityIndicator size="small" color={colors.white} /> : <MaterialIcons name="bookmark" size={23} color={colors.white} />}
+            <Text style={styles.saveText}>{isSavingModel ? "Salvando…" : "Salvar"}</Text>
+          </Pressable>
+        </View>
+        <Text style={styles.modelHint}>{editingTemplateId ? "Edite os campos e salve para atualizar este modelo." : "Seus modelos salvos aparecerão aqui."}</Text>
+        {!!saveMessage && <View style={[styles.saveMessageCard, saveMessage.startsWith("Informe") && styles.saveMessageError]} accessibilityLiveRegion="polite"><View style={[styles.saveMessageIcon, saveMessage.startsWith("Informe") && styles.saveMessageErrorIcon]}><MaterialIcons name={saveMessage.startsWith("Informe") ? "priority-high" : "check"} size={17} color={colors.white} /></View><Text style={[styles.saveMessage, saveMessage.startsWith("Informe") && styles.saveMessageErrorText]}>{saveMessage}</Text></View>}
       </View>
 
       <View style={styles.presetActionPanel}>
