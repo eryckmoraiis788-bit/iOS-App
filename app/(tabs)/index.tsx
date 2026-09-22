@@ -363,17 +363,6 @@ export default function ComposeScreen() {
         <MaterialIcons name="chevron-right" size={30} color={colors.muted} />
       </View>
 
-      <View style={styles.sectionHeadingRow}>
-        <Text style={styles.sectionTitle}>Conteúdo</Text>
-        <Text style={styles.sectionLabel}>PERSONALIZE</Text>
-      </View>
-
-      <View style={styles.formCard}>
-        <Field label="Nome exibido" value={title} onChangeText={setTitle} placeholder="Ex.: Inter" maxLength={40} />
-        <Field label="Subtítulo (Opcional)" value={subtitle} onChangeText={setSubtitle} placeholder="Ex.: Transação confirmada" maxLength={80} />
-        <Field label="Mensagem" value={body} onChangeText={setBody} placeholder="Ex.: Pix recebido" maxLength={140} multiline />
-      </View>
-
       <Pressable
         onPress={() => router.push("/icon")}
         accessibilityRole="button"

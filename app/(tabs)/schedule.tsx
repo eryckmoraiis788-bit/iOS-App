@@ -87,6 +87,13 @@ export default function ScheduleScreen() {
   const weekdayOptions = [{ value: 1, label: "Dom" }, { value: 2, label: "Seg" }, { value: 3, label: "Ter" }, { value: 4, label: "Qua" }, { value: 5, label: "Qui" }, { value: 6, label: "Sex" }, { value: 7, label: "Sáb" }];
   const recurrenceLabel = recurrence === "daily" ? "Todos os dias" : recurrence === "weekly" ? `Toda semana, ${weekdayOptions.find((item) => item.value === repeatWeekday)?.label ?? "dia selecionado"}` : "Uma vez";
   const DateTimePickerComponent = pickerMode ? loadDateTimePicker() : null;
+  const previewPayload = title.trim() || body.trim()
+    ? { title: title.trim() || "Nome exibido", subtitle: subtitle.trim() || "O assunto aparecerá aqui antes do envio.", body: body.trim() }
+    : receivedName.trim() && receivedValue.trim()
+      ? { title: "Pix recebido", subtitle: "Notificação de valor creditado.", body: `${receivedName.trim()} te enviou um Pix de R$ ${formatPixValue(receivedValue)} creditado na sua conta final ***15448-3.` }
+      : sentName.trim() && sentValue.trim()
+        ? { title: "Pix enviado", subtitle: "Notificação de transferência realizada.", body: `Você fez um Pix no valor de R$ ${formatPixValue(sentValue)} para ${sentName.trim()}.` }
+        : { title: "Nome exibido", subtitle: "O assunto aparecerá aqui antes do envio.", body: "" };
 
   useEffect(() => {
     if (historyTitle || historySubtitle || historyBody) {
@@ -249,6 +256,20 @@ export default function ScheduleScreen() {
       <AnimatedScreen>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.heading}>Agendar Notificação</Text>
+        <View style={styles.previewHeading}>
+          <Text style={styles.previewSectionTitle}>Pré-visualização</Text>
+          <Text style={styles.nowLabel}><Text style={styles.greenDot}>●</Text> AGORA</Text>
+        </View>
+        <View style={styles.previewOuter}>
+          <View style={styles.preview}>
+            <View style={styles.previewIcon}><MaterialIcons name="notifications-none" size={30} color="#FFF" /></View>
+            <View style={{ flex: 1 }}>
+              <View style={styles.previewTop}><Text style={styles.previewTitle}>{previewPayload.title}</Text><Text style={styles.previewTime}>agora</Text></View>
+              <Text style={styles.previewSubtitle}>{previewPayload.subtitle}</Text>
+              {!!previewPayload.body && <Text style={styles.previewBody}>{previewPayload.body}</Text>}
+            </View>
+          </View>
+        </View>
         <Text style={styles.modelLabel}>Modelos rápidos</Text>
         <Text style={styles.modelHint}>EDITE E APLIQUE</Text>
 
@@ -434,7 +455,7 @@ function PendingCard({ item }: { item: import("@/lib/notification-store").Notifi
 
 const styles = StyleSheet.create({
   content: { padding: 20, paddingBottom: 40, gap: 16 },
-  heading: { color: ink, fontSize: 32, fontWeight: "900", marginTop: 8, marginBottom: 8 },
+  heading: { color: ink, fontSize: 23, lineHeight: 27, fontWeight: "900", marginTop: 8, marginBottom: 8 },
   label: { color: ink, fontSize: 17, fontWeight: "800", marginBottom: 8 },
   modelLabel: { color: ink, fontSize: 24, fontWeight: "900", marginTop: 2, marginBottom: -9 },
   modelHint: { color: muted, fontSize: 13, letterSpacing: 2, fontWeight: "800", marginBottom: 0 },
@@ -442,13 +463,13 @@ const styles = StyleSheet.create({
   presetHeader: { flexDirection: "row", alignItems: "center", gap: 14 },
   presetIcon: { width: 58, height: 58, borderRadius: 18, backgroundColor: teal, alignItems: "center", justifyContent: "center" },
   presetIconSent: { backgroundColor: "#163D59" },
-  presetTitle: { color: ink, fontSize: 24, fontWeight: "900" },
-  presetDescription: { color: muted, fontSize: 16, marginTop: 3 },
+  presetTitle: { color: ink, fontSize: 17, fontWeight: "800" },
+  presetDescription: { color: muted, fontSize: 14, lineHeight: 19, marginTop: 3 },
   presetInputsRow: { flexDirection: "row", gap: 12 },
   nameInputGroup: { flex: 1, minWidth: 0, flexShrink: 1, minHeight: 58, flexDirection: "row", alignItems: "center", borderWidth: 1, borderColor: border, borderRadius: 18, overflow: "hidden" },
-  presetInput: { flex: 1, minWidth: 0, height: 56, paddingHorizontal: 16, color: ink, fontSize: 16 },
+  presetInput: { flex: 1, minWidth: 0, height: 56, paddingHorizontal: 16, color: ink, fontSize: 17 },
   randomNameButton: { width: 50, height: 56, alignItems: "center", justifyContent: "center", borderLeftWidth: 1, borderLeftColor: border, backgroundColor: "#F0FAF8" },
-  presetValueInput: { width: 118, minWidth: 0, flexShrink: 1, minHeight: 58, borderWidth: 1, borderColor: border, borderRadius: 18, paddingHorizontal: 12, color: ink, fontSize: 16 },
+  presetValueInput: { width: 118, minWidth: 0, flexShrink: 1, minHeight: 58, borderWidth: 1, borderColor: border, borderRadius: 18, paddingHorizontal: 12, color: ink, fontSize: 17 },
   presetActionPanel: { backgroundColor: "#F4FBFC", borderWidth: 1, borderColor: border, borderRadius: 22, padding: 13, gap: 12 },
   directPresetButton: { minHeight: 58, borderRadius: 18, backgroundColor: orange, alignItems: "center", justifyContent: "center", paddingHorizontal: 12 },
   directPresetText: { color: "#FFF", fontSize: 17, fontWeight: "900", textAlign: "center" },
@@ -473,7 +494,7 @@ const styles = StyleSheet.create({
 
   pickerBackdrop: { flex: 1, justifyContent: "center", padding: 20, backgroundColor: "rgba(18,27,36,0.45)" }, pickerCard: { backgroundColor: "#FFF", borderRadius: 26, padding: 20, alignItems: "center", gap: 14 }, pickerFallback: { color: muted, fontSize: 15, lineHeight: 21, textAlign: "center", paddingVertical: 24 }, pickerDone: { width: "100%", minHeight: 52, borderRadius: 16, backgroundColor: teal, alignItems: "center", justifyContent: "center" }, pickerDoneText: { color: "#FFF", fontSize: 16, fontWeight: "900" },
   customModelsHeader: { flexDirection: "row", alignItems: "center", marginTop: 4 },
-  customModelsTitle: { color: ink, fontSize: 22, fontWeight: "900" },
+  customModelsTitle: { color: ink, fontSize: 17, fontWeight: "900" },
   customModelsEmpty: { flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: "#F6FBFC", borderWidth: 1, borderColor: border, borderRadius: 18, padding: 15 },
   customModelsEmptyText: { flex: 1, color: muted, fontSize: 14, lineHeight: 19 },
   customModelCard: { backgroundColor: "#FFF", borderWidth: 1, borderColor: border, borderRadius: 20, padding: 15, gap: 13 },
@@ -489,6 +510,18 @@ const styles = StyleSheet.create({
   customModelDeleteText: { color: "#B44B47", fontSize: 13, fontWeight: "900" },
   selectedSummary: { backgroundColor: "#FFF", borderWidth: 1, borderColor: border, borderRadius: 18, padding: 16, gap: 4 },
   summaryTitle: { color: ink, fontSize: 16, fontWeight: "900" }, summaryBody: { color: muted, fontSize: 14, lineHeight: 20 },
+  previewHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 2 },
+  previewSectionTitle: { color: ink, fontSize: 17, fontWeight: "900" },
+  nowLabel: { color: muted, letterSpacing: 2, fontSize: 11, fontWeight: "800" },
+  greenDot: { color: "#3CA77A", fontSize: 16 },
+  previewOuter: { backgroundColor: "#102F49", borderRadius: 28, padding: 12 },
+  preview: { borderWidth: 1, borderColor: "#506A7A", borderRadius: 23, padding: 17, flexDirection: "row", gap: 13 },
+  previewIcon: { width: 52, height: 52, borderRadius: 16, backgroundColor: teal, alignItems: "center", justifyContent: "center" },
+  previewTop: { flexDirection: "row", justifyContent: "space-between", gap: 5 },
+  previewTitle: { color: "#FFF", fontSize: 16, fontWeight: "800", flex: 1 },
+  previewTime: { color: "#C6D7E1", fontSize: 13 },
+  previewSubtitle: { color: "#D8E4EA", fontSize: 14, lineHeight: 19, marginTop: 4 },
+  previewBody: { color: "#D8E4EA", fontSize: 14, lineHeight: 19, marginTop: 3 },
   button: { minHeight: 64, borderRadius: 22, backgroundColor: teal, alignItems: "center", justifyContent: "center", flexDirection: "row", gap: 10, marginTop: 2 }, buttonText: { color: "#FFF", fontSize: 19, fontWeight: "900" },
   sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 14 }, section: { color: ink, fontSize: 24, fontWeight: "900" },
   refreshButton: { flexDirection: "row", alignItems: "center", gap: 5, paddingVertical: 7, paddingHorizontal: 9, borderWidth: 1, borderColor: teal, borderRadius: 12, backgroundColor: "#DFF3F1" }, refreshText: { color: teal, fontSize: 13, fontWeight: "800" },
