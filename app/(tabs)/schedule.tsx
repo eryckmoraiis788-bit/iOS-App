@@ -56,6 +56,10 @@ function formatPixValue(value: string): string {
   return `${integerDigits.replace(/\B(?=(\d{3})+(?!\d))/g, ".")},${centsDigits}`;
 }
 
+function formatAccountSuffix(value: string): string {
+  return value.replace(/[^0-9-]/g, "").replace(/-{2,}/g, "-").replace(/^-+/, "").slice(0, 12);
+}
+
 function pickRandomBrazilianName(): string {
   return RANDOM_BRAZILIAN_NAMES[Math.floor(Math.random() * RANDOM_BRAZILIAN_NAMES.length)] ?? "";
 }
@@ -74,6 +78,7 @@ export default function ScheduleScreen() {
   const [repeatWeekday, setRepeatWeekday] = useState(() => new Date(Date.now() + 5 * 60_000).getDay() + 1);
   const [receivedName, setReceivedName] = useState("");
   const [receivedValue, setReceivedValue] = useState("");
+  const [accountSuffix, setAccountSuffix] = useState("15448-3");
   const [sentName, setSentName] = useState("");
   const [sentValue, setSentValue] = useState("");
   const [draftImageUri, setDraftImageUri] = useState<string>();
@@ -91,7 +96,7 @@ export default function ScheduleScreen() {
   const previewPayload = title.trim() || body.trim()
     ? { title: title.trim() || "Nome exibido", subtitle: subtitle.trim() || "O assunto aparecerá aqui antes do envio.", body: body.trim() }
     : receivedName.trim() && receivedValue.trim()
-      ? { title: "Pix recebido", subtitle: "Notificação de valor creditado.", body: `${receivedName.trim()} te enviou um Pix de R$ ${formatPixValue(receivedValue)} creditado na sua conta final ***15448-3.` }
+      ? { title: "Pix recebido", subtitle: "Notificação de valor creditado.", body: `${receivedName.trim()} te enviou um Pix de R$ ${formatPixValue(receivedValue)} creditado na sua conta final ***${accountSuffix || "15448-3"}.` }
       : sentName.trim() && sentValue.trim()
         ? { title: "Pix enviado", subtitle: "Notificação de transferência realizada.", body: `Você fez um Pix no valor de R$ ${formatPixValue(sentValue)} para ${sentName.trim()}.` }
         : { title: "Nome exibido", subtitle: "O assunto aparecerá aqui antes do envio.", body: "" };
@@ -115,7 +120,7 @@ export default function ScheduleScreen() {
       return null;
     }
     return kind === "received"
-      ? { title: "Pix recebido", subtitle: "", body: `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***15448-3.` }
+      ? { title: "Pix recebido", subtitle: "", body: `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***${accountSuffix || "15448-3"}.` }
       : { title: "Pix enviado", subtitle: "", body: `Você fez um Pix no valor de R$ ${value} para ${name}.` };
   };
 
@@ -280,6 +285,8 @@ export default function ScheduleScreen() {
           value={receivedValue}
           onNameChange={setReceivedName}
           onValueChange={setReceivedValue}
+          accountSuffix={accountSuffix}
+          onAccountSuffixChange={setAccountSuffix}
           onRandomName={() => generateRandomName("received")}
           onSchedule={() => void schedulePixDirectly("received")}
           onApply={() => applyPixPreset("received")}
@@ -401,7 +408,7 @@ export default function ScheduleScreen() {
   );
 }
 
-function QuickPresetCard({ kind, name, value, onNameChange, onValueChange, onRandomName, onSchedule, onApply }: { kind: "received" | "sent"; name: string; value: string; onNameChange: (value: string) => void; onValueChange: (value: string) => void; onRandomName: () => void; onSchedule: () => void; onApply: () => void }) {
+function QuickPresetCard({ kind, name, value, accountSuffix, onNameChange, onValueChange, onAccountSuffixChange, onRandomName, onSchedule, onApply }: { kind: "received" | "sent"; name: string; value: string; accountSuffix?: string; onNameChange: (value: string) => void; onValueChange: (value: string) => void; onAccountSuffixChange?: (value: string) => void; onRandomName: () => void; onSchedule: () => void; onApply: () => void }) {
   const received = kind === "received";
   return <>
     <View style={styles.presetsCard}>
@@ -418,6 +425,11 @@ function QuickPresetCard({ kind, name, value, onNameChange, onValueChange, onRan
         </View>
         <TextInput value={value} onChangeText={onValueChange} onBlur={() => onValueChange(formatPixValue(value))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
       </View>
+      {received && onAccountSuffixChange && <View style={styles.accountInputRow}>
+        <Text style={styles.accountPrefix}>***</Text>
+        <TextInput value={accountSuffix} onChangeText={(next) => onAccountSuffixChange(formatAccountSuffix(next))} placeholder="15448-3" placeholderTextColor="#87949C" style={styles.accountInput} maxLength={12} keyboardType="numbers-and-punctuation" accessibilityLabel="Final da conta" />
+        <Text style={styles.accountPeriod}>.</Text>
+      </View>}
     </View>
     <View style={styles.presetActionPanel}>
       <TouchableOpacity onPress={onSchedule} activeOpacity={0.8} style={styles.directPresetButton} accessibilityRole="button" accessibilityLabel={`Agendar Pix ${received ? "recebido" : "enviado"}`}>
@@ -471,6 +483,10 @@ const styles = StyleSheet.create({
   presetInput: { flex: 1, minWidth: 0, height: 56, paddingHorizontal: 16, color: ink, fontSize: 17 },
   randomNameButton: { width: 50, height: 56, alignItems: "center", justifyContent: "center", borderLeftWidth: 1, borderLeftColor: border, backgroundColor: "#F0FAF8" },
   presetValueInput: { width: 118, minWidth: 0, flexShrink: 1, minHeight: 58, borderWidth: 1, borderColor: border, borderRadius: 18, paddingHorizontal: 12, color: ink, fontSize: 17 },
+  accountInputRow: { flexDirection: "row", alignItems: "center", marginTop: 12, borderWidth: 1, borderColor: border, borderRadius: 18, minHeight: 56, paddingHorizontal: 14, backgroundColor: "#FCFCFC" },
+  accountPrefix: { color: ink, fontSize: 17, fontWeight: "800" },
+  accountInput: { flex: 1, height: 54, color: ink, fontSize: 17, paddingHorizontal: 5 },
+  accountPeriod: { color: ink, fontSize: 17, fontWeight: "800" },
   presetActionPanel: { backgroundColor: "#F4FBFC", borderWidth: 1, borderColor: border, borderRadius: 22, padding: 13, gap: 12 },
   directPresetButton: { minHeight: 58, borderRadius: 18, backgroundColor: orange, alignItems: "center", justifyContent: "center", paddingHorizontal: 12 },
   directPresetText: { color: "#FFF", fontSize: 17, fontWeight: "900", textAlign: "center" },

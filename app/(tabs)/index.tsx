@@ -42,6 +42,10 @@ function formatPixValue(value: string): string {
   return `${groupedInteger},${centsDigits}`;
 }
 
+function formatAccountSuffix(value: string): string {
+  return value.replace(/[^0-9-]/g, "").replace(/-{2,}/g, "-").replace(/^-+/, "").slice(0, 12);
+}
+
 function pickRandomBrazilianName(): string {
   return RANDOM_BRAZILIAN_NAMES[Math.floor(Math.random() * RANDOM_BRAZILIAN_NAMES.length)] ?? "";
 }
@@ -64,6 +68,7 @@ export default function ComposeScreen() {
   const [modelName, setModelName] = useState("");
   const [receivedName, setReceivedName] = useState("");
   const [receivedValue, setReceivedValue] = useState("");
+  const [accountSuffix, setAccountSuffix] = useState("15448-3");
   const [sentName, setSentName] = useState("");
   const [sentValue, setSentValue] = useState("");
   const [isEmitting, setIsEmitting] = useState(false);
@@ -80,7 +85,7 @@ export default function ComposeScreen() {
   const { selectedImage, emit, templates, saveTemplate, removeTemplate } = useNotificationStore();
   const canEmit = title.trim().length > 0 && body.trim().length > 0;
   const previewPayload = receivedName.trim() || receivedValue.trim()
-    ? { title: "Pix recebido", subtitle: "Notificação de valor creditado.", body: receivedName.trim() && receivedValue.trim() ? `${receivedName.trim()} te enviou um Pix de R$ ${formatPixValue(receivedValue)} creditado na sua conta final ***15448-3.` : "Preencha o nome e o valor para visualizar o Pix recebido." }
+    ? { title: "Pix recebido", subtitle: "Notificação de valor creditado.", body: receivedName.trim() && receivedValue.trim() ? `${receivedName.trim()} te enviou um Pix de R$ ${formatPixValue(receivedValue)} creditado na sua conta final ***${accountSuffix || "15448-3"}.` : "Preencha o nome e o valor para visualizar o Pix recebido." }
     : sentName.trim() || sentValue.trim()
       ? { title: "Pix enviado", subtitle: "Notificação de transferência realizada.", body: sentName.trim() && sentValue.trim() ? `Você fez um Pix no valor de R$ ${formatPixValue(sentValue)} para ${sentName.trim()}.` : "Preencha o nome e o valor para visualizar o Pix enviado." }
       : { title: title.trim() || "Nome exibido", subtitle: subtitle.trim() || "O assunto aparecerá aqui antes do envio.", body: body.trim() };
@@ -202,7 +207,7 @@ export default function ComposeScreen() {
     // conjunto de dados seja transferido para todos os campos controlados.
     const nextTitle = kind === "received" ? "Pix recebido" : "Pix enviado";
     const nextBody = kind === "received"
-      ? `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***15448-3.`
+      ? `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***${accountSuffix || "15448-3"}.`
       : `Você fez um Pix no valor de R$ ${value} para ${name}.`;
 
     if (kind === "received") setReceivedValue(value);
@@ -236,7 +241,7 @@ export default function ComposeScreen() {
 
     const nextTitle = kind === "received" ? "Pix recebido" : "Pix enviado";
     const nextBody = kind === "received"
-      ? `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***15448-3.`
+      ? `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***${accountSuffix || "15448-3"}.`
       : `Você fez um Pix no valor de R$ ${value} para ${name}.`;
 
     // Atualiza o formulário para que a pré-visualização reflita exatamente
@@ -406,6 +411,11 @@ export default function ComposeScreen() {
             </Pressable>
           </View>
           <TextInput value={receivedValue} onChangeText={setReceivedValue} onBlur={() => setReceivedValue(formatPixValue(receivedValue))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
+        </View>
+        <View style={styles.accountInputRow}>
+          <Text style={styles.accountPrefix}>***</Text>
+          <TextInput value={accountSuffix} onChangeText={(value) => setAccountSuffix(formatAccountSuffix(value))} placeholder="15448-3" placeholderTextColor="#87949C" style={styles.accountInput} maxLength={12} keyboardType="numbers-and-punctuation" accessibilityLabel="Final da conta" />
+          <Text style={styles.accountPeriod}>.</Text>
         </View>
       </View>
       <View style={styles.presetActionPanel}>
@@ -618,6 +628,10 @@ const styles = StyleSheet.create({
   presetInput: { flex: 1, minWidth: 0, height: 46, paddingHorizontal: 12, color: colors.ink, fontSize: 13 },
   randomNameButton: { width: 42, height: 46, alignItems: "center", justifyContent: "center", borderLeftWidth: 1, borderLeftColor: colors.border, backgroundColor: "#F0FAF8" },
   presetValueInput: { width: 94, height: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 10, color: colors.ink, fontSize: 13, backgroundColor: "#FCFCFC" },
+  accountInputRow: { flexDirection: "row", alignItems: "center", marginTop: 10, borderWidth: 1, borderColor: colors.border, borderRadius: 14, height: 48, paddingHorizontal: 12, backgroundColor: "#FCFCFC" },
+  accountPrefix: { color: colors.ink, fontSize: 13, fontWeight: "800" },
+  accountInput: { flex: 1, height: 46, color: colors.ink, fontSize: 13, paddingHorizontal: 4 },
+  accountPeriod: { color: colors.ink, fontSize: 13, fontWeight: "800" },
 
   applyPresetButton: { width: "100%", height: 48, borderRadius: 14, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", paddingHorizontal: 12 },
   directPresetButton: { width: "100%", height: 54, marginBottom: 10, borderRadius: 15, backgroundColor: "#E87808", borderWidth: 1, borderColor: "#D76600", alignItems: "center", justifyContent: "center", paddingHorizontal: 12 },
