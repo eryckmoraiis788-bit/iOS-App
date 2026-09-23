@@ -373,7 +373,7 @@ export default function ComposeScreen() {
       </View>
       <View style={styles.previewOuter}>
         <View style={styles.preview}>
-          <View style={styles.previewIcon}><MaterialIcons name="notifications-none" size={30} color={colors.white} /></View>
+          <View style={styles.previewIcon}><Image source={appIcon} style={styles.previewLogo} /></View>
           <View style={styles.flexCopy}>
             <View style={styles.previewTop}><Text style={styles.previewTitle}>{previewPayload.title}</Text><Text style={styles.previewTime}>agora</Text></View>
             <Text style={styles.previewSubtitle}>{previewPayload.subtitle}</Text>
@@ -660,6 +660,7 @@ const styles = StyleSheet.create({
   previewOuter: { backgroundColor: colors.navy, borderRadius: 28, padding: 12 },
   preview: { borderWidth: 1, borderColor: "#506A7A", borderRadius: 23, padding: 17, flexDirection: "row", gap: 13 },
   previewIcon: { width: 52, height: 52, borderRadius: 16, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center" },
+  previewLogo: { width: 40, height: 40, borderRadius: 11 },
   previewTop: { flexDirection: "row", justifyContent: "space-between", gap: 5 },
   previewTitle: { color: colors.white, fontSize: 16, fontWeight: "800", flex: 1 },
   previewTime: { color: "#C6D7E1", fontSize: 13 },
