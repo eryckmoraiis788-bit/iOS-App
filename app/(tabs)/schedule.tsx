@@ -11,6 +11,7 @@ import { formatNotificationTime } from "@/lib/format-notification-time";
 import { RANDOM_BRAZILIAN_NAMES } from "@/constants/random-names";
 
 const teal = "#0E8278";
+const appIcon = require("@/assets/images/icon.png");
 
 function loadDateTimePicker() {
   if (Platform.OS === "web") return null;
@@ -262,7 +263,7 @@ export default function ScheduleScreen() {
         </View>
         <View style={styles.previewOuter}>
           <View style={styles.preview}>
-            <View style={styles.previewIcon}><MaterialIcons name="notifications-none" size={30} color="#FFF" /></View>
+            <View style={styles.previewIcon}><Image source={appIcon} style={styles.previewLogo} /></View>
             <View style={{ flex: 1 }}>
               <View style={styles.previewTop}><Text style={styles.previewTitle}>{previewPayload.title}</Text><Text style={styles.previewTime}>agora</Text></View>
               <Text style={styles.previewSubtitle}>{previewPayload.subtitle}</Text>
@@ -516,7 +517,8 @@ const styles = StyleSheet.create({
   greenDot: { color: "#3CA77A", fontSize: 16 },
   previewOuter: { backgroundColor: "#102F49", borderRadius: 28, padding: 12 },
   preview: { borderWidth: 1, borderColor: "#506A7A", borderRadius: 23, padding: 17, flexDirection: "row", gap: 13 },
-  previewIcon: { width: 52, height: 52, borderRadius: 16, backgroundColor: teal, alignItems: "center", justifyContent: "center" },
+  previewIcon: { width: 52, height: 52, borderRadius: 16, alignItems: "center", justifyContent: "center", overflow: "hidden" },
+  previewLogo: { width: 52, height: 52, borderRadius: 16 },
   previewTop: { flexDirection: "row", justifyContent: "space-between", gap: 5 },
   previewTitle: { color: "#FFF", fontSize: 16, fontWeight: "800", flex: 1 },
   previewTime: { color: "#C6D7E1", fontSize: 13 },
