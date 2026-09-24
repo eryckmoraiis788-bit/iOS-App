@@ -163,9 +163,7 @@ function RecipientInfoRow({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.recipientRow}>
       <Text style={[styles.infoLabel, styles.recipientLabel]}>{label}</Text>
-      <View style={styles.recipientValueColumn}>
-        <Text style={styles.infoValue} numberOfLines={1}>{value}</Text>
-      </View>
+      <Text style={styles.recipientValue} numberOfLines={1}>{value}</Text>
     </View>
   );
 }
@@ -179,9 +177,7 @@ function InstitutionInfoRow({ value, onPress }: { value: string; onPress: () => 
       style={({ pressed }) => [styles.recipientRow, pressed && styles.rowPressed]}
     >
       <Text style={[styles.infoLabel, styles.recipientLabel]}>Instituição</Text>
-      <View style={styles.recipientValueColumn}>
-        <Text style={styles.infoValue} numberOfLines={1}>{value}</Text>
-      </View>
+      <Text style={styles.institutionValue} numberOfLines={1}>{value}</Text>
     </Pressable>
   );
 }
@@ -201,8 +197,9 @@ const styles = StyleSheet.create({
   rowPressed: { opacity: 0.62 },
   infoLabel: { color: colors.muted, fontSize: 16, lineHeight: 21, flexShrink: 0 },
   infoValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", textAlign: "right", flex: 1, minWidth: 0 },
-  recipientLabel: { width: 92 },
-  recipientValueColumn: { flex: 1, minWidth: 0, alignItems: "flex-end" },
+  recipientLabel: { width: 96 },
+  recipientValue: { flex: 1, minWidth: 0, paddingLeft: 8, color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", textAlign: "right" },
+  institutionValue: { flex: 1, minWidth: 0, paddingLeft: 8, color: colors.ink, fontSize: 14, lineHeight: 19, fontWeight: "600", textAlign: "right" },
   idBlock: { marginTop: 1 },
   idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", marginTop: 6 },
   separator: { height: 1, marginTop: 32, borderTopWidth: 1, borderTopColor: "#E4E4E4", borderStyle: "dashed", opacity: 0.72 },
@@ -211,7 +208,7 @@ const styles = StyleSheet.create({
   shareButton: { width: "100%", height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#EA7900", opacity: 1 },
   shareText: { color: colors.background, fontSize: 17, fontWeight: "600" },
   recipientRow: { width: "100%", minHeight: 21, height: 21, flexDirection: "row", alignItems: "center", marginBottom: 8 },
-  institutionOptions: { marginTop: 10, marginLeft: 92, borderRadius: 12, borderWidth: 1, borderColor: "#E8E8E8", backgroundColor: "#FAFAFA", overflow: "hidden" },
+  institutionOptions: { marginTop: 10, marginLeft: 96, borderRadius: 12, borderWidth: 1, borderColor: "#E8E8E8", backgroundColor: "#FAFAFA", overflow: "hidden" },
   institutionOption: { minHeight: 38, justifyContent: "center", paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: "#EEEEEE" },
   institutionOptionText: { color: colors.ink, fontSize: 13, lineHeight: 17 },
   institutionOptionSelected: { color: colors.orange, fontWeight: "700" },
