@@ -25,6 +25,17 @@ const fieldLabels: Record<EditableField, string> = {
   institution: "Instituição",
 };
 
+const institutionOptions = [
+  "NU PAGAMENTOS - IP",
+  "ITAÚ UNIBANCO S.A.",
+  "PICPAY",
+  "CAIXA ECONOMICA FEDERAL",
+  "BANCO INTER",
+  "MERCADO PAGO IP LTDA.",
+  "BCO DO BRASIL S.A.",
+  "PAGSEGURO INTERNET IP S.A.",
+] as const;
+
 export default function ReceiptDetailScreen() {
   const router = useRouter();
   const { recordId } = useLocalSearchParams<{ recordId?: string }>();
@@ -34,6 +45,7 @@ export default function ReceiptDetailScreen() {
   const [editingField, setEditingField] = useState<EditableField | null>(null);
   const [draftValue, setDraftValue] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [institutionPickerOpen, setInstitutionPickerOpen] = useState(false);
 
   if (!record || !receipt) {
     return (
@@ -52,8 +64,26 @@ export default function ReceiptDetailScreen() {
   const isReceivedPix = record.title.trim().toLowerCase() === "pix recebido";
   const receiptTimestamp = receipt.eventAt;
   const openEditor = (field: EditableField, value: string) => {
+    if (field === "institution") {
+      setInstitutionPickerOpen((current) => !current);
+      return;
+    }
     setEditingField(field);
     setDraftValue(value);
+  };
+
+  const selectInstitution = async (institution: string) => {
+    if (isSaving || institution === receipt.institution) {
+      setInstitutionPickerOpen(false);
+      return;
+    }
+    setIsSaving(true);
+    try {
+      await updateReceipt(receipt.id, { institution });
+      setInstitutionPickerOpen(false);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const saveEditor = async () => {
@@ -112,7 +142,23 @@ export default function ReceiptDetailScreen() {
             <Text style={styles.sectionTitle}>{isReceivedPix ? "Quem enviou" : "Quem recebeu"}</Text>
             <EditableInfoRow label="Nome" value={receipt.recipientName} onPress={() => openEditor("recipientName", receipt.recipientName)} />
             <EditableInfoRow label="CPF/CNPJ" value={receipt.document} onPress={() => openEditor("document", receipt.document)} />
-            <EditableInfoRow label="Instituição" value={receipt.institution} onPress={() => openEditor("institution", receipt.institution)} isLast />
+            <EditableInfoRow label="Instituição" value={receipt.institution} onPress={() => openEditor("institution", receipt.institution)} isLast={false} />
+            {institutionPickerOpen && (
+              <View style={styles.institutionOptions} accessibilityRole="menu">
+                {institutionOptions.map((institution) => (
+                  <Pressable
+                    key={institution}
+                    onPress={() => void selectInstitution(institution)}
+                    style={({ pressed }) => [styles.institutionOption, pressed && styles.rowPressed]}
+                    accessibilityRole="menuitem"
+                    accessibilityState={{ selected: receipt.institution === institution }}
+                    accessibilityLabel={`Selecionar ${institution}`}
+                  >
+                    <Text style={[styles.institutionOptionText, receipt.institution === institution && styles.institutionOptionSelected]}>{institution}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
           </View>
 
           <View style={styles.actions}>
@@ -223,6 +269,10 @@ const styles = StyleSheet.create({
   shareText: { color: colors.background, fontSize: 17, fontWeight: "600" },
   recipientRow: { position: "relative", width: "100%", minHeight: 21, height: 21, flexDirection: "row", alignItems: "center", marginBottom: 0 },
   recipientRowSpaced: { marginBottom: 8 },
+  institutionOptions: { marginTop: 10, marginLeft: 92, borderRadius: 12, borderWidth: 1, borderColor: "#E8E8E8", backgroundColor: "#FAFAFA", overflow: "hidden" },
+  institutionOption: { minHeight: 38, justifyContent: "center", paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: "#EEEEEE" },
+  institutionOptionText: { color: colors.ink, fontSize: 13, lineHeight: 17 },
+  institutionOptionSelected: { color: colors.orange, fontWeight: "700" },
   newPixButtonFrame: { position: "relative", width: "100%", minHeight: 48, height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
   newPixText: { color: colors.orange, fontSize: 17, lineHeight: 21, fontWeight: "600", textAlign: "center" },
   buttonPressed: { opacity: 0.08 },
