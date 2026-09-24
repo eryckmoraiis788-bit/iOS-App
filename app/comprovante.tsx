@@ -1,10 +1,10 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore } from "@/lib/notification-store";
-import { normalizeReceiptDocument, formatReceiptDate, formatReceiptTime } from "@/lib/receipt-utils";
+import { formatReceiptDate, formatReceiptTime } from "@/lib/receipt-utils";
 
 const colors = {
   background: "#FFFFFF",
@@ -14,14 +14,6 @@ const colors = {
   green: "#00AA5B",
   line: "#E8E8E8",
   input: "#F8F8F8",
-};
-
-type EditableField = "recipientName" | "document" | "institution";
-
-const fieldLabels: Record<EditableField, string> = {
-  recipientName: "Nome de quem recebeu",
-  document: "CPF/CNPJ",
-  institution: "Instituição",
 };
 
 const institutionOptions = [
@@ -41,8 +33,6 @@ export default function ReceiptDetailScreen() {
   const { records, receipts, updateReceipt } = useNotificationStore();
   const record = records.find((item) => item.id === recordId);
   const receipt = receipts.find((item) => item.recordId === recordId);
-  const [editingField, setEditingField] = useState<EditableField | null>(null);
-  const [draftValue, setDraftValue] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [institutionPickerOpen, setInstitutionPickerOpen] = useState(false);
 
@@ -62,15 +52,8 @@ export default function ReceiptDetailScreen() {
 
   const isReceivedPix = record.title.trim().toLowerCase() === "pix recebido";
   const receiptTimestamp = receipt.eventAt;
-  const openEditor = (field: EditableField, value: string) => {
-    if (field === "institution") {
-      setInstitutionPickerOpen((current) => !current);
-      return;
-    }
-    setEditingField(field);
-    setDraftValue(value);
-  };
 
+  const toggleInstitutionPicker = () => setInstitutionPickerOpen((current) => !current);
   const selectInstitution = async (institution: string) => {
     if (isSaving || institution === receipt.institution) {
       setInstitutionPickerOpen(false);
@@ -80,22 +63,6 @@ export default function ReceiptDetailScreen() {
     try {
       await updateReceipt(receipt.id, { institution });
       setInstitutionPickerOpen(false);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const saveEditor = async () => {
-    if (!editingField || isSaving) return;
-    const nextValue = editingField === "document"
-      ? normalizeReceiptDocument(draftValue)
-      : draftValue.trim();
-    if (!nextValue) return;
-    setIsSaving(true);
-    try {
-      await updateReceipt(receipt.id, { [editingField]: nextValue });
-      setEditingField(null);
-      setDraftValue("");
     } finally {
       setIsSaving(false);
     }
@@ -135,9 +102,9 @@ export default function ReceiptDetailScreen() {
 
           <View style={[styles.section, styles.recipientSection]}>
             <Text style={styles.sectionTitle}>{isReceivedPix ? "Quem enviou" : "Quem recebeu"}</Text>
-            <EditableInfoRow label="Nome" value={receipt.recipientName} onPress={() => openEditor("recipientName", receipt.recipientName)} />
-            <EditableInfoRow label="CPF/CNPJ" value={receipt.document} onPress={() => openEditor("document", receipt.document)} />
-            <EditableInfoRow label="Instituição" value={receipt.institution} onPress={() => openEditor("institution", receipt.institution)} isLast={false} />
+            <RecipientInfoRow label="Nome" value={receipt.recipientName} />
+            <RecipientInfoRow label="CPF/CNPJ" value={receipt.document} />
+            <InstitutionInfoRow value={receipt.institution} onPress={toggleInstitutionPicker} />
             {institutionPickerOpen && (
               <View style={styles.institutionOptions} accessibilityRole="menu">
                 {institutionOptions.map((institution) => (
@@ -179,33 +146,6 @@ export default function ReceiptDetailScreen() {
         </ScrollView>
       </View>
 
-      <Modal visible={editingField !== null} transparent animationType="fade" onRequestClose={() => setEditingField(null)}>
-        <KeyboardAvoidingView style={styles.modalOverlay} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-          <View style={styles.editorCard}>
-            <View style={styles.editorHeader}>
-              <Text style={styles.editorTitle}>Editar {editingField ? fieldLabels[editingField] : "campo"}</Text>
-              <Pressable onPress={() => setEditingField(null)} hitSlop={10} accessibilityRole="button" accessibilityLabel="Fechar edição">
-                <IconSymbol name="xmark" size={24} color={colors.muted} />
-              </Pressable>
-            </View>
-            <TextInput
-              autoFocus
-              value={draftValue}
-              onChangeText={setDraftValue}
-              keyboardType="default"
-              placeholder={fieldLabels[editingField ?? "institution"]}
-              placeholderTextColor={colors.muted}
-              style={styles.editorInput}
-              maxLength={80}
-              accessibilityLabel={`Campo para editar ${editingField ? fieldLabels[editingField] : "comprovante"}`}
-            />
-            <View style={styles.editorActions}>
-              <Pressable onPress={() => setEditingField(null)} style={styles.cancelButton} accessibilityRole="button"><Text style={styles.cancelText}>Cancelar</Text></Pressable>
-              <Pressable onPress={() => void saveEditor()} disabled={isSaving || !draftValue.trim()} style={[styles.saveButton, (isSaving || !draftValue.trim()) && styles.saveButtonDisabled]} accessibilityRole="button"><Text style={styles.saveText}>{isSaving ? "Salvando…" : "Salvar"}</Text></Pressable>
-            </View>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
     </ScreenContainer>
   );
 }
@@ -219,15 +159,26 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function EditableInfoRow({ label, value, onPress, isLast = false }: { label: string; value: string; onPress: () => void; isLast?: boolean }) {
+function RecipientInfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.recipientRow}>
+      <Text style={[styles.infoLabel, styles.recipientLabel]}>{label}</Text>
+      <View style={styles.recipientValueColumn}>
+        <Text style={styles.infoValue} numberOfLines={1}>{value}</Text>
+      </View>
+    </View>
+  );
+}
+
+function InstitutionInfoRow({ value, onPress }: { value: string; onPress: () => void }) {
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Editar ${label}`}
-      style={({ pressed }) => [styles.recipientRow, !isLast && styles.recipientRowSpaced, pressed && styles.rowPressed]}
+      accessibilityLabel="Escolher instituição"
+      style={({ pressed }) => [styles.recipientRow, pressed && styles.rowPressed]}
     >
-      <Text style={[styles.infoLabel, styles.recipientLabel]}>{label}</Text>
+      <Text style={[styles.infoLabel, styles.recipientLabel]}>Instituição</Text>
       <View style={styles.recipientValueColumn}>
         <Text style={styles.infoValue} numberOfLines={1}>{value}</Text>
       </View>
@@ -251,7 +202,7 @@ const styles = StyleSheet.create({
   infoLabel: { color: colors.muted, fontSize: 16, lineHeight: 21, flexShrink: 0 },
   infoValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", textAlign: "right", flex: 1, minWidth: 0 },
   recipientLabel: { width: 92 },
-  recipientValueColumn: { flex: 1, minWidth: 0, alignItems: "flex-end", paddingRight: 28 },
+  recipientValueColumn: { flex: 1, minWidth: 0, alignItems: "flex-end" },
   idBlock: { marginTop: 1 },
   idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", marginTop: 6 },
   separator: { height: 1, marginTop: 32, borderTopWidth: 1, borderTopColor: "#E4E4E4", borderStyle: "dashed", opacity: 0.72 },
@@ -259,8 +210,7 @@ const styles = StyleSheet.create({
   actions: { width: "100%", alignItems: "stretch", marginTop: 24, paddingBottom: 12 },
   shareButton: { width: "100%", height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#EA7900", opacity: 1 },
   shareText: { color: colors.background, fontSize: 17, fontWeight: "600" },
-  recipientRow: { position: "relative", width: "100%", minHeight: 21, height: 21, flexDirection: "row", alignItems: "center", marginBottom: 0 },
-  recipientRowSpaced: { marginBottom: 8 },
+  recipientRow: { width: "100%", minHeight: 21, height: 21, flexDirection: "row", alignItems: "center", marginBottom: 8 },
   institutionOptions: { marginTop: 10, marginLeft: 92, borderRadius: 12, borderWidth: 1, borderColor: "#E8E8E8", backgroundColor: "#FAFAFA", overflow: "hidden" },
   institutionOption: { minHeight: 38, justifyContent: "center", paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: "#EEEEEE" },
   institutionOptionText: { color: colors.ink, fontSize: 13, lineHeight: 17 },
@@ -268,17 +218,6 @@ const styles = StyleSheet.create({
   newPixButtonFrame: { position: "relative", width: "100%", minHeight: 48, height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
   newPixText: { color: colors.orange, fontSize: 17, lineHeight: 21, fontWeight: "600", textAlign: "center" },
   buttonPressed: { opacity: 0.08 },
-  modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20, backgroundColor: "rgba(0, 0, 0, 0.42)" },
-  editorCard: { width: "100%", maxWidth: 390, borderRadius: 20, padding: 20, backgroundColor: colors.background },
-  editorHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
-  editorTitle: { flex: 1, color: colors.ink, fontSize: 20, fontWeight: "700" },
-  editorInput: { height: 54, marginTop: 18, paddingHorizontal: 15, borderRadius: 13, borderWidth: 1, borderColor: "#D8D8D8", backgroundColor: colors.input, color: colors.ink, fontSize: 17 },
-  editorActions: { flexDirection: "row", justifyContent: "flex-end", gap: 10, marginTop: 18 },
-  cancelButton: { minWidth: 100, height: 46, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: "#F1F1F1" },
-  cancelText: { color: colors.ink, fontSize: 15, fontWeight: "700" },
-  saveButton: { minWidth: 100, height: 46, borderRadius: 12, alignItems: "center", justifyContent: "center", backgroundColor: colors.orange },
-  saveButtonDisabled: { opacity: 0.5 },
-  saveText: { color: colors.background, fontSize: 15, fontWeight: "700" },
   notFound: { flex: 1, alignItems: "center", justifyContent: "center", padding: 30, gap: 14 },
   notFoundTitle: { color: colors.ink, fontSize: 20, fontWeight: "700", textAlign: "center" },
   backFallback: { paddingHorizontal: 20, paddingVertical: 13, borderRadius: 14, backgroundColor: colors.orange },
