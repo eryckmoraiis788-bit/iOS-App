@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleShee
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore } from "@/lib/notification-store";
-import { normalizeReceiptAmount, normalizeReceiptDocument, formatReceiptDate, formatReceiptTime } from "@/lib/receipt-utils";
+import { normalizeReceiptDocument, formatReceiptDate, formatReceiptTime } from "@/lib/receipt-utils";
 
 const colors = {
   background: "#FFFFFF",
@@ -16,10 +16,9 @@ const colors = {
   input: "#F8F8F8",
 };
 
-type EditableField = "amount" | "recipientName" | "document" | "institution";
+type EditableField = "recipientName" | "document" | "institution";
 
 const fieldLabels: Record<EditableField, string> = {
-  amount: "Valor do comprovante",
   recipientName: "Nome de quem recebeu",
   document: "CPF/CNPJ",
   institution: "Instituição",
@@ -88,11 +87,9 @@ export default function ReceiptDetailScreen() {
 
   const saveEditor = async () => {
     if (!editingField || isSaving) return;
-    const nextValue = editingField === "amount"
-      ? normalizeReceiptAmount(draftValue)
-      : editingField === "document"
-        ? normalizeReceiptDocument(draftValue)
-        : draftValue.trim();
+    const nextValue = editingField === "document"
+      ? normalizeReceiptDocument(draftValue)
+      : draftValue.trim();
     if (!nextValue) return;
     setIsSaving(true);
     try {
@@ -122,9 +119,7 @@ export default function ReceiptDetailScreen() {
             <IconSymbol name="check" size={40} color={colors.background} />
           </View>
           <Text style={styles.successTitle}>{record.title || (isReceivedPix ? "Pix recebido" : "Pix enviado")}</Text>
-          <Pressable onPress={() => openEditor("amount", receipt.amount)} accessibilityRole="button" accessibilityLabel="Editar valor do comprovante" style={({ pressed }) => [styles.amountPressable, pressed && styles.pressed]}>
-            <Text style={styles.amount}>R$ {receipt.amount}</Text>
-          </Pressable>
+          <Text style={styles.amount}>R$ {receipt.amount}</Text>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Sobre a transação</Text>
@@ -197,11 +192,11 @@ export default function ReceiptDetailScreen() {
               autoFocus
               value={draftValue}
               onChangeText={setDraftValue}
-              keyboardType={editingField === "amount" ? "decimal-pad" : "default"}
+              keyboardType="default"
               placeholder={fieldLabels[editingField ?? "institution"]}
               placeholderTextColor={colors.muted}
               style={styles.editorInput}
-              maxLength={editingField === "amount" ? 18 : 80}
+              maxLength={80}
               accessibilityLabel={`Campo para editar ${editingField ? fieldLabels[editingField] : "comprovante"}`}
             />
             <View style={styles.editorActions}>
@@ -249,9 +244,7 @@ const styles = StyleSheet.create({
   receiptBody: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 0, paddingBottom: 20 },
   successCircle: { alignSelf: "center", width: 64, height: 64, borderRadius: 32, alignItems: "center", justifyContent: "center", backgroundColor: colors.green },
   successTitle: { color: colors.ink, fontSize: 25, lineHeight: 30, fontWeight: "600", textAlign: "center", marginTop: 16 },
-  amountPressable: { alignSelf: "center", borderRadius: 8, paddingHorizontal: 8, marginHorizontal: -8 },
   amount: { color: colors.ink, fontSize: 25, lineHeight: 30, fontWeight: "600", textAlign: "center" },
-  pressed: { opacity: 0.6 },
   section: { marginTop: 54 },
   sectionTitle: { color: colors.ink, fontSize: 20, lineHeight: 24, fontWeight: "600", marginBottom: 16 },
   infoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 12 },
