@@ -1,5 +1,6 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -7,13 +8,13 @@ import { useNotificationStore } from "@/lib/notification-store";
 import { formatReceiptDate, formatReceiptTime } from "@/lib/receipt-utils";
 
 const colors = {
-  background: "#FFFFFF",
-  ink: "#161616",
-  muted: "#777777",
+  background: "#1C1C1E",
+  ink: "#F5F5F7",
+  muted: "#B8B8BC",
   orange: "#EA7900",
-  green: "#00AA5B",
-  line: "#E8E8E8",
-  input: "#F8F8F8",
+  green: "#252527",
+  line: "#29292B",
+  input: "#2A2A2C",
 };
 
 const institutionOptions = [
@@ -38,7 +39,7 @@ export default function ReceiptDetailScreen() {
 
   if (!record || !receipt) {
     return (
-      <ScreenContainer edges={["top", "bottom", "left", "right"]} containerClassName="bg-white" safeAreaClassName="bg-white" containerStyle={styles.screen}>
+      <ScreenContainer edges={["top", "bottom", "left", "right"]} containerClassName="bg-[#1C1C1E]" safeAreaClassName="bg-[#1C1C1E]" containerStyle={styles.screen}>
         <View style={styles.notFound}>
           <IconSymbol name="receipt" size={42} color={colors.orange} />
           <Text style={styles.notFoundTitle}>{record ? "Comprovante sendo preparado" : "Comprovante não encontrado"}</Text>
@@ -69,33 +70,36 @@ export default function ReceiptDetailScreen() {
   };
 
   return (
-    <ScreenContainer edges={["top", "bottom", "left", "right"]} containerClassName="bg-white" safeAreaClassName="bg-white" containerStyle={styles.screen}>
+    <ScreenContainer edges={["top", "bottom", "left", "right"]} containerClassName="bg-[#1C1C1E]" safeAreaClassName="bg-[#1C1C1E]" containerStyle={styles.screen}>
       <View style={styles.screen}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} hitSlop={12} accessibilityRole="button" accessibilityLabel="Voltar">
             <IconSymbol name="arrow-back" size={26} color={colors.orange} />
           </Pressable>
-          <Text style={styles.headerTitle}>Comprovante</Text>
-          <Pressable onPress={() => router.replace("/")} hitSlop={12} accessibilityRole="button" accessibilityLabel="Ir para o início">
-            <IconSymbol name="house.fill" size={26} color={colors.orange} />
+          <Text style={styles.headerTitle}>{isReceivedPix ? "Pix recebido" : "Pix enviado"}</Text>
+          <Pressable hitSlop={12} accessibilityRole="button" accessibilityLabel="Ajuda">
+            <MaterialIcons name="help-outline" size={30} color={colors.orange} />
           </Pressable>
         </View>
 
         <ScrollView style={styles.receiptScroll} contentContainerStyle={styles.receiptBody} showsVerticalScrollIndicator={false}>
           <View style={styles.successCircle}>
-            <IconSymbol name="check" size={40} color={colors.background} />
+            <MaterialIcons name={isReceivedPix ? "arrow-downward" : "arrow-upward"} size={54} color={colors.ink} />
           </View>
-          <Text style={styles.successTitle}>{record.title || (isReceivedPix ? "Pix recebido" : "Pix enviado")}</Text>
           <Text style={styles.amount}>R$ {receipt.amount}</Text>
+          <Text style={styles.personName}>{receipt.recipientName}</Text>
+          <View style={styles.categoryPill}><Text style={styles.categoryText}>Sem categoria</Text><MaterialIcons name="edit" size={22} color="#55555A" /></View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Sobre a transação</Text>
-            <InfoRow label="Data do pagamento" value={formatReceiptDate(receiptTimestamp)} />
+            <InfoRow label="Data da transação" value={formatReceiptDate(receiptTimestamp)} />
             <InfoRow label="Horário" value={formatReceiptTime(receiptTimestamp)} />
             <View style={styles.idBlock}>
               <Text style={styles.infoLabel}>ID da transação</Text>
               <Text style={styles.idValue} selectable numberOfLines={1}>{receipt.transactionId}</Text>
+              <MaterialIcons name="content-copy" size={30} color={colors.orange} style={styles.copyIcon} />
             </View>
+            <Text style={styles.descriptionLink}>Adicionar descrição</Text>
           </View>
 
           <View style={styles.separator} accessibilityElementsHidden />
@@ -184,35 +188,39 @@ function InstitutionInfoRow({ value, onPress }: { value: string; onPress: () => 
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  header: { height: 56, paddingHorizontal: 24, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  header: { height: 72, paddingHorizontal: 30, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   headerTitle: { color: colors.ink, fontSize: 20, lineHeight: 24, fontWeight: "600" },
   receiptScroll: { flex: 1 },
-  receiptBody: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 0, paddingBottom: 20 },
-  successCircle: { alignSelf: "center", width: 64, height: 64, borderRadius: 32, alignItems: "center", justifyContent: "center", backgroundColor: colors.green },
-  successTitle: { color: colors.ink, fontSize: 25, lineHeight: 30, fontWeight: "600", textAlign: "center", marginTop: 16 },
-  amount: { color: colors.ink, fontSize: 25, lineHeight: 30, fontWeight: "600", textAlign: "center" },
-  section: { marginTop: 54 },
-  sectionTitle: { color: colors.ink, fontSize: 20, lineHeight: 24, fontWeight: "600", marginBottom: 16 },
-  infoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 12 },
+  receiptBody: { flexGrow: 1, paddingHorizontal: 30, paddingTop: 18, paddingBottom: 28 },
+  successCircle: { alignSelf: "center", width: 116, height: 116, borderRadius: 58, alignItems: "center", justifyContent: "center", backgroundColor: colors.green, marginBottom: 48 },
+  amount: { color: colors.ink, fontSize: 42, lineHeight: 48, fontWeight: "700", textAlign: "center" },
+  personName: { color: colors.muted, fontSize: 25, lineHeight: 31, fontWeight: "400", textAlign: "center", marginTop: 12 },
+  categoryPill: { alignSelf: "center", minWidth: 250, height: 58, marginTop: 52, paddingLeft: 26, paddingRight: 8, borderRadius: 30, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#F4F4F6" },
+  categoryText: { color: "#242426", fontSize: 20, fontWeight: "400" },
+  section: { marginTop: 78 },
+  sectionTitle: { color: colors.ink, fontSize: 27, lineHeight: 33, fontWeight: "700", marginBottom: 34 },
+  infoRow: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 16, marginBottom: 27 },
   rowPressed: { opacity: 0.62 },
-  infoLabel: { color: colors.muted, fontSize: 16, lineHeight: 21, flexShrink: 0 },
-  infoValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", textAlign: "right", flex: 1, minWidth: 0 },
+  infoLabel: { color: colors.muted, fontSize: 20, lineHeight: 25, flexShrink: 0 },
+  infoValue: { color: colors.ink, fontSize: 20, lineHeight: 25, fontWeight: "600", textAlign: "right", flex: 1, minWidth: 0 },
   recipientLabel: { width: 100 },
   recipientValue: { position: "absolute", left: 100, right: 0, color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", textAlign: "right" },
   institutionValue: { position: "absolute", left: 100, right: 0, color: colors.ink, fontSize: 13, lineHeight: 18, fontWeight: "600", textAlign: "right" },
-  idBlock: { marginTop: 1 },
-  idValue: { color: colors.ink, fontSize: 16, lineHeight: 21, fontWeight: "600", marginTop: 6 },
-  separator: { height: 1, marginTop: 32, borderTopWidth: 1, borderTopColor: "#E4E4E4", borderStyle: "dashed", opacity: 0.72 },
-  recipientSection: { marginTop: 42 },
-  actions: { width: "100%", alignItems: "stretch", marginTop: 24, paddingBottom: 12 },
-  shareButton: { width: "100%", height: 48, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#EA7900", opacity: 1 },
-  shareText: { color: colors.background, fontSize: 17, fontWeight: "600" },
-  recipientRow: { position: "relative", width: "100%", minHeight: 26, height: 26, flexDirection: "row", alignItems: "center", marginBottom: 8 },
-  institutionOptions: { marginTop: 10, marginLeft: 100, borderRadius: 12, borderWidth: 1, borderColor: "#E8E8E8", backgroundColor: "#FAFAFA", overflow: "hidden" },
-  institutionOption: { minHeight: 38, justifyContent: "center", paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: "#EEEEEE" },
-  institutionOptionText: { color: colors.ink, fontSize: 13, lineHeight: 17 },
+  idBlock: { marginTop: 7, position: "relative" },
+  idValue: { color: colors.ink, fontSize: 20, lineHeight: 25, fontWeight: "600", marginTop: 10, paddingRight: 42 },
+  copyIcon: { position: "absolute", right: 0, bottom: 0 },
+  descriptionLink: { color: colors.orange, fontSize: 20, lineHeight: 25, fontWeight: "600", marginTop: 32 },
+  separator: { height: 14, marginTop: 78, marginHorizontal: -30, backgroundColor: "#252527" },
+  recipientSection: { marginTop: 72 },
+  actions: { width: "100%", alignItems: "stretch", marginTop: 32, paddingBottom: 12 },
+  shareButton: { width: "100%", height: 54, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: colors.orange, opacity: 1 },
+  shareText: { color: "#FFFFFF", fontSize: 17, fontWeight: "600" },
+  recipientRow: { position: "relative", width: "100%", minHeight: 30, height: 30, flexDirection: "row", alignItems: "center", marginBottom: 22 },
+  institutionOptions: { marginTop: 10, marginLeft: 100, borderRadius: 12, borderWidth: 1, borderColor: "#48484A", backgroundColor: "#29292B", overflow: "hidden" },
+  institutionOption: { minHeight: 42, justifyContent: "center", paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: "#48484A" },
+  institutionOptionText: { color: colors.ink, fontSize: 15, lineHeight: 19 },
   institutionOptionSelected: { color: colors.orange, fontWeight: "700" },
-  newPixButtonFrame: { position: "relative", width: "100%", minHeight: 48, height: 48, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
+  newPixButtonFrame: { position: "relative", width: "100%", minHeight: 54, height: 54, marginTop: 13, borderRadius: 9, alignItems: "center", justifyContent: "center", backgroundColor: "transparent", borderWidth: 1.5, borderColor: "#8A4B09", overflow: "hidden" },
   newPixText: { color: colors.orange, fontSize: 17, lineHeight: 21, fontWeight: "600", textAlign: "center" },
   buttonPressed: { opacity: 0.08 },
   notFound: { flex: 1, alignItems: "center", justifyContent: "center", padding: 30, gap: 14 },
