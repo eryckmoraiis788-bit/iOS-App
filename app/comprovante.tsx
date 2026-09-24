@@ -221,18 +221,17 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 
 function EditableInfoRow({ label, value, onPress, isLast = false }: { label: string; value: string; onPress: () => void; isLast?: boolean }) {
   return (
-    <View style={[styles.recipientRow, !isLast && styles.recipientRowSpaced]}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Editar ${label}`}
+      style={({ pressed }) => [styles.recipientRow, !isLast && styles.recipientRowSpaced, pressed && styles.rowPressed]}
+    >
       <Text style={[styles.infoLabel, styles.recipientLabel]}>{label}</Text>
       <View style={styles.recipientValueColumn}>
         <Text style={styles.infoValue} numberOfLines={1}>{value}</Text>
       </View>
-      <Pressable
-        onPress={onPress}
-        accessibilityRole="button"
-        accessibilityLabel={`Editar ${label}`}
-        style={({ pressed }) => [StyleSheet.absoluteFillObject, pressed && styles.rowPressed]}
-      />
-    </View>
+    </Pressable>
   );
 }
 
