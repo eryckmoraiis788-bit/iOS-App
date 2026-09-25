@@ -9,9 +9,9 @@ import { formatReceiptDate, formatReceiptTime } from "@/lib/receipt-utils";
 
 const colors = {
   background: "#1C1C1E",
-  ink: "#F5F5F7",
-  muted: "#B8B8BC",
-  orange: "#EA7900",
+  ink: "#FFFFFF",
+  muted: "#D0D0D4",
+  orange: "#FF9500",
   green: "#252527",
   line: "#29292B",
   input: "#2A2A2C",
@@ -96,7 +96,7 @@ export default function ReceiptDetailScreen() {
             <InfoRow label="Horário" value={formatReceiptTime(receiptTimestamp)} />
             <View style={styles.idBlock}>
               <Text style={styles.infoLabel}>ID da transação</Text>
-              <Text style={styles.idValue} selectable numberOfLines={1}>{receipt.transactionId}</Text>
+              <Text style={styles.idValue} selectable numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72}>{receipt.transactionId}</Text>
               <MaterialIcons name="content-copy" size={30} color={colors.orange} style={styles.copyIcon} />
             </View>
             <Text style={styles.descriptionLink}>Adicionar descrição</Text>
@@ -158,7 +158,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.infoRow}>
       <Text style={styles.infoLabel}>{label}</Text>
-      <Text style={styles.infoValue} numberOfLines={1}>{value}</Text>
+      <Text style={styles.infoValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72}>{value}</Text>
     </View>
   );
 }
@@ -167,7 +167,7 @@ function RecipientInfoRow({ label, value }: { label: string; value: string }) {
   return (
     <View style={styles.recipientRow}>
       <Text style={[styles.infoLabel, styles.recipientLabel]}>{label}</Text>
-      <Text style={styles.recipientValue} numberOfLines={1}>{value}</Text>
+      <Text style={styles.recipientValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72}>{value}</Text>
     </View>
   );
 }
@@ -181,7 +181,7 @@ function InstitutionInfoRow({ value, onPress }: { value: string; onPress: () => 
       style={({ pressed }) => [styles.recipientRow, pressed && styles.rowPressed]}
     >
       <Text style={[styles.infoLabel, styles.recipientLabel]}>Instituição</Text>
-      <Text style={styles.institutionValue} numberOfLines={1}>{value}</Text>
+      <Text style={styles.institutionValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72}>{value}</Text>
     </Pressable>
   );
 }
