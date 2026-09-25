@@ -114,7 +114,7 @@ export default function ReceiptDetailScreen() {
             <Text style={styles.sectionTitle}>{isReceivedPix ? "Quem enviou" : "Quem recebeu"}</Text>
             <RecipientInfoRow label="Nome" value={receipt.recipientName} />
             <RecipientInfoRow label="CPF/CNPJ" value={receipt.document} />
-            <InstitutionInfoRow value={receipt.institution} onPress={toggleInstitutionPicker} onRandom={() => void randomInstitution()} />
+            <InstitutionInfoRow value={receipt.institution} onPress={() => void randomInstitution()} onLongPress={toggleInstitutionPicker} />
             {institutionPickerOpen && (
               <View style={styles.institutionOptions} accessibilityRole="menu">
                 {institutionOptions.map((institution) => (
@@ -178,19 +178,18 @@ function RecipientInfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function InstitutionInfoRow({ value, onPress, onRandom }: { value: string; onPress: () => void; onRandom: () => void }) {
+function InstitutionInfoRow({ value, onPress, onLongPress }: { value: string; onPress: () => void; onLongPress: () => void }) {
   return (
     <Pressable
       onPress={onPress}
+      onLongPress={onLongPress}
+      delayLongPress={450}
       accessibilityRole="button"
-      accessibilityLabel="Escolher instituição"
+      accessibilityLabel="Trocar instituição aleatoriamente; mantenha pressionado para escolher"
       style={({ pressed }) => [styles.recipientRow, pressed && styles.rowPressed]}
     >
       <Text style={[styles.infoLabel, styles.recipientLabel]}>Instituição</Text>
       <Text style={styles.institutionValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72}>{value}</Text>
-      <Pressable onPress={onRandom} hitSlop={10} accessibilityRole="button" accessibilityLabel="Gerar instituição aleatória" style={({ pressed }) => [styles.randomInstitutionButton, pressed && styles.rowPressed]}>
-        <MaterialIcons name="shuffle" size={18} color={colors.orange} />
-      </Pressable>
     </Pressable>
   );
 }
@@ -214,8 +213,7 @@ const styles = StyleSheet.create({
   infoValue: { color: colors.ink, fontSize: 14, lineHeight: 19, fontWeight: "600", textAlign: "right", flex: 1, minWidth: 0 },
   recipientLabel: { width: 100 },
   recipientValue: { position: "absolute", left: 100, right: 0, color: colors.ink, fontSize: 14, lineHeight: 19, fontWeight: "600", textAlign: "right" },
-  institutionValue: { position: "absolute", left: 100, right: 30, color: colors.ink, fontSize: 12, lineHeight: 17, fontWeight: "600", textAlign: "right" },
-  randomInstitutionButton: { position: "absolute", right: 0, width: 24, height: 30, alignItems: "center", justifyContent: "center" },
+  institutionValue: { position: "absolute", left: 100, right: 0, color: colors.ink, fontSize: 12, lineHeight: 17, fontWeight: "600", textAlign: "right" },
   idBlock: { marginTop: 7, position: "relative" },
   idValue: { color: colors.ink, fontSize: 14, lineHeight: 19, fontWeight: "600", marginTop: 10, paddingRight: 42 },
   copyIcon: { position: "absolute", right: 0, bottom: 0 },
