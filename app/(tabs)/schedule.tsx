@@ -98,7 +98,7 @@ export default function ScheduleScreen() {
     : receivedName.trim() && receivedValue.trim()
       ? { title: "Pix recebido", subtitle: "Notificação de valor creditado.", body: `${receivedName.trim()} te enviou um Pix de R$ ${formatPixValue(receivedValue)} creditado na sua conta final ***${formatAccountFinal(accountNumber, accountDigit)}.` }
       : sentName.trim() && sentValue.trim()
-        ? { title: "Pix enviado", subtitle: "Notificação de transferência realizada.", body: `Você fez um Pix no valor de R$ ${formatPixValue(sentValue)} para ${sentName.trim()}, conta final ***${formatAccountFinal(accountNumber, accountDigit)}.` }
+        ? { title: "Pix enviado", subtitle: "Notificação de transferência realizada.", body: `Você fez um Pix no valor de R$ ${formatPixValue(sentValue)} para ${sentName.trim()}.` }
         : { title: "Nome exibido", subtitle: "O assunto aparecerá aqui antes do envio.", body: "" };
 
   useEffect(() => {
@@ -121,7 +121,7 @@ export default function ScheduleScreen() {
     }
     return kind === "received"
       ? { title: "Pix recebido", subtitle: "", body: `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***${formatAccountFinal(accountNumber, accountDigit)}.` }
-      : { title: "Pix enviado", subtitle: "", body: `Você fez um Pix no valor de R$ ${value} para ${name}, conta final ***${formatAccountFinal(accountNumber, accountDigit)}.` };
+      : { title: "Pix enviado", subtitle: "", body: `Você fez um Pix no valor de R$ ${value} para ${name}.` };
   };
 
   const applyPixPreset = (kind: "received" | "sent") => {
@@ -431,7 +431,7 @@ function QuickPresetCard({ kind, name, value, accountNumber, accountDigit, onNam
         </View>
         <TextInput value={value} onChangeText={onValueChange} onBlur={() => onValueChange(formatPixValue(value))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
       </View>
-      <AccountFinalInput number={accountNumber} digit={accountDigit} onNumberChange={onAccountNumberChange} onDigitChange={onAccountDigitChange} />
+      {received && <AccountFinalInput number={accountNumber} digit={accountDigit} onNumberChange={onAccountNumberChange} onDigitChange={onAccountDigitChange} />}
     </View>
     <View style={styles.presetActionPanel}>
       <TouchableOpacity onPress={onSchedule} activeOpacity={0.8} style={styles.directPresetButton} accessibilityRole="button" accessibilityLabel={`Agendar Pix ${received ? "recebido" : "enviado"}`}>

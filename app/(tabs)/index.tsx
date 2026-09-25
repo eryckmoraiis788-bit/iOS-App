@@ -87,7 +87,7 @@ export default function ComposeScreen() {
   const previewPayload = receivedName.trim() || receivedValue.trim()
     ? { title: "Pix recebido", subtitle: "Notificação de valor creditado.", body: receivedName.trim() && receivedValue.trim() ? `${receivedName.trim()} te enviou um Pix de R$ ${formatPixValue(receivedValue)} creditado na sua conta final ***${formatAccountFinal(accountNumber, accountDigit)}.` : "Preencha o nome e o valor para visualizar o Pix recebido." }
     : sentName.trim() || sentValue.trim()
-      ? { title: "Pix enviado", subtitle: "Notificação de transferência realizada.", body: sentName.trim() && sentValue.trim() ? `Você fez um Pix no valor de R$ ${formatPixValue(sentValue)} para ${sentName.trim()}, conta final ***${formatAccountFinal(accountNumber, accountDigit)}.` : "Preencha o nome e o valor para visualizar o Pix enviado." }
+      ? { title: "Pix enviado", subtitle: "Notificação de transferência realizada.", body: sentName.trim() && sentValue.trim() ? `Você fez um Pix no valor de R$ ${formatPixValue(sentValue)} para ${sentName.trim()}.` : "Preencha o nome e o valor para visualizar o Pix enviado." }
       : { title: title.trim() || "Nome exibido", subtitle: subtitle.trim() || "O assunto aparecerá aqui antes do envio.", body: body.trim() };
 
   useEffect(() => {
@@ -208,7 +208,7 @@ export default function ComposeScreen() {
     const nextTitle = kind === "received" ? "Pix recebido" : "Pix enviado";
     const nextBody = kind === "received"
       ? `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***${formatAccountFinal(accountNumber, accountDigit)}.`
-      : `Você fez um Pix no valor de R$ ${value} para ${name}, conta final ***${formatAccountFinal(accountNumber, accountDigit)}.`;
+      : `Você fez um Pix no valor de R$ ${value} para ${name}.`;
 
     if (kind === "received") setReceivedValue(value);
     else setSentValue(value);
@@ -242,7 +242,7 @@ export default function ComposeScreen() {
     const nextTitle = kind === "received" ? "Pix recebido" : "Pix enviado";
     const nextBody = kind === "received"
       ? `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***${formatAccountFinal(accountNumber, accountDigit)}.`
-      : `Você fez um Pix no valor de R$ ${value} para ${name}, conta final ***${formatAccountFinal(accountNumber, accountDigit)}.`;
+      : `Você fez um Pix no valor de R$ ${value} para ${name}.`;
 
     // Atualiza o formulário para que a pré-visualização reflita exatamente
     // a mesma notificação que será emitida neste toque.
@@ -440,7 +440,6 @@ export default function ComposeScreen() {
           </View>
           <TextInput value={sentValue} onChangeText={setSentValue} onBlur={() => setSentValue(formatPixValue(sentValue))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
         </View>
-        <AccountFinalInput number={accountNumber} digit={accountDigit} onNumberChange={setAccountNumber} onDigitChange={setAccountDigit} />
       </View>
       <View style={styles.presetActionPanel}>
         <TouchableOpacity onPress={() => void emitPixDirectly("sent")} disabled={isEmitting || isSavingModel} activeOpacity={0.8} style={[styles.directPresetButton, isEmitting && styles.emittingButton]} accessibilityRole="button" accessibilityLabel="Emitir Pix enviado agora" testID="emit-pix-sent-button">
