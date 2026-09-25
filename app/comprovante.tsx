@@ -68,6 +68,12 @@ export default function ReceiptDetailScreen() {
       setIsSaving(false);
     }
   };
+  const randomInstitution = async () => {
+    if (isSaving) return;
+    const available = institutionOptions.filter((institution) => institution !== receipt.institution);
+    const nextInstitution = available[Math.floor(Math.random() * available.length)] ?? institutionOptions[0];
+    await selectInstitution(nextInstitution);
+  };
 
   return (
     <ScreenContainer edges={["top", "bottom", "left", "right"]} containerClassName="bg-[#1C1C1E]" safeAreaClassName="bg-[#1C1C1E]" containerStyle={styles.screen}>
@@ -108,7 +114,7 @@ export default function ReceiptDetailScreen() {
             <Text style={styles.sectionTitle}>{isReceivedPix ? "Quem enviou" : "Quem recebeu"}</Text>
             <RecipientInfoRow label="Nome" value={receipt.recipientName} />
             <RecipientInfoRow label="CPF/CNPJ" value={receipt.document} />
-            <InstitutionInfoRow value={receipt.institution} onPress={toggleInstitutionPicker} />
+            <InstitutionInfoRow value={receipt.institution} onPress={toggleInstitutionPicker} onRandom={() => void randomInstitution()} />
             {institutionPickerOpen && (
               <View style={styles.institutionOptions} accessibilityRole="menu">
                 {institutionOptions.map((institution) => (
@@ -172,7 +178,7 @@ function RecipientInfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function InstitutionInfoRow({ value, onPress }: { value: string; onPress: () => void }) {
+function InstitutionInfoRow({ value, onPress, onRandom }: { value: string; onPress: () => void; onRandom: () => void }) {
   return (
     <Pressable
       onPress={onPress}
@@ -182,6 +188,9 @@ function InstitutionInfoRow({ value, onPress }: { value: string; onPress: () => 
     >
       <Text style={[styles.infoLabel, styles.recipientLabel]}>Instituição</Text>
       <Text style={styles.institutionValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72}>{value}</Text>
+      <Pressable onPress={onRandom} hitSlop={10} accessibilityRole="button" accessibilityLabel="Gerar instituição aleatória" style={({ pressed }) => [styles.randomInstitutionButton, pressed && styles.rowPressed]}>
+        <MaterialIcons name="shuffle" size={18} color={colors.orange} />
+      </Pressable>
     </Pressable>
   );
 }
@@ -205,7 +214,8 @@ const styles = StyleSheet.create({
   infoValue: { color: colors.ink, fontSize: 14, lineHeight: 19, fontWeight: "600", textAlign: "right", flex: 1, minWidth: 0 },
   recipientLabel: { width: 100 },
   recipientValue: { position: "absolute", left: 100, right: 0, color: colors.ink, fontSize: 14, lineHeight: 19, fontWeight: "600", textAlign: "right" },
-  institutionValue: { position: "absolute", left: 100, right: 0, color: colors.ink, fontSize: 12, lineHeight: 17, fontWeight: "600", textAlign: "right" },
+  institutionValue: { position: "absolute", left: 100, right: 30, color: colors.ink, fontSize: 12, lineHeight: 17, fontWeight: "600", textAlign: "right" },
+  randomInstitutionButton: { position: "absolute", right: 0, width: 24, height: 30, alignItems: "center", justifyContent: "center" },
   idBlock: { marginTop: 7, position: "relative" },
   idValue: { color: colors.ink, fontSize: 14, lineHeight: 19, fontWeight: "600", marginTop: 10, paddingRight: 42 },
   copyIcon: { position: "absolute", right: 0, bottom: 0 },
