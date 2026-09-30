@@ -41,7 +41,7 @@ export default function LoginScreen() {
             <Pressable onPress={() => void submit()} disabled={submitting} style={({ pressed }) => [styles.button, pressed && styles.pressed, submitting && styles.disabled]}>
               {submitting ? <ActivityIndicator color="#FFF" /> : <Text style={styles.buttonText}>Entrar</Text>}
             </Pressable>
-            <Text style={styles.footnote}>Toque fora do campo ou use “Concluir” no teclado para escondê-lo. O acesso é vinculado a um único dispositivo e bloqueado após o vencimento da licença.</Text>
+            <Text style={styles.footnote}>Toque fora do campo ou use “Concluir” no teclado para escondê-lo. Usuários licenciados ficam vinculados a um único dispositivo; a conta do proprietário pode entrar em outros celulares.</Text>
           </View>
         </ScrollView>
       </TouchableWithoutFeedback>

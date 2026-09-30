@@ -90,8 +90,10 @@ export async function authenticateLocal(usernameInput: string, password: string,
   if (!user || !user.passwordHash || user.loginMethod !== "local" || !(await verifyPassword(password, user.passwordHash))) throw new Error("Usuário ou senha inválidos.");
   if (user.role !== "admin" && (!licenseKey || !user.licenseKeyHash || hashLicenseKey(licenseKey) !== user.licenseKeyHash)) throw new Error("Chave de licença inválida.");
   if (!isLicenseValid(user)) throw new Error("A licença está vencida ou foi revogada.");
-  if (user.deviceId && user.deviceId !== deviceId) throw new Error("Esta licença já está vinculada a outro dispositivo.");
-  const updated = await updateLocalUser(user.id, { deviceId, lastSignedIn: new Date() });
+  // A conta proprietária administra o aplicativo e pode entrar em qualquer
+  // celular. As contas licenciadas continuam vinculadas ao primeiro aparelho.
+  if (user.role !== "admin" && user.deviceId && user.deviceId !== deviceId) throw new Error("Esta licença já está vinculada a outro dispositivo.");
+  const updated = await updateLocalUser(user.id, { ...(user.role === "admin" ? {} : { deviceId }), lastSignedIn: new Date() });
   if (!updated) throw new Error("Não foi possível atualizar o acesso.");
   return updated;
 }
