@@ -47,7 +47,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p build/DerivedData build/Payload build/diagnostics artifacts
+          mkdir -p build/DerivedData build/Payload artifacts
           workspace="$(find ios -maxdepth 1 -name '*.xcworkspace' -print -quit)"
           if [[ -z "$workspace" ]]; then
             echo "Nenhum workspace Xcode foi encontrado em ios/."
@@ -64,7 +64,7 @@ jobs:
             -derivedDataPath build/DerivedData \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            build 2>&1 | tee build/diagnostics/xcodebuild.log
+            build
           app_path="$(find build/DerivedData/Build/Products -maxdepth 2 -type d -name '*.app' -print -quit)"
           if [[ -z "$app_path" ]]; then
             echo "O build terminou sem produzir um arquivo .app."
@@ -81,16 +81,4 @@ jobs:
           name: notificacao-ios-sidestore-ipa
           path: artifacts/notificacao-ios-sidestore.ipa
           if-no-files-found: error
-          retention-days: 7
-
-      - name: Upload build diagnostics
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-build-diagnostics-${{ github.run_id }}
-          path: |
-            build/diagnostics
-            expo-config.json
-            /tmp/prebuild-buildfix.log
-          if-no-files-found: warn
           retention-days: 7
