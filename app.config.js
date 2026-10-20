@@ -58,6 +58,7 @@ module.exports = {
   },
   plugins: [
     "expo-router",
+    "./plugins/with-ios-dark-icon",
     "expo-image-picker",
     "expo-asset",
     ["expo-notifications", { icon: "./assets/images/icon.png", color: "#F07800" }],
