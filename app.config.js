@@ -23,6 +23,11 @@ module.exports = {
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
   ios: {
+    // iOS selects the Home Screen icon automatically from the system appearance.
+    icon: {
+      light: "./assets/images/icon-light.png",
+      dark: "./assets/images/icon-dark.png",
+    },
     supportsTablet: true,
     bundleIdentifier: bundleId,
     buildNumber: "202",
