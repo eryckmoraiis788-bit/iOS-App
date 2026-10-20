@@ -29,14 +29,15 @@ module.exports = function withIOSDarkIcon(config) {
     const contents = JSON.parse(fs.readFileSync(contentsPath, "utf8"));
     const images = Array.isArray(contents.images) ? contents.images : [];
     const darkImage = {
-      idiom: "ios-marketing",
+      idiom: "universal",
       filename,
       scale: "1x",
       size: "1024x1024",
+      platform: "ios",
       appearances: [{ appearance: "luminosity", value: "dark" }],
     };
     contents.images = images.filter((image) =>
-      !(image.idiom === darkImage.idiom && image.appearances?.some((appearance) => appearance.appearance === "luminosity" && appearance.value === "dark")),
+      !(image.appearances?.some((appearance) => appearance.appearance === "luminosity" && appearance.value === "dark")),
     );
     contents.images.push(darkImage);
     fs.writeFileSync(contentsPath, `${JSON.stringify(contents, null, 2)}\n`);
