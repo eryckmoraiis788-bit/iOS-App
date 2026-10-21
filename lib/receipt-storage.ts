@@ -8,6 +8,7 @@ export type NotificationReceipt = {
   document: string;
   institution: string;
   transactionId: string;
+  pixKey: string;
   createdAt: string;
   eventAt: string;
 };
@@ -36,6 +37,7 @@ export function normalizeNotificationReceipts(raw: unknown): NotificationReceipt
       document: normalizeReceiptDocument(nonEmpty(candidate.document, "***.000.000-**")),
       institution: nonEmpty(candidate.institution, "Cloudwalk Ip LTDA"),
       transactionId: nonEmpty(candidate.transactionId, `E004${Date.now()}${index}`),
+      pixKey: nonEmpty(candidate.pixKey, "5f703674-9382-425e-9bd5-2555e4b2944c"),
       createdAt: nonEmpty(candidate.createdAt, now),
       eventAt: nonEmpty(candidate.eventAt, nonEmpty(candidate.createdAt, now)),
     } satisfies NotificationReceipt];

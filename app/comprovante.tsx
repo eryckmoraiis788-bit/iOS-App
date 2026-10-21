@@ -134,7 +134,7 @@ export default function ReceiptDetailScreen() {
                 ))}
               </View>
             )}
-            <LongInfo label="Chave Pix" value="5f703674-9382-425e-9bd5-2555e4b2944c" />
+            <LongInfo label="Chave Pix" value={receipt.pixKey} />
           </View>
 
           {!isReceivedPix && (

@@ -59,6 +59,12 @@ export function normalizeReceiptDocument(value: string) {
   return trimmed || "***.000.000-**";
 }
 
+export function generateRandomPixKey() {
+  const hex = () => Math.floor(Math.random() * 0x10000).toString(16).padStart(4, "0");
+  const variant = (8 + Math.floor(Math.random() * 4)).toString(16);
+  return `${hex()}${hex()}-${hex()}-4${Math.floor(Math.random() * 0x1000).toString(16).padStart(3, "0")}-${variant}${Math.floor(Math.random() * 0x1000).toString(16).padStart(3, "0")}-${hex()}${hex()}${hex()}`;
+}
+
 export function normalizeReceiptAmount(value: string) {
   const raw = value.trim().replace(/R\$\s*/i, "").replace(/\s/g, "");
   if (!raw) return "0,00";

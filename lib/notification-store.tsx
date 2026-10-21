@@ -6,7 +6,7 @@ import { Alert, Linking, Platform } from "react-native";
 import { parseStoredNotificationRecords } from "./notification-storage";
 import { getStaleNotificationAttachmentUris, NOTIFICATION_ATTACHMENT_PREFIX } from "./notification-cache";
 import { parseStoredNotificationReceipts, type NotificationReceipt } from "./receipt-storage";
-import { createMaskedDocument, extractReceiptAmount, extractReceiptRecipientName, getReceiptTimestamp, getReceiptTransactionId } from "./receipt-utils";
+import { createMaskedDocument, extractReceiptAmount, extractReceiptRecipientName, generateRandomPixKey, getReceiptTimestamp, getReceiptTransactionId } from "./receipt-utils";
 
 export type NotificationTemplate = {
   id: string;
@@ -241,6 +241,7 @@ export function NotificationStoreProvider({ children, storageScope, migrateLegac
             document: createMaskedDocument(),
             institution: "Cloudwalk Ip LTDA",
             transactionId: getReceiptTransactionId({ ...record, scheduledAt: eventAt }),
+            pixKey: generateRandomPixKey(),
             createdAt: new Date().toISOString(),
             eventAt,
           } satisfies NotificationReceipt;
