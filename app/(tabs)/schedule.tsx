@@ -12,6 +12,7 @@ import { RANDOM_BRAZILIAN_NAMES } from "@/constants/random-names";
 import { AccountFinalInput } from "@/components/account-final-input";
 import { formatAccountFinal } from "@/lib/pix-account";
 import { normalizeReceiptDocument } from "@/lib/receipt-utils";
+import { formatReceiptPersonName } from "@/lib/receipt-utils";
 import { MaskedDocumentInput } from "@/components/masked-document-input";
 
 const teal = "#0E8278";
@@ -101,9 +102,9 @@ export default function ScheduleScreen() {
   const previewPayload = title.trim() || body.trim()
     ? { title: title.trim() || "Nome exibido", subtitle: subtitle.trim() || "O assunto aparecerá aqui antes do envio.", body: body.trim() }
     : receivedName.trim() && receivedValue.trim()
-      ? { title: "Pix recebido", subtitle: "Notificação de valor creditado.", body: `${receivedName.trim()} te enviou um Pix de R$ ${formatPixValue(receivedValue)} creditado na sua conta final ***${formatAccountFinal(accountNumber, accountDigit)}.` }
+      ? { title: "Pix recebido", subtitle: "Notificação de valor creditado.", body: `${formatReceiptPersonName(receivedName)} te enviou um Pix de R$ ${formatPixValue(receivedValue)} creditado na sua conta final ***${formatAccountFinal(accountNumber, accountDigit)}.` }
       : sentName.trim() && sentValue.trim()
-        ? { title: "Pix enviado", subtitle: "Notificação de transferência realizada.", body: `Você fez um Pix no valor de R$ ${formatPixValue(sentValue)} para ${sentName.trim()}.` }
+        ? { title: "Pix enviado", subtitle: "Notificação de transferência realizada.", body: `Você fez um Pix no valor de R$ ${formatPixValue(sentValue)} para ${formatReceiptPersonName(sentName)}.` }
         : { title: "Nome exibido", subtitle: "O assunto aparecerá aqui antes do envio.", body: "" };
 
   useEffect(() => {
@@ -118,7 +119,7 @@ export default function ScheduleScreen() {
   useEffect(() => { void refreshScheduled(); void refreshTemplates(); }, [refreshScheduled, refreshTemplates]);
 
   const buildPixPayload = (kind: "received" | "sent") => {
-    const name = (kind === "received" ? receivedName : sentName).trim();
+    const name = formatReceiptPersonName((kind === "received" ? receivedName : sentName).trim());
     const value = formatPixValue(kind === "received" ? receivedValue : sentValue);
     if (!name || !value) {
       Alert.alert("Preencha o modelo", "Informe o nome e o valor antes de usar este modelo Pix.");

@@ -59,6 +59,16 @@ export function normalizeReceiptDocument(value: string) {
   return trimmed || "***.000.000-**";
 }
 
+export function formatReceiptPersonName(value: string) {
+  const minorWords = new Set(["da", "de", "do", "das", "dos", "e"]);
+  return value
+    .trim()
+    .toLocaleLowerCase("pt-BR")
+    .split(/\s+/)
+    .map((word, index) => index > 0 && minorWords.has(word) ? word : word.charAt(0).toLocaleUpperCase("pt-BR") + word.slice(1))
+    .join(" ");
+}
+
 export function generateRandomPixKey() {
   const hex = () => Math.floor(Math.random() * 0x10000).toString(16).padStart(4, "0");
   const variant = (8 + Math.floor(Math.random() * 4)).toString(16);

@@ -5,7 +5,7 @@ import { ActivityIndicator, Animated, Easing, Image, Pressable, ScrollView, Styl
 import { useNotificationStore, type NotificationTemplate } from "@/lib/notification-store";
 import { AccountFinalInput } from "@/components/account-final-input";
 import { formatAccountFinal } from "@/lib/pix-account";
-import { normalizeReceiptDocument } from "@/lib/receipt-utils";
+import { formatReceiptPersonName, normalizeReceiptDocument } from "@/lib/receipt-utils";
 import { MaskedDocumentInput } from "@/components/masked-document-input";
 import { RANDOM_BRAZILIAN_NAMES } from "@/constants/random-names";
 
@@ -90,9 +90,9 @@ export default function ComposeScreen() {
   const { selectedImage, emit, templates, saveTemplate, removeTemplate } = useNotificationStore();
   const canEmit = title.trim().length > 0 && body.trim().length > 0;
   const previewPayload = receivedName.trim() || receivedValue.trim()
-    ? { title: "Pix recebido", subtitle: "Notificação de valor creditado.", body: receivedName.trim() && receivedValue.trim() ? `${receivedName.trim()} te enviou um Pix de R$ ${formatPixValue(receivedValue)} creditado na sua conta final ***${formatAccountFinal(accountNumber, accountDigit)}.` : "Preencha o nome e o valor para visualizar o Pix recebido." }
+    ? { title: "Pix recebido", subtitle: "Notificação de valor creditado.", body: receivedName.trim() && receivedValue.trim() ? `${formatReceiptPersonName(receivedName)} te enviou um Pix de R$ ${formatPixValue(receivedValue)} creditado na sua conta final ***${formatAccountFinal(accountNumber, accountDigit)}.` : "Preencha o nome e o valor para visualizar o Pix recebido." }
     : sentName.trim() || sentValue.trim()
-      ? { title: "Pix enviado", subtitle: "Notificação de transferência realizada.", body: sentName.trim() && sentValue.trim() ? `Você fez um Pix no valor de R$ ${formatPixValue(sentValue)} para ${sentName.trim()}.` : "Preencha o nome e o valor para visualizar o Pix enviado." }
+      ? { title: "Pix enviado", subtitle: "Notificação de transferência realizada.", body: sentName.trim() && sentValue.trim() ? `Você fez um Pix no valor de R$ ${formatPixValue(sentValue)} para ${formatReceiptPersonName(sentName)}.` : "Preencha o nome e o valor para visualizar o Pix enviado." }
       : { title: title.trim() || "Nome exibido", subtitle: subtitle.trim() || "O assunto aparecerá aqui antes do envio.", body: body.trim() };
 
   useEffect(() => {
@@ -199,7 +199,7 @@ export default function ComposeScreen() {
   };
 
   const applyPixPreset = (kind: "received" | "sent") => {
-    const name = (kind === "received" ? receivedName : sentName).trim();
+    const name = formatReceiptPersonName((kind === "received" ? receivedName : sentName).trim());
     const value = (kind === "received" ? receivedValue : sentValue).trim();
 
     if (!name || !value) {
@@ -235,7 +235,7 @@ export default function ComposeScreen() {
   const emitPixDirectly = async (kind: "received" | "sent") => {
     if (isEmitting || isSavingModel) return;
 
-    const name = (kind === "received" ? receivedName : sentName).trim();
+    const name = formatReceiptPersonName((kind === "received" ? receivedName : sentName).trim());
     const rawValue = (kind === "received" ? receivedValue : sentValue).trim();
     const value = formatPixValue(rawValue);
     if (!name || !rawValue) {

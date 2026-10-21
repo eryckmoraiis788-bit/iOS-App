@@ -4,7 +4,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useNotificationStore } from "@/lib/notification-store";
-import { formatReceiptTime } from "@/lib/receipt-utils";
+import { formatReceiptPersonName, formatReceiptTime } from "@/lib/receipt-utils";
 
 const colors = {
   background: "#FFFFFF",
@@ -32,16 +32,6 @@ const payer = {
   document: "***.484.813-**",
   institution: "BANCO INTER",
 };
-
-function formatReceiptPersonName(value: string) {
-  const minorWords = new Set(["da", "de", "do", "das", "dos", "e"]);
-  return value
-    .trim()
-    .toLocaleLowerCase("pt-BR")
-    .split(/\s+/)
-    .map((word, index) => index > 0 && minorWords.has(word) ? word : word.charAt(0).toLocaleUpperCase("pt-BR") + word.slice(1))
-    .join(" ");
-}
 
 export default function ReceiptDetailScreen() {
   const router = useRouter();
