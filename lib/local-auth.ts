@@ -6,6 +6,16 @@ const TOKEN_KEY = "local_auth_token";
 const DEVICE_KEY = "local_device_id";
 const USER_KEY = "local_auth_user";
 
+export class LocalAuthRequestError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "LocalAuthRequestError";
+    this.status = status;
+  }
+}
+
 export type LocalUser = {
   id: number;
   username: string | null;
@@ -37,7 +47,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const token = await storageGet(TOKEN_KEY);
   const response = await fetch(`${getApiBaseUrl()}${path}`, { ...init, headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...(init?.headers ?? {}) }, credentials: "include" });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.message || "Não foi possível concluir a operação.");
+  if (!response.ok) throw new LocalAuthRequestError(data.message || "Não foi possível concluir a operação.", response.status);
   return data as T;
 }
 
@@ -58,8 +68,19 @@ export async function login(username: string, password: string, licenseKey: stri
 export async function me() {
   const token = await storageGet(TOKEN_KEY);
   if (!token) return null;
-  try { const result = await request<{ user: LocalUser }>("/api/local-auth/me"); await storageSet(USER_KEY, JSON.stringify(result.user)); return result.user; }
-  catch { await clearAuth(); return null; }
+  try {
+    const result = await request<{ user: LocalUser }>("/api/local-auth/me");
+    await storageSet(USER_KEY, JSON.stringify(result.user));
+    return result.user;
+  } catch (error) {
+    // Only a confirmed 401 means the credentials are no longer valid.
+    // Network errors and server outages must not erase a valid local session.
+    if (error instanceof LocalAuthRequestError && error.status === 401) {
+      await clearAuth();
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function cachedUser() {

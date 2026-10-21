@@ -6,7 +6,25 @@ const LocalAuthContext = createContext<{ user: auth.LocalUser | null; loading: b
 export function LocalAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<auth.LocalUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const refresh = useCallback(async () => { setLoading(true); setUser(await auth.me()); setLoading(false); }, []);
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    const cached = await auth.cachedUser();
+    if (cached) {
+      // Render the app immediately with the last valid local session.
+      setUser(cached);
+      setLoading(false);
+    }
+
+    try {
+      const current = await auth.me();
+      setUser(current);
+    } catch {
+      // Keep the cached session when the API is offline, cold, or slow.
+      if (!cached) setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
   useEffect(() => { void refresh(); }, [refresh]);
   const signIn = useCallback(async (username: string, password: string, licenseKey: string) => { setUser(await auth.login(username, password, licenseKey)); }, []);
   const signOut = useCallback(async () => { await auth.clearAuth(); setUser(null); }, []);
