@@ -5,6 +5,7 @@ import { ActivityIndicator, Animated, Easing, Image, Pressable, ScrollView, Styl
 import { useNotificationStore, type NotificationTemplate } from "@/lib/notification-store";
 import { AccountFinalInput } from "@/components/account-final-input";
 import { formatAccountFinal } from "@/lib/pix-account";
+import { normalizeReceiptDocument } from "@/lib/receipt-utils";
 import { RANDOM_BRAZILIAN_NAMES } from "@/constants/random-names";
 
 const colors = {
@@ -66,11 +67,14 @@ export default function ComposeScreen() {
   const [body, setBody] = useState("");
   const [modelName, setModelName] = useState("");
   const [receivedName, setReceivedName] = useState("");
+  const [receivedDocument, setReceivedDocument] = useState("");
   const [receivedValue, setReceivedValue] = useState("");
   const [accountNumber, setAccountNumber] = useState("15448");
   const [accountDigit, setAccountDigit] = useState("3");
   const [sentName, setSentName] = useState("");
   const [sentValue, setSentValue] = useState("");
+  const [payerName, setPayerName] = useState("ERYCK DARLISSON DOS SANTOS MORAIS");
+  const [payerDocument, setPayerDocument] = useState("***.484.813-**");
   const [isEmitting, setIsEmitting] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [isSavingModel, setIsSavingModel] = useState(false);
@@ -256,7 +260,7 @@ export default function ComposeScreen() {
     setIsEmitting(true);
 
     try {
-      const emitted = await emit({ title: nextTitle, subtitle: "", body: nextBody, imageUri: selectedImage });
+      const emitted = await emit({ title: nextTitle, subtitle: "", body: nextBody, imageUri: selectedImage, senderName: kind === "received" ? name : payerName.trim(), senderDocument: kind === "received" ? (receivedDocument.trim() ? normalizeReceiptDocument(receivedDocument) : undefined) : (payerDocument.trim() ? normalizeReceiptDocument(payerDocument) : undefined) });
       if (emitted) {
         setSaveMessage(kind === "received" ? "Pix recebido emitido." : "Pix enviado emitido.");
         showSuccessFeedback("emitted");
@@ -293,7 +297,16 @@ export default function ComposeScreen() {
         const saved = await handleSaveModel();
         if (!saved) return;
       }
-      const emitted = await emit({ title: trimmedTitle, subtitle: subtitle.trim(), body: trimmedBody, imageUri: selectedImage });
+      const isReceivedPix = trimmedTitle.toLowerCase() === "pix recebido";
+      const isSentPix = trimmedTitle.toLowerCase() === "pix enviado";
+      const emitted = await emit({
+        title: trimmedTitle,
+        subtitle: subtitle.trim(),
+        body: trimmedBody,
+        imageUri: selectedImage,
+        senderName: isReceivedPix ? receivedName.trim() : isSentPix ? payerName.trim() : undefined,
+        senderDocument: isReceivedPix ? (receivedDocument.trim() ? normalizeReceiptDocument(receivedDocument) : undefined) : isSentPix && payerDocument.trim() ? normalizeReceiptDocument(payerDocument) : undefined,
+      });
       if (emitted) {
         showSuccessFeedback("emitted");
       } else {
@@ -412,6 +425,7 @@ export default function ComposeScreen() {
           </View>
           <TextInput value={receivedValue} onChangeText={setReceivedValue} onBlur={() => setReceivedValue(formatPixValue(receivedValue))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
         </View>
+        <TextInput value={receivedDocument} onChangeText={setReceivedDocument} onBlur={() => receivedDocument.trim() && setReceivedDocument(normalizeReceiptDocument(receivedDocument))} placeholder="CPF/CNPJ de quem enviou" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={18} keyboardType="number-pad" />
         <AccountFinalInput number={accountNumber} digit={accountDigit} onNumberChange={setAccountNumber} onDigitChange={setAccountDigit} />
       </View>
       <View style={styles.presetActionPanel}>
@@ -440,6 +454,8 @@ export default function ComposeScreen() {
           </View>
           <TextInput value={sentValue} onChangeText={setSentValue} onBlur={() => setSentValue(formatPixValue(sentValue))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
         </View>
+        <TextInput value={payerName} onChangeText={setPayerName} placeholder="Nome de quem enviou / pagou" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={70} />
+        <TextInput value={payerDocument} onChangeText={setPayerDocument} onBlur={() => payerDocument.trim() && setPayerDocument(normalizeReceiptDocument(payerDocument))} placeholder="CPF/CNPJ de quem enviou / pagou" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={18} keyboardType="number-pad" />
       </View>
       <View style={styles.presetActionPanel}>
         <TouchableOpacity onPress={() => void emitPixDirectly("sent")} disabled={isEmitting || isSavingModel} activeOpacity={0.8} style={[styles.directPresetButton, isEmitting && styles.emittingButton]} accessibilityRole="button" accessibilityLabel="Emitir Pix enviado agora" testID="emit-pix-sent-button">
@@ -624,6 +640,7 @@ const styles = StyleSheet.create({
   presetInput: { flex: 1, minWidth: 0, height: 46, paddingHorizontal: 12, color: colors.ink, fontSize: 13 },
   randomNameButton: { width: 42, height: 46, alignItems: "center", justifyContent: "center", borderLeftWidth: 1, borderLeftColor: colors.border, backgroundColor: "#F0FAF8" },
   presetValueInput: { width: 94, height: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 10, color: colors.ink, fontSize: 13, backgroundColor: "#FCFCFC" },
+  documentInput: { width: "100%", height: 48, borderWidth: 1, borderColor: colors.border, borderRadius: 14, paddingHorizontal: 12, color: colors.ink, fontSize: 13, backgroundColor: "#FCFCFC", marginTop: 8 },
   applyPresetButton: { width: "100%", height: 48, borderRadius: 14, backgroundColor: colors.teal, alignItems: "center", justifyContent: "center", paddingHorizontal: 12 },
   directPresetButton: { width: "100%", height: 54, marginBottom: 10, borderRadius: 15, backgroundColor: "#E87808", borderWidth: 1, borderColor: "#D76600", alignItems: "center", justifyContent: "center", paddingHorizontal: 12 },
   directPresetText: { color: colors.white, fontSize: 15, fontWeight: "900" },

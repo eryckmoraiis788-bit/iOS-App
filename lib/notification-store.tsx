@@ -25,6 +25,8 @@ export type NotificationRecord = {
   title: string;
   subtitle: string;
   body: string;
+  senderName?: string;
+  senderDocument?: string;
   imageUri?: string;
   kind: "immediate" | "scheduled";
   status: "sent" | "pending" | "cancelled" | "delivered";

@@ -59,6 +59,8 @@ export default function ReceiptDetailScreen() {
   const isReceivedPix = record.title.trim().toLowerCase() === "pix recebido";
   const receiptTimestamp = receipt.eventAt;
   const identifier = `is${receipt.transactionId.replace(/^E004/i, "").toLowerCase()}`;
+  const payerName = record.senderName?.trim() || payer.name;
+  const payerDocument = record.senderDocument?.trim() || payer.document;
 
   const toggleInstitutionPicker = () => setInstitutionPickerOpen((current) => !current);
   const selectInstitution = async (institution: string) => {
@@ -140,8 +142,8 @@ export default function ReceiptDetailScreen() {
               <View style={styles.separator} accessibilityElementsHidden />
               <View style={[styles.section, styles.payerSection]}>
                 <Text style={styles.sectionTitle}>Quem pagou</Text>
-                <InfoRow label="Nome" value={payer.name} />
-                <InfoRow label="CPF/CNPJ" value={payer.document} />
+                <InfoRow label="Nome" value={payerName} />
+                <InfoRow label="CPF/CNPJ" value={payerDocument} />
                 <InfoRow label="Instituição" value={payer.institution} />
               </View>
             </>

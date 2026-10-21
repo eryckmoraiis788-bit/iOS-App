@@ -32,6 +32,8 @@ export function normalizeNotificationRecords(raw: unknown): NotificationRecord[]
       kind,
       status,
       createdAt: isNonEmptyString(candidate.createdAt) ? candidate.createdAt : now,
+      ...(isNonEmptyString(candidate.senderName) ? { senderName: candidate.senderName } : {}),
+      ...(isNonEmptyString(candidate.senderDocument) ? { senderDocument: candidate.senderDocument } : {}),
       ...(isNonEmptyString(candidate.imageUri) ? { imageUri: candidate.imageUri } : {}),
       ...(isNonEmptyString(candidate.scheduledAt) ? { scheduledAt: candidate.scheduledAt } : {}),
       ...(isNonEmptyString(candidate.notificationId) ? { notificationId: candidate.notificationId } : {}),

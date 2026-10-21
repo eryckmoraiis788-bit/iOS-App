@@ -11,6 +11,7 @@ import { formatNotificationTime } from "@/lib/format-notification-time";
 import { RANDOM_BRAZILIAN_NAMES } from "@/constants/random-names";
 import { AccountFinalInput } from "@/components/account-final-input";
 import { formatAccountFinal } from "@/lib/pix-account";
+import { normalizeReceiptDocument } from "@/lib/receipt-utils";
 
 const teal = "#0E8278";
 const appIcon = require("@/assets/images/icon.png");
@@ -76,11 +77,14 @@ export default function ScheduleScreen() {
   const [recurrence, setRecurrence] = useState<NotificationRecurrence>("once");
   const [repeatWeekday, setRepeatWeekday] = useState(() => new Date(Date.now() + 5 * 60_000).getDay() + 1);
   const [receivedName, setReceivedName] = useState("");
+  const [receivedDocument, setReceivedDocument] = useState("");
   const [receivedValue, setReceivedValue] = useState("");
   const [accountNumber, setAccountNumber] = useState("15448");
   const [accountDigit, setAccountDigit] = useState("3");
   const [sentName, setSentName] = useState("");
   const [sentValue, setSentValue] = useState("");
+  const [payerName, setPayerName] = useState("ERYCK DARLISSON DOS SANTOS MORAIS");
+  const [payerDocument, setPayerDocument] = useState("***.484.813-**");
   const [draftImageUri, setDraftImageUri] = useState<string>();
   const [editingTemplate, setEditingTemplate] = useState<NotificationTemplate | null>(null);
   const [templateName, setTemplateName] = useState("");
@@ -150,7 +154,7 @@ export default function ScheduleScreen() {
       return;
     }
     try {
-      await schedule({ ...payload, imageUri: notificationImageUri }, timing, effectiveRecurrence, repeatWeekday);
+      await schedule({ ...payload, imageUri: notificationImageUri, senderName: kind === "received" ? receivedName.trim() : payerName.trim(), senderDocument: kind === "received" ? (receivedDocument.trim() ? normalizeReceiptDocument(receivedDocument) : undefined) : (payerDocument.trim() ? normalizeReceiptDocument(payerDocument) : undefined) }, timing, effectiveRecurrence, repeatWeekday);
       Alert.alert("Pix agendado", timingMode === "custom" ? `${recurrenceLabel}: ${formatDateSummary(scheduledDate)} às ${formatTimeSummary(scheduledDate)}.` : `O Pix será emitido em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
       if (kind === "received") setReceivedValue(formatPixValue(receivedValue));
       else setSentValue(formatPixValue(sentValue));
@@ -248,7 +252,10 @@ export default function ScheduleScreen() {
       return;
     }
     try {
-      await schedule({ title: title.trim() || "Notificação", subtitle: subtitle.trim(), body: body.trim(), imageUri: notificationImageUri }, timing, effectiveRecurrence, repeatWeekday);
+      const normalizedTitle = title.trim() || "Notificação";
+      const isReceivedPix = normalizedTitle.toLowerCase() === "pix recebido";
+      const isSentPix = normalizedTitle.toLowerCase() === "pix enviado";
+      await schedule({ title: normalizedTitle, subtitle: subtitle.trim(), body: body.trim(), imageUri: notificationImageUri, senderName: isReceivedPix ? receivedName.trim() : isSentPix ? payerName.trim() : undefined, senderDocument: isReceivedPix ? (receivedDocument.trim() ? normalizeReceiptDocument(receivedDocument) : undefined) : isSentPix && payerDocument.trim() ? normalizeReceiptDocument(payerDocument) : undefined }, timing, effectiveRecurrence, repeatWeekday);
       Alert.alert("Notificação agendada", timingMode === "custom" ? `${recurrenceLabel}: ${formatDateSummary(scheduledDate)} às ${formatTimeSummary(scheduledDate)}.` : `Ela será emitida em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
       setTitle(""); setSubtitle(""); setBody("");
       await refreshScheduled();
@@ -282,8 +289,14 @@ export default function ScheduleScreen() {
         <QuickPresetCard
           kind="received"
           name={receivedName}
+          receivedDocument={receivedDocument}
+          payerName=""
+          payerDocument=""
           value={receivedValue}
           onNameChange={setReceivedName}
+          onReceivedDocumentChange={setReceivedDocument}
+          onPayerNameChange={() => undefined}
+          onPayerDocumentChange={() => undefined}
           onValueChange={setReceivedValue}
           accountNumber={accountNumber}
           accountDigit={accountDigit}
@@ -296,8 +309,14 @@ export default function ScheduleScreen() {
         <QuickPresetCard
           kind="sent"
           name={sentName}
+          receivedDocument=""
+          payerName={payerName}
+          payerDocument={payerDocument}
           value={sentValue}
           onNameChange={setSentName}
+          onReceivedDocumentChange={() => undefined}
+          onPayerNameChange={setPayerName}
+          onPayerDocumentChange={setPayerDocument}
           onValueChange={setSentValue}
           accountNumber={accountNumber}
           accountDigit={accountDigit}
@@ -414,7 +433,7 @@ export default function ScheduleScreen() {
   );
 }
 
-function QuickPresetCard({ kind, name, value, accountNumber, accountDigit, onNameChange, onValueChange, onAccountNumberChange, onAccountDigitChange, onRandomName, onSchedule, onApply }: { kind: "received" | "sent"; name: string; value: string; accountNumber: string; accountDigit: string; onNameChange: (value: string) => void; onValueChange: (value: string) => void; onAccountNumberChange: (value: string) => void; onAccountDigitChange: (value: string) => void; onRandomName: () => void; onSchedule: () => void; onApply: () => void }) {
+function QuickPresetCard({ kind, name, receivedDocument, payerName, payerDocument, value, accountNumber, accountDigit, onNameChange, onReceivedDocumentChange, onPayerNameChange, onPayerDocumentChange, onValueChange, onAccountNumberChange, onAccountDigitChange, onRandomName, onSchedule, onApply }: { kind: "received" | "sent"; name: string; receivedDocument: string; payerName: string; payerDocument: string; value: string; accountNumber: string; accountDigit: string; onNameChange: (value: string) => void; onReceivedDocumentChange: (value: string) => void; onPayerNameChange: (value: string) => void; onPayerDocumentChange: (value: string) => void; onValueChange: (value: string) => void; onAccountNumberChange: (value: string) => void; onAccountDigitChange: (value: string) => void; onRandomName: () => void; onSchedule: () => void; onApply: () => void }) {
   const received = kind === "received";
   return <>
     <View style={styles.presetsCard}>
@@ -431,6 +450,9 @@ function QuickPresetCard({ kind, name, value, accountNumber, accountDigit, onNam
         </View>
         <TextInput value={value} onChangeText={onValueChange} onBlur={() => onValueChange(formatPixValue(value))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
       </View>
+      {received && <TextInput value={receivedDocument} onChangeText={onReceivedDocumentChange} onBlur={() => receivedDocument.trim() && onReceivedDocumentChange(normalizeReceiptDocument(receivedDocument))} placeholder="CPF/CNPJ de quem enviou" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={18} keyboardType="number-pad" />}
+      {!received && <TextInput value={payerName} onChangeText={onPayerNameChange} placeholder="Nome de quem enviou / pagou" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={70} />}
+      {!received && <TextInput value={payerDocument} onChangeText={onPayerDocumentChange} onBlur={() => payerDocument.trim() && onPayerDocumentChange(normalizeReceiptDocument(payerDocument))} placeholder="CPF/CNPJ de quem enviou / pagou" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={18} keyboardType="number-pad" />}
       {received && <AccountFinalInput number={accountNumber} digit={accountDigit} onNumberChange={onAccountNumberChange} onDigitChange={onAccountDigitChange} />}
     </View>
     <View style={styles.presetActionPanel}>
@@ -485,6 +507,7 @@ const styles = StyleSheet.create({
   presetInput: { flex: 1, minWidth: 0, height: 56, paddingHorizontal: 16, color: ink, fontSize: 17 },
   randomNameButton: { width: 50, height: 56, alignItems: "center", justifyContent: "center", borderLeftWidth: 1, borderLeftColor: border, backgroundColor: "#F0FAF8" },
   presetValueInput: { width: 118, minWidth: 0, flexShrink: 1, minHeight: 58, borderWidth: 1, borderColor: border, borderRadius: 18, paddingHorizontal: 12, color: ink, fontSize: 17 },
+  documentInput: { width: "100%", height: 48, borderWidth: 1, borderColor: border, borderRadius: 14, paddingHorizontal: 12, color: ink, fontSize: 13, backgroundColor: "#FCFCFC", marginTop: 8 },
   presetActionPanel: { backgroundColor: "#F4FBFC", borderWidth: 1, borderColor: border, borderRadius: 22, padding: 13, gap: 12 },
   directPresetButton: { minHeight: 58, borderRadius: 18, backgroundColor: orange, alignItems: "center", justifyContent: "center", paddingHorizontal: 12 },
   directPresetText: { color: "#FFF", fontSize: 17, fontWeight: "900", textAlign: "center" },
