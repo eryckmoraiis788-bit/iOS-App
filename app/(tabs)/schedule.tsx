@@ -12,6 +12,7 @@ import { RANDOM_BRAZILIAN_NAMES } from "@/constants/random-names";
 import { AccountFinalInput } from "@/components/account-final-input";
 import { formatAccountFinal } from "@/lib/pix-account";
 import { normalizeReceiptDocument } from "@/lib/receipt-utils";
+import { MaskedDocumentInput } from "@/components/masked-document-input";
 
 const teal = "#0E8278";
 const appIcon = require("@/assets/images/icon.png");
@@ -139,7 +140,7 @@ export default function ScheduleScreen() {
   };
 
   const generateRandomName = (kind: "received" | "sent") => {
-    const name = pickRandomBrazilianName();
+    const name = pickRandomBrazilianName().toUpperCase();
     if (kind === "received") setReceivedName(name);
     else setSentName(name);
   };
@@ -443,16 +444,16 @@ function QuickPresetCard({ kind, name, receivedDocument, payerName, payerDocumen
       </View>
       <View style={styles.presetInputsRow}>
         <View style={styles.nameInputGroup}>
-          <TextInput value={name} onChangeText={onNameChange} placeholder={received ? "Digite o nome de quem enviou" : "Digite o nome de quem recebeu"} placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
+          <TextInput value={name} onChangeText={(value) => onNameChange(value.toUpperCase())} placeholder={received ? "DIGITE O NOME DE QUEM ENVIOU" : "DIGITE O NOME DE QUEM RECEBEU"} placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} autoCapitalize="characters" />
           <Pressable onPress={onRandomName} style={({ pressed }) => [styles.randomNameButton, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel={`Gerar nome aleatório para Pix ${received ? "recebido" : "enviado"}`} testID={`random-name-schedule-${kind}-button`}>
             <MaterialIcons name="shuffle" size={23} color={received ? teal : "#163D59"} />
           </Pressable>
         </View>
         <TextInput value={value} onChangeText={onValueChange} onBlur={() => onValueChange(formatPixValue(value))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
       </View>
-      {received && <TextInput value={receivedDocument} onChangeText={onReceivedDocumentChange} onBlur={() => receivedDocument.trim() && onReceivedDocumentChange(normalizeReceiptDocument(receivedDocument))} placeholder="CPF/CNPJ de quem enviou" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={18} keyboardType="number-pad" />}
-      {!received && <TextInput value={payerName} onChangeText={onPayerNameChange} placeholder="Nome de quem enviou / pagou" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={70} />}
-      {!received && <TextInput value={payerDocument} onChangeText={onPayerDocumentChange} onBlur={() => payerDocument.trim() && onPayerDocumentChange(normalizeReceiptDocument(payerDocument))} placeholder="CPF/CNPJ de quem enviou / pagou" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={18} keyboardType="number-pad" />}
+      {received && <MaskedDocumentInput value={receivedDocument} onChange={onReceivedDocumentChange} placeholderFirst="000" placeholderSecond="000" accessibilityLabel="CPF ou CNPJ de quem enviou" />}
+      {!received && <TextInput value={payerName} onChangeText={(value) => onPayerNameChange(value.toUpperCase())} placeholder="NOME DE QUEM ENVIOU / PAGOU" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={70} autoCapitalize="characters" />}
+      {!received && <MaskedDocumentInput value={payerDocument} onChange={onPayerDocumentChange} placeholderFirst="484" placeholderSecond="813" accessibilityLabel="CPF ou CNPJ de quem enviou ou pagou" />}
       {received && <AccountFinalInput number={accountNumber} digit={accountDigit} onNumberChange={onAccountNumberChange} onDigitChange={onAccountDigitChange} />}
     </View>
     <View style={styles.presetActionPanel}>

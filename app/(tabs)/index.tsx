@@ -6,6 +6,7 @@ import { useNotificationStore, type NotificationTemplate } from "@/lib/notificat
 import { AccountFinalInput } from "@/components/account-final-input";
 import { formatAccountFinal } from "@/lib/pix-account";
 import { normalizeReceiptDocument } from "@/lib/receipt-utils";
+import { MaskedDocumentInput } from "@/components/masked-document-input";
 import { RANDOM_BRAZILIAN_NAMES } from "@/constants/random-names";
 
 const colors = {
@@ -225,7 +226,7 @@ export default function ComposeScreen() {
   };
 
   const generateRandomName = (kind: "received" | "sent") => {
-    const name = pickRandomBrazilianName();
+    const name = pickRandomBrazilianName().toUpperCase();
     if (kind === "received") setReceivedName(name);
     else setSentName(name);
     setSaveMessage("Nome aleatório preenchido. Você ainda pode editá-lo.");
@@ -418,14 +419,14 @@ export default function ComposeScreen() {
         </View>
         <View style={styles.presetInputsRow}>
           <View style={styles.nameInputGroup}>
-            <TextInput value={receivedName} onChangeText={setReceivedName} placeholder="Digite o nome de quem enviou" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
+              <TextInput value={receivedName} onChangeText={(value) => setReceivedName(value.toUpperCase())} placeholder="DIGITE O NOME DE QUEM ENVIOU" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} autoCapitalize="characters" />
             <Pressable onPress={() => generateRandomName("received")} style={({ pressed }) => [styles.randomNameButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Gerar nome aleatório para Pix recebido" testID="random-name-received-button">
               <MaterialIcons name="shuffle" size={21} color={colors.teal} />
             </Pressable>
           </View>
           <TextInput value={receivedValue} onChangeText={setReceivedValue} onBlur={() => setReceivedValue(formatPixValue(receivedValue))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
         </View>
-        <TextInput value={receivedDocument} onChangeText={setReceivedDocument} onBlur={() => receivedDocument.trim() && setReceivedDocument(normalizeReceiptDocument(receivedDocument))} placeholder="CPF/CNPJ de quem enviou" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={18} keyboardType="number-pad" />
+        <MaskedDocumentInput value={receivedDocument} onChange={setReceivedDocument} placeholderFirst="000" placeholderSecond="000" accessibilityLabel="CPF ou CNPJ de quem enviou" />
         <AccountFinalInput number={accountNumber} digit={accountDigit} onNumberChange={setAccountNumber} onDigitChange={setAccountDigit} />
       </View>
       <View style={styles.presetActionPanel}>
@@ -447,15 +448,15 @@ export default function ComposeScreen() {
         </View>
         <View style={styles.presetInputsRow}>
           <View style={styles.nameInputGroup}>
-            <TextInput value={sentName} onChangeText={setSentName} placeholder="Digite o nome de quem recebeu" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} />
+              <TextInput value={sentName} onChangeText={(value) => setSentName(value.toUpperCase())} placeholder="DIGITE O NOME DE QUEM RECEBEU" placeholderTextColor="#87949C" style={styles.presetInput} maxLength={70} autoCapitalize="characters" />
             <Pressable onPress={() => generateRandomName("sent")} style={({ pressed }) => [styles.randomNameButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Gerar nome aleatório para Pix enviado" testID="random-name-sent-button">
               <MaterialIcons name="shuffle" size={21} color={colors.navy} />
             </Pressable>
           </View>
           <TextInput value={sentValue} onChangeText={setSentValue} onBlur={() => setSentValue(formatPixValue(sentValue))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
         </View>
-        <TextInput value={payerName} onChangeText={setPayerName} placeholder="Nome de quem enviou / pagou" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={70} />
-        <TextInput value={payerDocument} onChangeText={setPayerDocument} onBlur={() => payerDocument.trim() && setPayerDocument(normalizeReceiptDocument(payerDocument))} placeholder="CPF/CNPJ de quem enviou / pagou" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={18} keyboardType="number-pad" />
+        <TextInput value={payerName} onChangeText={(value) => setPayerName(value.toUpperCase())} placeholder="NOME DE QUEM ENVIOU / PAGOU" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={70} autoCapitalize="characters" />
+        <MaskedDocumentInput value={payerDocument} onChange={setPayerDocument} placeholderFirst="484" placeholderSecond="813" accessibilityLabel="CPF ou CNPJ de quem enviou ou pagou" />
       </View>
       <View style={styles.presetActionPanel}>
         <TouchableOpacity onPress={() => void emitPixDirectly("sent")} disabled={isEmitting || isSavingModel} activeOpacity={0.8} style={[styles.directPresetButton, isEmitting && styles.emittingButton]} accessibilityRole="button" accessibilityLabel="Emitir Pix enviado agora" testID="emit-pix-sent-button">
