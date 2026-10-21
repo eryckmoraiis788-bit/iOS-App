@@ -33,6 +33,16 @@ const payer = {
   institution: "BANCO INTER",
 };
 
+function formatReceiptPersonName(value: string) {
+  const minorWords = new Set(["da", "de", "do", "das", "dos", "e"]);
+  return value
+    .trim()
+    .toLocaleLowerCase("pt-BR")
+    .split(/\s+/)
+    .map((word, index) => index > 0 && minorWords.has(word) ? word : word.charAt(0).toLocaleUpperCase("pt-BR") + word.slice(1))
+    .join(" ");
+}
+
 export default function ReceiptDetailScreen() {
   const router = useRouter();
   const { recordId } = useLocalSearchParams<{ recordId?: string }>();
@@ -59,6 +69,7 @@ export default function ReceiptDetailScreen() {
   const isReceivedPix = record.title.trim().toLowerCase() === "pix recebido";
   const receiptTimestamp = receipt.eventAt;
   const identifier = `is${receipt.transactionId.replace(/^E004/i, "").toLowerCase()}`;
+  const recipientName = formatReceiptPersonName(receipt.recipientName);
   const payerName = record.senderName?.trim() || payer.name;
   const payerDocument = record.senderDocument?.trim() || payer.document;
 
@@ -115,7 +126,7 @@ export default function ReceiptDetailScreen() {
 
           <View style={[styles.section, styles.recipientSection]}>
             <Text style={styles.sectionTitle}>{isReceivedPix ? "Quem enviou" : "Quem recebeu"}</Text>
-            <InfoRow label="Nome" value={receipt.recipientName} />
+            <InfoRow label="Nome" value={recipientName} />
             <InfoRow label="CPF/CNPJ" value={receipt.document} />
             <InstitutionInfoRow value={receipt.institution} onPress={() => void randomInstitution()} onLongPress={toggleInstitutionPicker} />
             {institutionPickerOpen && (
