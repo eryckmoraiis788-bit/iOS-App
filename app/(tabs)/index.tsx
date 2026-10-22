@@ -229,7 +229,6 @@ export default function ComposeScreen() {
     if (kind === "received") setReceivedValue(value);
     else {
       setSentValue(value);
-      generateRandomPayer();
     }
     setTitle(nextTitle);
     setSubtitle("");
@@ -259,11 +258,12 @@ export default function ComposeScreen() {
     }
 
     const nextTitle = kind === "received" ? "Pix recebido" : "Pix enviado";
-    const payer = kind === "sent" ? createRandomPayerData() : undefined;
-    if (payer) {
-      setPayerName(payer.name);
-      setPayerDocument(payer.document);
-    }
+    const payer = kind === "sent"
+      ? {
+          name: payerName.trim() || createRandomPayerData().name,
+          document: payerDocument.trim() || createRandomPayerData().document,
+        }
+      : undefined;
     const nextBody = kind === "received"
       ? `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***${formatAccountFinal(accountNumber, accountDigit)}.`
       : `Você fez um Pix no valor de R$ ${value} para ${name}.`;
@@ -319,11 +319,12 @@ export default function ComposeScreen() {
       }
       const isReceivedPix = trimmedTitle.toLowerCase() === "pix recebido";
       const isSentPix = trimmedTitle.toLowerCase() === "pix enviado";
-      const payer = isSentPix ? createRandomPayerData() : undefined;
-      if (payer) {
-        setPayerName(payer.name);
-        setPayerDocument(payer.document);
-      }
+      const payer = isSentPix
+        ? {
+            name: payerName.trim() || createRandomPayerData().name,
+            document: payerDocument.trim() || createRandomPayerData().document,
+          }
+        : undefined;
       const emitted = await emit({
         title: trimmedTitle,
         subtitle: subtitle.trim(),
