@@ -5,7 +5,7 @@ import { ActivityIndicator, Animated, Easing, Image, Pressable, ScrollView, Styl
 import { useNotificationStore, type NotificationTemplate } from "@/lib/notification-store";
 import { AccountFinalInput } from "@/components/account-final-input";
 import { formatAccountFinal } from "@/lib/pix-account";
-import { formatReceiptPersonName, normalizeReceiptDocument } from "@/lib/receipt-utils";
+import { createMaskedDocument, formatReceiptPersonName, normalizeReceiptDocument } from "@/lib/receipt-utils";
 import { MaskedDocumentInput } from "@/components/masked-document-input";
 import { RANDOM_BRAZILIAN_NAMES } from "@/constants/random-names";
 
@@ -48,7 +48,11 @@ function formatPixValue(value: string): string {
 
 
 function pickRandomBrazilianName(): string {
-  return RANDOM_BRAZILIAN_NAMES[Math.floor(Math.random() * RANDOM_BRAZILIAN_NAMES.length)] ?? "";
+  return RANDOM_BRAZILIAN_NAMES[Math.floor(Math.random() * RANDOM_BRAZILIAN_NAMES.length)] ?? "Pessoa Cliente";
+}
+
+function createRandomPayerData() {
+  return { name: pickRandomBrazilianName().toUpperCase(), document: createMaskedDocument() };
 }
 
 
@@ -74,8 +78,8 @@ export default function ComposeScreen() {
   const [accountDigit, setAccountDigit] = useState("3");
   const [sentName, setSentName] = useState("");
   const [sentValue, setSentValue] = useState("");
-  const [payerName, setPayerName] = useState("ERYCK DARLISSON DOS SANTOS MORAIS");
-  const [payerDocument, setPayerDocument] = useState("***.484.813-**");
+  const [payerName, setPayerName] = useState(() => createRandomPayerData().name);
+  const [payerDocument, setPayerDocument] = useState(() => createRandomPayerData().document);
   const [isEmitting, setIsEmitting] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
   const [isSavingModel, setIsSavingModel] = useState(false);
@@ -88,6 +92,13 @@ export default function ComposeScreen() {
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const entranceProgress = useRef(new Animated.Value(0)).current;
   const { selectedImage, emit, templates, saveTemplate, removeTemplate } = useNotificationStore();
+
+  const generateRandomPayer = () => {
+    const payer = createRandomPayerData();
+    setPayerName(payer.name);
+    setPayerDocument(payer.document);
+    setSaveMessage("Nome e CPF/CNPJ do pagador sorteados.");
+  };
   const canEmit = title.trim().length > 0 && body.trim().length > 0;
   const previewPayload = receivedName.trim() || receivedValue.trim()
     ? { title: "Pix recebido", subtitle: "Notificação de valor creditado.", body: receivedName.trim() && receivedValue.trim() ? `${formatReceiptPersonName(receivedName)} te enviou um Pix de R$ ${formatPixValue(receivedValue)} creditado na sua conta final ***${formatAccountFinal(accountNumber, accountDigit)}.` : "Preencha o nome e o valor para visualizar o Pix recebido." }
@@ -216,7 +227,10 @@ export default function ComposeScreen() {
       : `Você fez um Pix no valor de R$ ${value} para ${name}.`;
 
     if (kind === "received") setReceivedValue(value);
-    else setSentValue(value);
+    else {
+      setSentValue(value);
+      generateRandomPayer();
+    }
     setTitle(nextTitle);
     setSubtitle("");
     setBody(nextBody);
@@ -245,6 +259,11 @@ export default function ComposeScreen() {
     }
 
     const nextTitle = kind === "received" ? "Pix recebido" : "Pix enviado";
+    const payer = kind === "sent" ? createRandomPayerData() : undefined;
+    if (payer) {
+      setPayerName(payer.name);
+      setPayerDocument(payer.document);
+    }
     const nextBody = kind === "received"
       ? `${name} te enviou um Pix de R$ ${value} creditado na sua conta final ***${formatAccountFinal(accountNumber, accountDigit)}.`
       : `Você fez um Pix no valor de R$ ${value} para ${name}.`;
@@ -261,7 +280,7 @@ export default function ComposeScreen() {
     setIsEmitting(true);
 
     try {
-      const emitted = await emit({ title: nextTitle, subtitle: "", body: nextBody, imageUri: selectedImage, senderName: kind === "received" ? name : payerName.trim(), senderDocument: kind === "received" ? (receivedDocument.trim() ? normalizeReceiptDocument(receivedDocument) : undefined) : (payerDocument.trim() ? normalizeReceiptDocument(payerDocument) : undefined) });
+      const emitted = await emit({ title: nextTitle, subtitle: "", body: nextBody, imageUri: selectedImage, senderName: kind === "received" ? name : payer?.name, senderDocument: kind === "received" ? (receivedDocument.trim() ? normalizeReceiptDocument(receivedDocument) : undefined) : payer?.document });
       if (emitted) {
         setSaveMessage(kind === "received" ? "Pix recebido emitido." : "Pix enviado emitido.");
         showSuccessFeedback("emitted");
@@ -300,13 +319,18 @@ export default function ComposeScreen() {
       }
       const isReceivedPix = trimmedTitle.toLowerCase() === "pix recebido";
       const isSentPix = trimmedTitle.toLowerCase() === "pix enviado";
+      const payer = isSentPix ? createRandomPayerData() : undefined;
+      if (payer) {
+        setPayerName(payer.name);
+        setPayerDocument(payer.document);
+      }
       const emitted = await emit({
         title: trimmedTitle,
         subtitle: subtitle.trim(),
         body: trimmedBody,
         imageUri: selectedImage,
-        senderName: isReceivedPix ? receivedName.trim() : isSentPix ? payerName.trim() : undefined,
-        senderDocument: isReceivedPix ? (receivedDocument.trim() ? normalizeReceiptDocument(receivedDocument) : undefined) : isSentPix && payerDocument.trim() ? normalizeReceiptDocument(payerDocument) : undefined,
+        senderName: isReceivedPix ? receivedName.trim() : payer?.name,
+        senderDocument: isReceivedPix ? (receivedDocument.trim() ? normalizeReceiptDocument(receivedDocument) : undefined) : payer?.document,
       });
       if (emitted) {
         showSuccessFeedback("emitted");
@@ -455,7 +479,12 @@ export default function ComposeScreen() {
           </View>
           <TextInput value={sentValue} onChangeText={setSentValue} onBlur={() => setSentValue(formatPixValue(sentValue))} placeholder="Valor da transação" placeholderTextColor="#87949C" style={styles.presetValueInput} maxLength={15} keyboardType="decimal-pad" />
         </View>
-        <TextInput value={payerName} onChangeText={(value) => setPayerName(value.toUpperCase())} placeholder="NOME DE QUEM ENVIOU / PAGOU" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={70} autoCapitalize="characters" />
+        <View style={styles.nameInputGroup}>
+          <TextInput value={payerName} onChangeText={(value) => setPayerName(value.toUpperCase())} placeholder="NOME DE QUEM ENVIOU / PAGOU" placeholderTextColor="#87949C" style={styles.documentInput} maxLength={70} autoCapitalize="characters" />
+          <Pressable onPress={generateRandomPayer} style={({ pressed }) => [styles.randomNameButton, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel="Gerar nome e CPF/CNPJ aleatórios para o pagador" testID="random-payer-button">
+            <MaterialIcons name="shuffle" size={21} color={colors.navy} />
+          </Pressable>
+        </View>
         <MaskedDocumentInput value={payerDocument} onChange={setPayerDocument} placeholderFirst="484" placeholderSecond="813" accessibilityLabel="CPF ou CNPJ de quem enviou ou pagou" />
       </View>
       <View style={styles.presetActionPanel}>
