@@ -200,10 +200,10 @@ function InstitutionInfoRow({ value, onPress, onLongPress }: { value: string; on
       delayLongPress={450}
       accessibilityRole="button"
       accessibilityLabel="Trocar instituição aleatoriamente; mantenha pressionado para escolher"
-      style={({ pressed }) => [styles.infoRow, pressed && styles.rowPressed]}
+      style={({ pressed }) => [styles.institutionRow, pressed && styles.rowPressed]}
     >
       <Text style={styles.infoLabel}>Instituição</Text>
-      <Text style={styles.infoValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72}>{value}</Text>
+      <Text style={styles.institutionValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72}>{value}</Text>
     </Pressable>
   );
 }
@@ -221,8 +221,10 @@ const styles = StyleSheet.create({
   firstSection: { marginTop: 56 },
   sectionTitle: { color: colors.ink, fontSize: 16, lineHeight: 20, fontWeight: "700", marginBottom: 18 },
   infoRow: { minHeight: 30, flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 7 },
+  institutionRow: { minHeight: 30, position: "relative", marginBottom: 7 },
   infoLabel: { color: colors.muted, fontSize: 14, lineHeight: 20, fontWeight: "400", flexShrink: 0 },
   infoValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right", flex: 1, minWidth: 0 },
+  institutionValue: { position: "absolute", left: 105, right: 0, top: 0, color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right" },
   longInfo: { marginBottom: 9 },
   longValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", marginTop: 1 },
   separator: { height: 1, backgroundColor: colors.line, marginTop: 28 },
