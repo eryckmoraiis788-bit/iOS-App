@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
   section: { marginTop: 56 },
   firstSection: { marginTop: 56 },
   sectionTitle: { color: colors.ink, fontSize: 16, lineHeight: 20, fontWeight: "700", marginBottom: 18 },
-  infoRow: { minHeight: 30, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 7 },
+  infoRow: { minHeight: 30, flexDirection: "row", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 7 },
   infoLabel: { color: colors.muted, fontSize: 14, lineHeight: 20, fontWeight: "400", flexShrink: 0 },
   infoValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right", flex: 1, minWidth: 0 },
   longInfo: { marginBottom: 9 },
