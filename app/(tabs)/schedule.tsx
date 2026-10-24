@@ -11,7 +11,7 @@ import { formatNotificationTime } from "@/lib/format-notification-time";
 import { RANDOM_BRAZILIAN_NAMES } from "@/constants/random-names";
 import { AccountFinalInput } from "@/components/account-final-input";
 import { formatAccountFinal } from "@/lib/pix-account";
-import { normalizeReceiptDocument } from "@/lib/receipt-utils";
+import { createMaskedDocument, normalizeReceiptDocument } from "@/lib/receipt-utils";
 import { formatReceiptPersonName } from "@/lib/receipt-utils";
 import { MaskedDocumentInput } from "@/components/masked-document-input";
 
@@ -66,6 +66,10 @@ function pickRandomBrazilianName(): string {
   return RANDOM_BRAZILIAN_NAMES[Math.floor(Math.random() * RANDOM_BRAZILIAN_NAMES.length)] ?? "";
 }
 
+function createRandomPayerData() {
+  return { name: pickRandomBrazilianName().toUpperCase(), document: createMaskedDocument() };
+}
+
 export default function ScheduleScreen() {
   const { historyTitle, historySubtitle, historyBody, historyImageUri } = useLocalSearchParams<{ historyTitle?: string; historySubtitle?: string; historyBody?: string; historyImageUri?: string }>();
   const { schedule, records, selectedImage, refreshScheduled, clearScheduled, templates, saveTemplate, removeTemplate, refreshTemplates } = useNotificationStore();
@@ -85,8 +89,8 @@ export default function ScheduleScreen() {
   const [accountDigit, setAccountDigit] = useState("3");
   const [sentName, setSentName] = useState("");
   const [sentValue, setSentValue] = useState("");
-  const [payerName, setPayerName] = useState("ERYCK DARLISSON DOS SANTOS MORAIS");
-  const [payerDocument, setPayerDocument] = useState("***.484.813-**");
+  const [payerName, setPayerName] = useState(() => createRandomPayerData().name);
+  const [payerDocument, setPayerDocument] = useState(() => createRandomPayerData().document);
   const [draftImageUri, setDraftImageUri] = useState<string>();
   const [editingTemplate, setEditingTemplate] = useState<NotificationTemplate | null>(null);
   const [templateName, setTemplateName] = useState("");
@@ -149,6 +153,12 @@ export default function ScheduleScreen() {
   const schedulePixDirectly = async (kind: "received" | "sent") => {
     const payload = buildPixPayload(kind);
     if (!payload) return;
+    const payer = kind === "sent"
+      ? {
+          name: payerName.trim() || createRandomPayerData().name,
+          document: payerDocument.trim() || createRandomPayerData().document,
+        }
+      : undefined;
     const effectiveRecurrence: NotificationRecurrence = timingMode === "custom" ? recurrence : "once";
     const timing = timingMode === "custom" ? scheduledDate : minutes;
     if (timingMode === "custom" && scheduledDate.getTime() <= Date.now()) {
@@ -156,7 +166,7 @@ export default function ScheduleScreen() {
       return;
     }
     try {
-      await schedule({ ...payload, imageUri: notificationImageUri, senderName: kind === "received" ? receivedName.trim() : payerName.trim(), senderDocument: kind === "received" ? (receivedDocument.trim() ? normalizeReceiptDocument(receivedDocument) : undefined) : (payerDocument.trim() ? normalizeReceiptDocument(payerDocument) : undefined) }, timing, effectiveRecurrence, repeatWeekday);
+      await schedule({ ...payload, imageUri: notificationImageUri, senderName: kind === "received" ? receivedName.trim() : payer?.name, senderDocument: kind === "received" ? (receivedDocument.trim() ? normalizeReceiptDocument(receivedDocument) : undefined) : payer?.document }, timing, effectiveRecurrence, repeatWeekday);
       Alert.alert("Pix agendado", timingMode === "custom" ? `${recurrenceLabel}: ${formatDateSummary(scheduledDate)} às ${formatTimeSummary(scheduledDate)}.` : `O Pix será emitido em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
       if (kind === "received") setReceivedValue(formatPixValue(receivedValue));
       else setSentValue(formatPixValue(sentValue));
@@ -257,7 +267,13 @@ export default function ScheduleScreen() {
       const normalizedTitle = title.trim() || "Notificação";
       const isReceivedPix = normalizedTitle.toLowerCase() === "pix recebido";
       const isSentPix = normalizedTitle.toLowerCase() === "pix enviado";
-      await schedule({ title: normalizedTitle, subtitle: subtitle.trim(), body: body.trim(), imageUri: notificationImageUri, senderName: isReceivedPix ? receivedName.trim() : isSentPix ? payerName.trim() : undefined, senderDocument: isReceivedPix ? (receivedDocument.trim() ? normalizeReceiptDocument(receivedDocument) : undefined) : isSentPix && payerDocument.trim() ? normalizeReceiptDocument(payerDocument) : undefined }, timing, effectiveRecurrence, repeatWeekday);
+      const payer = isSentPix
+        ? {
+            name: payerName.trim() || createRandomPayerData().name,
+            document: payerDocument.trim() || createRandomPayerData().document,
+          }
+        : undefined;
+      await schedule({ title: normalizedTitle, subtitle: subtitle.trim(), body: body.trim(), imageUri: notificationImageUri, senderName: isReceivedPix ? receivedName.trim() : payer?.name, senderDocument: isReceivedPix ? (receivedDocument.trim() ? normalizeReceiptDocument(receivedDocument) : undefined) : payer?.document }, timing, effectiveRecurrence, repeatWeekday);
       Alert.alert("Notificação agendada", timingMode === "custom" ? `${recurrenceLabel}: ${formatDateSummary(scheduledDate)} às ${formatTimeSummary(scheduledDate)}.` : `Ela será emitida em ${minutes} minuto${minutes === 1 ? "" : "s"}.`);
       setTitle(""); setSubtitle(""); setBody("");
       await refreshScheduled();
