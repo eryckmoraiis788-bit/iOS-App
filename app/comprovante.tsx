@@ -135,7 +135,7 @@ export default function ReceiptDetailScreen() {
                 ))}
               </View>
             )}
-            <LongInfo label="Chave Pix" value={receipt.pixKey} />
+            <LongInfo label="Chave Pix" value={receipt.pixKey} variant="pixKey" />
           </View>
 
           {!isReceivedPix && (
@@ -183,9 +183,9 @@ function formatReceiptDateReference(value: string) {
   return `${weekdays[date.getDay()]}, ${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
 }
 
-function LongInfo({ label, value }: { label: string; value: string }) {
+function LongInfo({ label, value, variant }: { label: string; value: string; variant?: "pixKey" }) {
   return (
-    <View style={styles.longInfo}>
+    <View style={[styles.longInfo, variant === "pixKey" && styles.pixKeyInfo]}>
       <Text style={styles.infoLabel}>{label}</Text>
       <Text style={styles.longValue} selectable>{value}</Text>
     </View>
@@ -226,6 +226,7 @@ const styles = StyleSheet.create({
   infoValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right", flex: 1, minWidth: 0 },
   institutionValue: { position: "absolute", left: 105, right: 0, top: 0, color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right" },
   longInfo: { marginBottom: 9 },
+  pixKeyInfo: { marginTop: 10 },
   longValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", marginTop: 1 },
   separator: { height: 1, backgroundColor: colors.line, marginTop: 28 },
   recipientSection: { marginTop: 39 },
