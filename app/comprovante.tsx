@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   firstSection: { marginTop: 56 },
   sectionTitle: { color: colors.ink, fontSize: 16, lineHeight: 20, fontWeight: "700", marginBottom: 18 },
   infoRow: { minHeight: 30, flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 7 },
-  institutionRow: { minHeight: 20, position: "relative", marginBottom: 7 },
+  institutionRow: { minHeight: 30, position: "relative", marginBottom: 7 },
   infoLabel: { color: colors.muted, fontSize: 14, lineHeight: 20, fontWeight: "400", flexShrink: 0 },
   infoValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right", flex: 1, minWidth: 0 },
   institutionValue: { position: "absolute", left: 105, right: 0, top: 0, color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right" },
