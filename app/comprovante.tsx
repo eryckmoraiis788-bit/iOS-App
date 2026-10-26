@@ -3,6 +3,7 @@ import { useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
+import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore } from "@/lib/notification-store";
 import { formatReceiptPersonName, formatReceiptTime } from "@/lib/receipt-utils";
 
@@ -26,6 +27,12 @@ const institutionOptions = [
   "BCO DO BRASIL S.A.",
   "PAGSEGURO INTERNET IP S.A.",
 ] as const;
+
+const payer = {
+  name: "ERYCK DARLISSON DOS SANTOS MORAIS",
+  document: "***.484.813-**",
+  institution: "BANCO INTER",
+};
 
 export default function ReceiptDetailScreen() {
   const router = useRouter();
@@ -53,6 +60,8 @@ export default function ReceiptDetailScreen() {
   const isReceivedPix = record.title.trim().toLowerCase() === "pix recebido";
   const receiptTimestamp = receipt.eventAt;
   const recipientName = formatReceiptPersonName(receipt.recipientName);
+  const payerName = record.senderName?.trim() || payer.name;
+  const payerDocument = record.senderDocument?.trim() || payer.document;
 
   const toggleInstitutionPicker = () => setInstitutionPickerOpen((current) => !current);
   const selectInstitution = async (institution: string) => {
@@ -99,7 +108,7 @@ export default function ReceiptDetailScreen() {
           </Pressable>
           <Text style={styles.headerTitle}>Comprovante</Text>
           <Pressable onPress={() => router.replace("/")} hitSlop={12} accessibilityRole="button" accessibilityLabel="Início">
-            <MaterialIcons name="home" size={26} color={colors.orange} />
+            <IconSymbol name="house.fill" size={26} color={colors.orange} weight="regular" />
           </Pressable>
         </View>
 
@@ -140,7 +149,19 @@ export default function ReceiptDetailScreen() {
                 ))}
               </View>
             )}
+            <LongInfo label="Chave Pix" value={receipt.pixKey} variant="pixKey" />
           </View>
+          {!isReceivedPix && (
+            <>
+              <View style={styles.separator} accessibilityElementsHidden />
+              <View style={[styles.section, styles.payerSection]}>
+                <Text style={styles.sectionTitle}>Quem pagou</Text>
+                <InfoRow label="Nome" value={payerName} />
+                <InfoRow label="CPF/CNPJ" value={payerDocument} />
+                <InfoRow label="Instituição" value={payer.institution} />
+              </View>
+            </>
+          )}
         </ScrollView>
         <View style={styles.footer} accessibilityRole="toolbar">
           <Pressable
@@ -183,9 +204,9 @@ function formatReceiptDateReference(value: string) {
   return `${weekdays[date.getDay()]}, ${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
 }
 
-function LongInfo({ label, value }: { label: string; value: string }) {
+function LongInfo({ label, value, variant }: { label: string; value: string; variant?: "pixKey" }) {
   return (
-    <View style={styles.longInfo}>
+    <View style={[styles.longInfo, variant === "pixKey" && styles.pixKeyInfo]}>
       <Text style={styles.infoLabel}>{label}</Text>
       <Text style={styles.longValue} selectable>{value}</Text>
     </View>
@@ -226,9 +247,11 @@ const styles = StyleSheet.create({
   infoValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right", flex: 1, minWidth: 0 },
   institutionValue: { position: "absolute", left: 105, right: 0, top: 0, color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right" },
   longInfo: { marginBottom: 9 },
+  pixKeyInfo: { marginTop: 10 },
   longValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", marginTop: 1 },
-  separator: { height: 1, backgroundColor: colors.line, marginTop: 28 },
+  separator: { height: 1, borderBottomWidth: 1, borderColor: colors.line, borderStyle: "dashed", marginTop: 28 },
   recipientSection: { marginTop: 39 },
+  payerSection: { marginTop: 39 },
   institutionOptions: { marginTop: 4, marginBottom: 8, borderRadius: 8, borderWidth: 1, borderColor: "#E0E0E0", backgroundColor: colors.menu, overflow: "hidden" },
   institutionOption: { minHeight: 40, justifyContent: "center", paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: colors.line },
   institutionOptionText: { color: colors.ink, fontSize: 14, lineHeight: 18 },

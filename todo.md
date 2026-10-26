@@ -823,3 +823,10 @@
 - [x] Reservar altura explícita para os dois botões e preservar a camada de toque nativa no botão contornado.
 - [x] Incrementar para Inter 1.2.84/build 204; validar TypeScript, testes e lint antes de gerar a IPA.
 - [ ] Instalar e comparar fisicamente a build 204 no iPhone.
+
+
+# Restauração dos detalhes inferiores após conferência do print — Inter 1.2.85/build 205
+- [x] Restaurar a Chave Pix e a seção “Quem pagou” no conteúdo rolável; não remover esses dados ao ajustar a área visível.
+- [x] Manter “Quem recebeu” e os três campos na ordem e posição do print, com os dois botões preservados no rodapé fixo.
+- [x] Ajustar o ícone de início para contornado e o divisor para tracejado conforme a referência.
+- [ ] Validar e publicar a IPA 1.2.85/build 205; conferir a instalação em iPhone ainda depende de teste pelo usuário.
