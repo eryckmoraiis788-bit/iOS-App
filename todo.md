@@ -830,3 +830,9 @@
 - [x] Manter “Quem recebeu” e os três campos na ordem e posição do print, com os dois botões preservados no rodapé fixo.
 - [x] Ajustar o ícone de início para contornado e o divisor para tracejado conforme a referência.
 - [ ] Validar e publicar a IPA 1.2.85/build 205; conferir a instalação em iPhone ainda depende de teste pelo usuário.
+
+
+# Botão de compartilhar ainda ausente — Inter 1.2.86/build 206
+- [x] Recriar o botão laranja usando uma View nativa com o mesmo padrão de moldura + Pressable absoluto usado pelo botão Realizar novo Pix que está visível.
+- [x] Fixar o rodapé acima da ScrollView com zIndex/elevation e deixar espaço inferior rolável para não ocultar dados.
+- [ ] Validar e publicar a build 1.2.86/206; usuário precisa confirmar visualmente no aparelho.

@@ -16,7 +16,7 @@ const scheme = `manus${timestamp}`;
 module.exports = {
   name: "Inter",
   slug: "notificacao-ios",
-  version: "1.2.85",
+  version: "1.2.86",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
   scheme,
@@ -30,7 +30,7 @@ module.exports = {
     },
     supportsTablet: true,
     bundleIdentifier: bundleId,
-    buildNumber: "205",
+    buildNumber: "206",
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
       CFBundleDisplayName: "Inter",

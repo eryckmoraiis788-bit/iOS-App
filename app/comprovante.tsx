@@ -164,14 +164,15 @@ export default function ReceiptDetailScreen() {
           )}
         </ScrollView>
         <View style={styles.footer} accessibilityRole="toolbar">
-          <Pressable
-            onPress={() => void handleShare()}
-            accessibilityRole="button"
-            accessibilityLabel="Compartilhar comprovante"
-            style={({ pressed }) => [styles.shareButton, pressed && styles.buttonPressed]}
-          >
+          <View style={styles.shareButtonFrame}>
             <Text style={styles.shareText}>Compartilhar comprovante</Text>
-          </Pressable>
+            <Pressable
+              onPress={() => void handleShare()}
+              accessibilityRole="button"
+              accessibilityLabel="Compartilhar comprovante"
+              style={({ pressed }) => [StyleSheet.absoluteFillObject, pressed && styles.sharePressed]}
+            />
+          </View>
           <View style={styles.newPixButtonFrame}>
             <Text style={styles.newPixText}>Realizar novo Pix</Text>
             <Pressable
@@ -234,7 +235,7 @@ const styles = StyleSheet.create({
   header: { height: 48, paddingHorizontal: 24, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.background },
   headerTitle: { color: colors.ink, fontSize: 17, lineHeight: 22, fontWeight: "600" },
   receiptScroll: { flex: 1 },
-  receiptBody: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 24 },
+  receiptBody: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 180 },
   successCircle: { alignSelf: "center", width: 64, height: 64, borderRadius: 32, alignItems: "center", justifyContent: "center", backgroundColor: colors.success, marginBottom: 16 },
   receiptTitle: { color: colors.ink, fontSize: 23, lineHeight: 28, fontWeight: "700", textAlign: "center" },
   amount: { color: colors.ink, fontSize: 23, lineHeight: 28, fontWeight: "700", textAlign: "center", marginTop: 0 },
@@ -257,13 +258,13 @@ const styles = StyleSheet.create({
   institutionOptionText: { color: colors.ink, fontSize: 14, lineHeight: 18 },
   institutionOptionSelected: { color: colors.orange, fontWeight: "700" },
   rowPressed: { opacity: 0.62 },
-  footer: { height: 144, flexGrow: 0, flexShrink: 0, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 12, backgroundColor: "#FFFFFF" },
-  shareButton: { alignSelf: "stretch", width: "100%", height: 52, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#F56800", marginBottom: 12 },
+  footer: { position: "absolute", left: 0, right: 0, bottom: 0, height: 144, zIndex: 20, elevation: 20, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 12, backgroundColor: "#FFFFFF" },
+  shareButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 52, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#F56800", marginBottom: 12, overflow: "hidden" },
   shareText: { color: "#FFFFFF", fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
+  sharePressed: { backgroundColor: "#D95C00" },
   newPixButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 52, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
   newPixText: { color: "#F56800", fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
   newPixPressed: { backgroundColor: "rgba(245, 104, 0, 0.08)" },
-  buttonPressed: { opacity: 0.78 },
   notFound: { flex: 1, alignItems: "center", justifyContent: "center", padding: 30, gap: 14 },
   notFoundTitle: { color: colors.ink, fontSize: 20, fontWeight: "700", textAlign: "center" },
   backFallback: { paddingHorizontal: 20, paddingVertical: 13, borderRadius: 14, backgroundColor: colors.orange },
