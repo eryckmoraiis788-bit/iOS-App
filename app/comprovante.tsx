@@ -149,7 +149,7 @@ export default function ReceiptDetailScreen() {
               </View>
             </>
           )}
-          <View style={styles.receiptActions}>
+          <View style={styles.receiptActions} accessibilityRole="toolbar">
             <Pressable
               onPress={() => undefined}
               accessibilityRole="button"
@@ -243,11 +243,11 @@ const styles = StyleSheet.create({
   institutionOptionText: { color: colors.ink, fontSize: 14, lineHeight: 18 },
   institutionOptionSelected: { color: colors.orange, fontWeight: "700" },
   rowPressed: { opacity: 0.62 },
-  receiptActions: { width: "100%", paddingTop: 32, paddingBottom: 24, gap: 12 },
-  shareButton: { alignSelf: "stretch", height: 54, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: colors.orange },
+  receiptActions: { alignSelf: "stretch", width: "100%", paddingTop: 32, paddingBottom: 24, backgroundColor: "#FFFFFF" },
+  shareButton: { alignSelf: "stretch", width: "100%", height: 54, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#F56800", marginBottom: 12 },
   shareText: { color: "#FFFFFF", fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
-  newPixButton: { alignSelf: "stretch", height: 54, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: colors.background, borderWidth: 1.5, borderColor: colors.orange },
-  newPixText: { color: colors.orange, fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
+  newPixButton: { alignSelf: "stretch", width: "100%", height: 54, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F56800" },
+  newPixText: { color: "#F56800", fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
   buttonPressed: { opacity: 0.78 },
   notFound: { flex: 1, alignItems: "center", justifyContent: "center", padding: 30, gap: 14 },
   notFoundTitle: { color: colors.ink, fontSize: 20, fontWeight: "700", textAlign: "center" },
