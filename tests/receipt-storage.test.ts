@@ -23,6 +23,14 @@ describe("receipt storage", () => {
     expect(result[0]).toMatchObject({ recordId: "record-2", amount: "0,00", recipientName: "Nome do recebedor", document: "***.000.000-**", institution: "Cloudwalk Ip LTDA" });
   });
 
+  it("preserva categoria e descrição e continua aceitando recibos antigos", () => {
+    const [edited] = normalizeNotificationReceipts([{ recordId: "record-3", category: "  Alimentação  ", description: "  Reembolso almoço  " }]);
+    const [legacy] = normalizeNotificationReceipts([{ recordId: "record-4" }]);
+    expect(edited).toMatchObject({ category: "Alimentação", description: "Reembolso almoço" });
+    expect(legacy).not.toHaveProperty("category");
+    expect(legacy).not.toHaveProperty("description");
+  });
+
   it("não interrompe a inicialização quando o JSON está corrompido", () => {
     expect(parseStoredNotificationReceipts("{not-json")).toEqual([]);
   });

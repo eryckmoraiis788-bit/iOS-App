@@ -59,7 +59,7 @@ type Store = {
   removeTemplate: (template: NotificationTemplate) => Promise<void>;
   refreshTemplates: () => Promise<void>;
   receipts: NotificationReceipt[];
-  updateReceipt: (receiptId: string, input: Partial<Pick<NotificationReceipt, "amount" | "recipientName" | "document" | "institution">>) => Promise<void>;
+  updateReceipt: (receiptId: string, input: Partial<Pick<NotificationReceipt, "amount" | "recipientName" | "document" | "institution" | "category" | "description">>) => Promise<void>;
 };
 
 const STORAGE_KEY = "notification-ios-records-v1";
@@ -499,7 +499,7 @@ export function NotificationStoreProvider({ children, storageScope, migrateLegac
     await AsyncStorage.setItem(storageKeys.haptics, String(value));
   };
 
-  const updateReceipt = async (receiptId: string, input: Partial<Pick<NotificationReceipt, "amount" | "recipientName" | "document" | "institution">>) => {
+  const updateReceipt = async (receiptId: string, input: Partial<Pick<NotificationReceipt, "amount" | "recipientName" | "document" | "institution" | "category" | "description">>) => {
     await updateReceipts((current) => current.map((receipt) => receipt.id === receiptId ? { ...receipt, ...input } : receipt));
   };
 
