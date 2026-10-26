@@ -1,9 +1,9 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
+import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore } from "@/lib/notification-store";
 import { formatReceiptPersonName, formatReceiptTime } from "@/lib/receipt-utils";
 
@@ -11,7 +11,7 @@ const colors = {
   background: "#FFFFFF",
   ink: "#191919",
   muted: "#737373",
-  orange: "#F56800",
+  orange: "#EA7100",
   success: "#00A651",
   line: "#ECECEC",
   menu: "#FFFFFF",
@@ -108,7 +108,7 @@ export default function ReceiptDetailScreen() {
           </Pressable>
           <Text style={styles.headerTitle}>Comprovante</Text>
           <Pressable onPress={() => router.replace("/")} hitSlop={12} accessibilityRole="button" accessibilityLabel="Início">
-            <MaterialCommunityIcons name="home-outline" size={26} color={colors.orange} />
+            <IconSymbol name="house.fill" size={26} color={colors.orange} weight="regular" />
           </Pressable>
         </View>
 
@@ -149,7 +149,6 @@ export default function ReceiptDetailScreen() {
                 ))}
               </View>
             )}
-            <LongInfo label="Chave Pix" value={receipt.pixKey} variant="pixKey" />
           </View>
           {!isReceivedPix && (
             <>
@@ -162,6 +161,7 @@ export default function ReceiptDetailScreen() {
               </View>
             </>
           )}
+          {receipt.pixKey.trim().length > 0 && <LongInfo label="Chave Pix" value={receipt.pixKey} variant="pixKey" />}
         </ScrollView>
         <View style={styles.footer} accessibilityRole="toolbar">
           <View style={styles.shareButtonFrame}>
@@ -232,26 +232,26 @@ function InstitutionInfoRow({ value, onPress, onLongPress }: { value: string; on
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
-  header: { height: 48, paddingHorizontal: 24, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.background },
-  headerTitle: { color: colors.ink, fontSize: 17, lineHeight: 22, fontWeight: "600" },
+  header: { height: 48, paddingHorizontal: 24, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.background, transform: [{ translateY: -7 }] },
+  headerTitle: { color: colors.ink, fontSize: 16.5, lineHeight: 22, fontWeight: "600" },
   receiptScroll: { flex: 1 },
-  receiptBody: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 180 },
+  receiptBody: { paddingHorizontal: 24, paddingTop: 15, paddingBottom: 180 },
   successCircle: { alignSelf: "center", width: 64, height: 64, borderRadius: 32, alignItems: "center", justifyContent: "center", backgroundColor: colors.success, marginBottom: 16 },
-  receiptTitle: { color: colors.ink, fontSize: 23, lineHeight: 28, fontWeight: "700", textAlign: "center" },
-  amount: { color: colors.ink, fontSize: 23, lineHeight: 28, fontWeight: "700", textAlign: "center", marginTop: 0 },
+  receiptTitle: { color: colors.ink, fontSize: 25, lineHeight: 30, fontWeight: "700", textAlign: "center" },
+  amount: { color: colors.ink, fontSize: 25, lineHeight: 30, fontWeight: "700", textAlign: "center", marginTop: 0 },
   section: { marginTop: 56 },
-  firstSection: { marginTop: 56 },
-  sectionTitle: { color: colors.ink, fontSize: 16, lineHeight: 20, fontWeight: "700", marginBottom: 18 },
-  infoRow: { minHeight: 30, flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 7 },
-  institutionRow: { minHeight: 30, position: "relative", marginBottom: 7 },
-  infoLabel: { color: colors.muted, fontSize: 14, lineHeight: 20, fontWeight: "400", flexShrink: 0 },
+  firstSection: { marginTop: 58 },
+  sectionTitle: { color: colors.ink, fontSize: 16, lineHeight: 20, fontWeight: "700", marginBottom: 14 },
+  infoRow: { minHeight: 26, flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 7 },
+  institutionRow: { minHeight: 26, position: "relative", marginBottom: 7 },
+  infoLabel: { color: colors.muted, fontSize: 14.5, lineHeight: 20, fontWeight: "400", flexShrink: 0 },
   infoValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right", flex: 1, minWidth: 0 },
   institutionValue: { position: "absolute", left: 105, right: 0, top: 0, color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right" },
   longInfo: { marginBottom: 9 },
   pixKeyInfo: { marginTop: 10 },
   longValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", marginTop: 1 },
   separator: { height: 1, borderBottomWidth: 1, borderColor: colors.line, borderStyle: "dashed", marginTop: 28 },
-  recipientSection: { marginTop: 39 },
+  recipientSection: { marginTop: 42 },
   payerSection: { marginTop: 39 },
   institutionOptions: { marginTop: 4, marginBottom: 8, borderRadius: 8, borderWidth: 1, borderColor: "#E0E0E0", backgroundColor: colors.menu, overflow: "hidden" },
   institutionOption: { minHeight: 40, justifyContent: "center", paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: colors.line },
@@ -259,12 +259,12 @@ const styles = StyleSheet.create({
   institutionOptionSelected: { color: colors.orange, fontWeight: "700" },
   rowPressed: { opacity: 0.62 },
   footer: { position: "absolute", left: 0, right: 0, bottom: 0, height: 120, zIndex: 20, elevation: 20, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 0, backgroundColor: "#FFFFFF" },
-  shareButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 48, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#F56800", marginBottom: 16, overflow: "hidden" },
-  shareText: { color: "#FFFFFF", fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
-  sharePressed: { backgroundColor: "#D95C00" },
-  newPixButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 48, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
-  newPixText: { color: "#F56800", fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
-  newPixPressed: { backgroundColor: "rgba(245, 104, 0, 0.08)" },
+  shareButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 48, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#EA7100", marginBottom: 16, overflow: "hidden" },
+  shareText: { color: "#FFFFFF", fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "center" },
+  sharePressed: { backgroundColor: "#D06400" },
+  newPixButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 48, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#FAB573", overflow: "hidden" },
+  newPixText: { color: "#EA7100", fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "center" },
+  newPixPressed: { backgroundColor: "rgba(234, 113, 0, 0.08)" },
   notFound: { flex: 1, alignItems: "center", justifyContent: "center", padding: 30, gap: 14 },
   notFoundTitle: { color: colors.ink, fontSize: 20, fontWeight: "700", textAlign: "center" },
   backFallback: { paddingHorizontal: 20, paddingVertical: 13, borderRadius: 14, backgroundColor: colors.orange },
