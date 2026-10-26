@@ -77,7 +77,10 @@ export default function ReceiptDetailScreen() {
     );
   }
 
-  const isReceivedPix = record.title.trim().toLowerCase() === "pix recebido";
+  // Notification titles can be localized or include a short sender suffix.
+  // Keep the received-Pix detail screen selected for all such variants.
+  const normalizedRecordTitle = record.title.trim().toLocaleLowerCase("pt-BR");
+  const isReceivedPix = normalizedRecordTitle.includes("pix recebido");
   const receiptTimestamp = receipt.eventAt;
   const recipientName = formatReceiptPersonName(receipt.recipientName);
   const receivedSenderName = formatReceiptPersonName(record.senderName?.trim() || receipt.recipientName);
