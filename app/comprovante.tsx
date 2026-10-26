@@ -149,26 +149,25 @@ export default function ReceiptDetailScreen() {
               </View>
             </>
           )}
+          <View style={styles.receiptActions}>
+            <Pressable
+              onPress={() => undefined}
+              accessibilityRole="button"
+              accessibilityLabel="Compartilhar comprovante"
+              style={({ pressed }) => [styles.shareButton, pressed && styles.buttonPressed]}
+            >
+              <Text style={styles.shareText}>Compartilhar comprovante</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => router.replace("/")}
+              accessibilityRole="button"
+              accessibilityLabel="Realizar novo Pix"
+              style={({ pressed }) => [styles.newPixButton, pressed && styles.buttonPressed]}
+            >
+              <Text style={styles.newPixText}>Realizar novo Pix</Text>
+            </Pressable>
+          </View>
         </ScrollView>
-
-        <View style={styles.footer}>
-          <Pressable
-            onPress={() => undefined}
-            accessibilityRole="button"
-            accessibilityLabel="Compartilhar comprovante"
-            style={({ pressed }) => [styles.shareButton, pressed && styles.buttonPressed]}
-          >
-            <Text style={styles.shareText}>Compartilhar comprovante</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => router.replace("/")}
-            accessibilityRole="button"
-            accessibilityLabel="Realizar novo Pix"
-            style={({ pressed }) => [styles.newPixButton, pressed && styles.buttonPressed]}
-          >
-            <Text style={styles.newPixText}>Realizar novo Pix</Text>
-          </Pressable>
-        </View>
       </View>
     </ScreenContainer>
   );
@@ -244,7 +243,7 @@ const styles = StyleSheet.create({
   institutionOptionText: { color: colors.ink, fontSize: 14, lineHeight: 18 },
   institutionOptionSelected: { color: colors.orange, fontWeight: "700" },
   rowPressed: { opacity: 0.62 },
-  footer: { flexGrow: 0, flexShrink: 0, minHeight: 136, backgroundColor: colors.background, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 16, gap: 12 },
+  receiptActions: { width: "100%", paddingTop: 32, paddingBottom: 24, gap: 12 },
   shareButton: { alignSelf: "stretch", height: 54, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: colors.orange },
   shareText: { color: "#FFFFFF", fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
   newPixButton: { alignSelf: "stretch", height: 54, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: colors.background, borderWidth: 1.5, borderColor: colors.orange },
