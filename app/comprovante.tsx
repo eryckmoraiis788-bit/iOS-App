@@ -304,7 +304,7 @@ export default function ReceiptDetailScreen() {
               <View style={styles.receivedDivider} accessibilityElementsHidden />
               <View style={styles.receivedReturnFrame}>
                 <Text style={styles.receivedReturnText}>Devolver Pix</Text>
-                <MaterialCommunityIcons name="chevron-right" size={25} color={colors.orange} />
+                <MaterialCommunityIcons name="chevron-right" size={25} color={colors.orange} style={styles.receivedReturnChevron} />
                 <Pressable
                   onPress={showReturnPixDemo}
                   accessibilityRole="button"
@@ -511,8 +511,9 @@ const styles = StyleSheet.create({
   disabledAction: { opacity: 0.6 },
   receivedDivider: { height: 8, marginTop: 31, marginHorizontal: -24, backgroundColor: "#F4F5F7" },
   receivedSenderSection: { marginTop: 33 },
-  receivedReturnFrame: { position: "relative", height: 74, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#ECECEC", overflow: "hidden" },
-  receivedReturnText: { color: colors.ink, fontSize: 14.5, lineHeight: 20, fontWeight: "600" },
+  receivedReturnFrame: { position: "relative", width: "100%", height: 74, flexDirection: "row", alignItems: "center", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#ECECEC", overflow: "hidden" },
+  receivedReturnText: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "500" },
+  receivedReturnChevron: { position: "absolute", right: 0 },
   receivedReturnPressed: { backgroundColor: "rgba(234,113,0,0.06)" },
   notFound: { flex: 1, alignItems: "center", justifyContent: "center", padding: 30, gap: 14 },
   notFoundTitle: { color: colors.ink, fontSize: 20, fontWeight: "700", textAlign: "center" },
