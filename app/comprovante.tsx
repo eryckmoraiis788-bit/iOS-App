@@ -1,9 +1,9 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore } from "@/lib/notification-store";
 import { formatReceiptPersonName, formatReceiptTime } from "@/lib/receipt-utils";
 
@@ -108,7 +108,7 @@ export default function ReceiptDetailScreen() {
           </Pressable>
           <Text style={styles.headerTitle}>Comprovante</Text>
           <Pressable onPress={() => router.replace("/")} hitSlop={12} accessibilityRole="button" accessibilityLabel="Início">
-            <IconSymbol name="house.fill" size={26} color={colors.orange} weight="regular" />
+            <MaterialCommunityIcons name="home-outline" size={26} color={colors.orange} />
           </Pressable>
         </View>
 
@@ -258,11 +258,11 @@ const styles = StyleSheet.create({
   institutionOptionText: { color: colors.ink, fontSize: 14, lineHeight: 18 },
   institutionOptionSelected: { color: colors.orange, fontWeight: "700" },
   rowPressed: { opacity: 0.62 },
-  footer: { position: "absolute", left: 0, right: 0, bottom: 0, height: 144, zIndex: 20, elevation: 20, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 12, backgroundColor: "#FFFFFF" },
-  shareButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 52, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#F56800", marginBottom: 12, overflow: "hidden" },
+  footer: { position: "absolute", left: 0, right: 0, bottom: 0, height: 120, zIndex: 20, elevation: 20, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 0, backgroundColor: "#FFFFFF" },
+  shareButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 48, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#F56800", marginBottom: 16, overflow: "hidden" },
   shareText: { color: "#FFFFFF", fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
   sharePressed: { backgroundColor: "#D95C00" },
-  newPixButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 52, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
+  newPixButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 48, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
   newPixText: { color: "#F56800", fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
   newPixPressed: { backgroundColor: "rgba(245, 104, 0, 0.08)" },
   notFound: { flex: 1, alignItems: "center", justifyContent: "center", padding: 30, gap: 14 },

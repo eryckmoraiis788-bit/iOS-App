@@ -836,3 +836,10 @@
 - [x] Recriar o botão laranja usando uma View nativa com o mesmo padrão de moldura + Pressable absoluto usado pelo botão Realizar novo Pix que está visível.
 - [x] Fixar o rodapé acima da ScrollView com zIndex/elevation e deixar espaço inferior rolável para não ocultar dados.
 - [ ] Validar e publicar a build 1.2.86/206; usuário precisa confirmar visualmente no aparelho.
+
+
+# Alinhamento fino com o comprovante original — Inter 1.2.87/build 207
+- [x] Comparar as capturas IMG_0129 e IMG_0122; confirmar que os dois botões já aparecem na atual.
+- [x] Reduzir a altura dos botões de 52 para 48 pt e baixar a área inferior aproximadamente 20–24 pt para corresponder à referência.
+- [x] Usar o ícone de início contornado `home-outline`.
+- [ ] Validar e publicar build 207; confirmar visualmente no aparelho após instalação.
