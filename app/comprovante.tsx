@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useNotificationStore } from "@/lib/notification-store";
 import { formatReceiptPersonName, formatReceiptTime } from "@/lib/receipt-utils";
@@ -83,6 +83,21 @@ export default function ReceiptDetailScreen() {
     const nextInstitution = available[Math.floor(Math.random() * available.length)] ?? institutionOptions[0];
     await selectInstitution(nextInstitution);
   };
+  const handleShare = async () => {
+    const kind = isReceivedPix ? "Pix recebido" : "Pix enviado";
+    const message = [
+      `Comprovante de ${kind}`,
+      `Valor: R$ ${receipt.amount}`,
+      `ID da transação: ${receipt.transactionId}`,
+      `Destinatário: ${recipientName}`,
+    ].join("\n");
+
+    try {
+      await Share.share({ message, title: "Comprovante Pix" });
+    } catch (error) {
+      console.error("[receipt] failed to share receipt", error);
+    }
+  };
 
   return (
     <ScreenContainer edges={["top", "bottom", "left", "right"]} containerClassName="bg-white" safeAreaClassName="bg-white" containerStyle={styles.screen}>
@@ -152,7 +167,7 @@ export default function ReceiptDetailScreen() {
         </ScrollView>
         <View style={styles.footer} accessibilityRole="toolbar">
           <Pressable
-            onPress={() => undefined}
+            onPress={() => void handleShare()}
             accessibilityRole="button"
             accessibilityLabel="Compartilhar comprovante"
             style={({ pressed }) => [styles.shareButton, pressed && styles.buttonPressed]}
@@ -243,7 +258,7 @@ const styles = StyleSheet.create({
   institutionOptionText: { color: colors.ink, fontSize: 14, lineHeight: 18 },
   institutionOptionSelected: { color: colors.orange, fontWeight: "700" },
   rowPressed: { opacity: 0.62 },
-  footer: { height: 136, flexGrow: 0, flexShrink: 0, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 12, backgroundColor: "#FFFFFF" },
+  footer: { minHeight: 136, flexGrow: 0, flexShrink: 0, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 12, backgroundColor: "#FFFFFF" },
   shareButton: { alignSelf: "stretch", width: "100%", height: 52, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#F56800", marginBottom: 12 },
   shareText: { color: "#FFFFFF", fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
   newPixButton: { alignSelf: "stretch", width: "100%", height: 52, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F56800" },
