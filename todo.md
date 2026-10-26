@@ -813,3 +813,13 @@
 - [x] Incrementar a versão para Inter 1.2.83/build 203, permitindo substituir a instalação anterior no iPhone.
 - [x] Validar TypeScript e testes; lint sem erros, com avisos preexistentes em outros arquivos.
 - [ ] Gerar e auditar IPA 1.2.83/build 203 e instalar no iPhone para comparar com a referência física.
+
+
+# Fidelidade ao print do comprovante — Inter 1.2.84/build 204
+- [x] Comparar as capturas autenticadas da build 203 e da referência enviada em 26/10/2026.
+- [x] Reduzir o conteúdo extra para manter visíveis Nome, CPF/CNPJ e Instituição, como na referência.
+- [x] Remover a linha Identificador e a Chave Pix; renomear a data para Data do pagamento.
+- [x] Manter visíveis no rodapé fixo os dois botões, laranja Compartilhar comprovante e contornado Realizar novo Pix.
+- [x] Reservar altura explícita para os dois botões e preservar a camada de toque nativa no botão contornado.
+- [x] Incrementar para Inter 1.2.84/build 204; validar TypeScript, testes e lint antes de gerar a IPA.
+- [ ] Instalar e comparar fisicamente a build 204 no iPhone.

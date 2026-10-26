@@ -27,12 +27,6 @@ const institutionOptions = [
   "PAGSEGURO INTERNET IP S.A.",
 ] as const;
 
-const payer = {
-  name: "ERYCK DARLISSON DOS SANTOS MORAIS",
-  document: "***.484.813-**",
-  institution: "BANCO INTER",
-};
-
 export default function ReceiptDetailScreen() {
   const router = useRouter();
   const { recordId } = useLocalSearchParams<{ recordId?: string }>();
@@ -58,10 +52,7 @@ export default function ReceiptDetailScreen() {
 
   const isReceivedPix = record.title.trim().toLowerCase() === "pix recebido";
   const receiptTimestamp = receipt.eventAt;
-  const identifier = `is${receipt.transactionId.replace(/^E004/i, "").toLowerCase()}`;
   const recipientName = formatReceiptPersonName(receipt.recipientName);
-  const payerName = record.senderName?.trim() || payer.name;
-  const payerDocument = record.senderDocument?.trim() || payer.document;
 
   const toggleInstitutionPicker = () => setInstitutionPickerOpen((current) => !current);
   const selectInstitution = async (institution: string) => {
@@ -121,9 +112,8 @@ export default function ReceiptDetailScreen() {
 
           <View style={[styles.section, styles.firstSection]}>
             <Text style={styles.sectionTitle}>Sobre a transação</Text>
-            <InfoRow label="Data da transação" value={formatReceiptDateReference(receiptTimestamp)} />
+            <InfoRow label="Data do pagamento" value={formatReceiptDateReference(receiptTimestamp)} />
             <InfoRow label="Horário" value={formatReceiptTime(receiptTimestamp)} />
-            <LongInfo label="Identificador" value={identifier} />
             <LongInfo label="ID da transação" value={receipt.transactionId} />
           </View>
 
@@ -150,20 +140,7 @@ export default function ReceiptDetailScreen() {
                 ))}
               </View>
             )}
-            <LongInfo label="Chave Pix" value={receipt.pixKey} variant="pixKey" />
           </View>
-
-          {!isReceivedPix && (
-            <>
-              <View style={styles.separator} accessibilityElementsHidden />
-              <View style={[styles.section, styles.payerSection]}>
-                <Text style={styles.sectionTitle}>Quem pagou</Text>
-                <InfoRow label="Nome" value={payerName} />
-                <InfoRow label="CPF/CNPJ" value={payerDocument} />
-                <InfoRow label="Instituição" value={payer.institution} />
-              </View>
-            </>
-          )}
         </ScrollView>
         <View style={styles.footer} accessibilityRole="toolbar">
           <Pressable
@@ -206,9 +183,9 @@ function formatReceiptDateReference(value: string) {
   return `${weekdays[date.getDay()]}, ${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
 }
 
-function LongInfo({ label, value, variant }: { label: string; value: string; variant?: "pixKey" }) {
+function LongInfo({ label, value }: { label: string; value: string }) {
   return (
-    <View style={[styles.longInfo, variant === "pixKey" && styles.pixKeyInfo]}>
+    <View style={styles.longInfo}>
       <Text style={styles.infoLabel}>{label}</Text>
       <Text style={styles.longValue} selectable>{value}</Text>
     </View>
@@ -249,17 +226,15 @@ const styles = StyleSheet.create({
   infoValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right", flex: 1, minWidth: 0 },
   institutionValue: { position: "absolute", left: 105, right: 0, top: 0, color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right" },
   longInfo: { marginBottom: 9 },
-  pixKeyInfo: { marginTop: 10 },
   longValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", marginTop: 1 },
   separator: { height: 1, backgroundColor: colors.line, marginTop: 28 },
   recipientSection: { marginTop: 39 },
-  payerSection: { marginTop: 39 },
   institutionOptions: { marginTop: 4, marginBottom: 8, borderRadius: 8, borderWidth: 1, borderColor: "#E0E0E0", backgroundColor: colors.menu, overflow: "hidden" },
   institutionOption: { minHeight: 40, justifyContent: "center", paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: colors.line },
   institutionOptionText: { color: colors.ink, fontSize: 14, lineHeight: 18 },
   institutionOptionSelected: { color: colors.orange, fontWeight: "700" },
   rowPressed: { opacity: 0.62 },
-  footer: { minHeight: 136, flexGrow: 0, flexShrink: 0, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 12, backgroundColor: "#FFFFFF" },
+  footer: { height: 144, flexGrow: 0, flexShrink: 0, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 12, backgroundColor: "#FFFFFF" },
   shareButton: { alignSelf: "stretch", width: "100%", height: 52, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#F56800", marginBottom: 12 },
   shareText: { color: "#FFFFFF", fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
   newPixButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 52, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
