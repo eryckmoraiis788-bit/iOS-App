@@ -1,9 +1,9 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Pressable, ScrollView, Share, StyleSheet, Text, View } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore } from "@/lib/notification-store";
 import { formatReceiptPersonName, formatReceiptTime } from "@/lib/receipt-utils";
 
@@ -108,7 +108,7 @@ export default function ReceiptDetailScreen() {
           </Pressable>
           <Text style={styles.headerTitle}>Comprovante</Text>
           <Pressable onPress={() => router.replace("/")} hitSlop={12} accessibilityRole="button" accessibilityLabel="Início">
-            <IconSymbol name="house.fill" size={26} color={colors.orange} weight="regular" />
+            <MaterialCommunityIcons name="home-outline" size={26} color={colors.orange} />
           </Pressable>
         </View>
 
@@ -161,7 +161,6 @@ export default function ReceiptDetailScreen() {
               </View>
             </>
           )}
-          {receipt.pixKey.trim().length > 0 && <LongInfo label="Chave Pix" value={receipt.pixKey} variant="pixKey" />}
         </ScrollView>
         <View style={styles.footer} accessibilityRole="toolbar">
           <View style={styles.shareButtonFrame}>
@@ -205,9 +204,9 @@ function formatReceiptDateReference(value: string) {
   return `${weekdays[date.getDay()]}, ${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}`;
 }
 
-function LongInfo({ label, value, variant }: { label: string; value: string; variant?: "pixKey" }) {
+function LongInfo({ label, value }: { label: string; value: string }) {
   return (
-    <View style={[styles.longInfo, variant === "pixKey" && styles.pixKeyInfo]}>
+    <View style={styles.longInfo}>
       <Text style={styles.infoLabel}>{label}</Text>
       <Text style={styles.longValue} selectable>{value}</Text>
     </View>
@@ -240,7 +239,7 @@ const styles = StyleSheet.create({
   receiptTitle: { color: colors.ink, fontSize: 25, lineHeight: 30, fontWeight: "700", textAlign: "center" },
   amount: { color: colors.ink, fontSize: 25, lineHeight: 30, fontWeight: "700", textAlign: "center", marginTop: 0 },
   section: { marginTop: 56 },
-  firstSection: { marginTop: 58 },
+  firstSection: { marginTop: 54 },
   sectionTitle: { color: colors.ink, fontSize: 16, lineHeight: 20, fontWeight: "700", marginBottom: 14 },
   infoRow: { minHeight: 26, flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 7 },
   institutionRow: { minHeight: 26, position: "relative", marginBottom: 7 },
@@ -248,7 +247,6 @@ const styles = StyleSheet.create({
   infoValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right", flex: 1, minWidth: 0 },
   institutionValue: { position: "absolute", left: 105, right: 0, top: 0, color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right" },
   longInfo: { marginBottom: 9 },
-  pixKeyInfo: { marginTop: 10 },
   longValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", marginTop: 1 },
   separator: { height: 1, borderBottomWidth: 1, borderColor: colors.line, borderStyle: "dashed", marginTop: 28 },
   recipientSection: { marginTop: 42 },
@@ -260,10 +258,10 @@ const styles = StyleSheet.create({
   rowPressed: { opacity: 0.62 },
   footer: { position: "absolute", left: 0, right: 0, bottom: 0, height: 120, zIndex: 20, elevation: 20, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 0, backgroundColor: "#FFFFFF" },
   shareButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 48, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#EA7100", marginBottom: 16, overflow: "hidden" },
-  shareText: { color: "#FFFFFF", fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "center" },
+  shareText: { color: "#FFFFFF", fontSize: 13.75, lineHeight: 20, fontWeight: "700", textAlign: "center" },
   sharePressed: { backgroundColor: "#D06400" },
   newPixButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 48, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#FAB573", overflow: "hidden" },
-  newPixText: { color: "#EA7100", fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "center" },
+  newPixText: { color: "#EA7100", fontSize: 13.75, lineHeight: 20, fontWeight: "700", textAlign: "center" },
   newPixPressed: { backgroundColor: "rgba(234, 113, 0, 0.08)" },
   notFound: { flex: 1, alignItems: "center", justifyContent: "center", padding: 30, gap: 14 },
   notFoundTitle: { color: colors.ink, fontSize: 20, fontWeight: "700", textAlign: "center" },
