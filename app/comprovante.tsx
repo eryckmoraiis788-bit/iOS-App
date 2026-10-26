@@ -174,14 +174,15 @@ export default function ReceiptDetailScreen() {
           >
             <Text style={styles.shareText}>Compartilhar comprovante</Text>
           </Pressable>
-          <Pressable
-            onPress={() => router.replace("/")}
-            accessibilityRole="button"
-            accessibilityLabel="Realizar novo Pix"
-            style={({ pressed }) => [styles.newPixButton, pressed && styles.buttonPressed]}
-          >
+          <View style={styles.newPixButtonFrame}>
             <Text style={styles.newPixText}>Realizar novo Pix</Text>
-          </Pressable>
+            <Pressable
+              onPress={() => router.replace("/")}
+              accessibilityRole="button"
+              accessibilityLabel="Realizar novo Pix"
+              style={({ pressed }) => [StyleSheet.absoluteFillObject, pressed && styles.newPixPressed]}
+            />
+          </View>
         </View>
       </View>
     </ScreenContainer>
@@ -261,8 +262,9 @@ const styles = StyleSheet.create({
   footer: { minHeight: 136, flexGrow: 0, flexShrink: 0, paddingHorizontal: 24, paddingTop: 8, paddingBottom: 12, backgroundColor: "#FFFFFF" },
   shareButton: { alignSelf: "stretch", width: "100%", height: 52, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#F56800", marginBottom: 12 },
   shareText: { color: "#FFFFFF", fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
-  newPixButton: { alignSelf: "stretch", width: "100%", height: 52, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F56800" },
+  newPixButtonFrame: { position: "relative", alignSelf: "stretch", width: "100%", height: 52, borderRadius: 8, alignItems: "center", justifyContent: "center", backgroundColor: "#FFFFFF", borderWidth: 1.5, borderColor: "#F2B16E", overflow: "hidden" },
   newPixText: { color: "#F56800", fontSize: 16, lineHeight: 22, fontWeight: "700", textAlign: "center" },
+  newPixPressed: { backgroundColor: "rgba(245, 104, 0, 0.08)" },
   buttonPressed: { opacity: 0.78 },
   notFound: { flex: 1, alignItems: "center", justifyContent: "center", padding: 30, gap: 14 },
   notFoundTitle: { color: colors.ink, fontSize: 20, fontWeight: "700", textAlign: "center" },

@@ -805,3 +805,11 @@
 - [x] Incrementar para Inter 1.2.82/build 202.
 - [x] Gerar e auditar a IPA pela Action 33020848587 no commit `6ceab8c`; Info.plist 1.2.82/202 e ZIP aprovados.
 - [ ] Instalar a IPA 1.2.82/build 202 no SideStore e confirmar fisicamente se o espaçamento da grade, o divisor e a distância até os botões ficaram iguais ao projeto antigo.
+
+
+# Correção urgente do botão inferior — Inter 1.2.83/build 203
+- [x] Separar o contorno e o texto do botão `Realizar novo Pix` da camada de toque, para não depender da renderização visual do `Pressable` no iOS.
+- [x] Preservar a ação de retorno à tela de composição e destacar o estado pressionado com fundo laranja suave.
+- [x] Incrementar a versão para Inter 1.2.83/build 203, permitindo substituir a instalação anterior no iPhone.
+- [x] Validar TypeScript e testes; lint sem erros, com avisos preexistentes em outros arquivos.
+- [ ] Gerar e auditar IPA 1.2.83/build 203 e instalar no iPhone para comparar com a referência física.
