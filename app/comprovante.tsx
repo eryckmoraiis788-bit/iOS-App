@@ -440,7 +440,7 @@ function ReceivedInstitutionInfoRow({ value, onPress, onLongPress }: { value: st
       style={({ pressed }) => [styles.receivedInstitutionRow, pressed && styles.rowPressed]}
     >
       <Text style={styles.receivedInfoLabel}>Instituição</Text>
-      <Text style={styles.receivedInfoValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72}>{value}</Text>
+      <Text style={styles.receivedInstitutionValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72}>{value}</Text>
     </Pressable>
   );
 }
@@ -528,9 +528,10 @@ const styles = StyleSheet.create({
   receivedTransactionSection: { marginTop: 51 },
   receivedSectionTitle: { color: colors.ink, fontSize: 17.5, lineHeight: 23, fontWeight: "700", marginBottom: 17 },
   receivedInfoRow: { minHeight: 29, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 13 },
-  receivedInstitutionRow: { minHeight: 29, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 13 },
+  receivedInstitutionRow: { minHeight: 29, position: "relative", marginBottom: 13 },
   receivedInfoLabel: { color: "#252525", fontSize: 14, lineHeight: 20, fontWeight: "400", flexShrink: 0 },
   receivedInfoValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right", flex: 1, minWidth: 0 },
+  receivedInstitutionValue: { position: "absolute", left: 105, right: 0, top: 0, color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right" },
   receivedInstitutionOptions: { alignSelf: "stretch", marginTop: -3, marginBottom: 10, borderRadius: 8, borderWidth: 1, borderColor: "#E0E0E0", backgroundColor: colors.menu, overflow: "hidden" },
   receivedInstitutionOption: { minHeight: 40, justifyContent: "center", paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: colors.line },
   receivedInstitutionOptionText: { color: colors.ink, fontSize: 14, lineHeight: 18 },
