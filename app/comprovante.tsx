@@ -298,7 +298,27 @@ export default function ReceiptDetailScreen() {
                 <Text style={styles.receivedSectionTitle}>Quem enviou</Text>
                 <ReceivedInfoRow label="Nome" value={receivedSenderName} />
                 <ReceivedInfoRow label="CPF/CNPJ" value={receivedSenderDocument} />
-                <ReceivedInfoRow label="Instituição" value={receipt.institution.toUpperCase()} />
+                <ReceivedInstitutionInfoRow
+                  value={receipt.institution.toUpperCase()}
+                  onPress={toggleInstitutionPicker}
+                  onLongPress={() => void randomInstitution()}
+                />
+                {institutionPickerOpen && (
+                  <View style={styles.receivedInstitutionOptions} accessibilityRole="menu">
+                    {institutionOptions.map((institution) => (
+                      <Pressable
+                        key={institution}
+                        onPress={() => void selectInstitution(institution)}
+                        style={({ pressed }) => [styles.receivedInstitutionOption, pressed && styles.rowPressed]}
+                        accessibilityRole="menuitem"
+                        accessibilityState={{ selected: receipt.institution === institution }}
+                        accessibilityLabel={`Selecionar ${institution}`}
+                      >
+                        <Text style={[styles.receivedInstitutionOptionText, receipt.institution === institution && styles.institutionOptionSelected]}>{institution}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                )}
               </View>
 
               <View style={styles.receivedDivider} accessibilityElementsHidden />
@@ -409,6 +429,22 @@ function ReceivedInfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+function ReceivedInstitutionInfoRow({ value, onPress, onLongPress }: { value: string; onPress: () => void; onLongPress: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      onLongPress={onLongPress}
+      delayLongPress={450}
+      accessibilityRole="button"
+      accessibilityLabel="Selecionar instituição; mantenha pressionado para trocar aleatoriamente"
+      style={({ pressed }) => [styles.receivedInstitutionRow, pressed && styles.rowPressed]}
+    >
+      <Text style={styles.receivedInfoLabel}>Instituição</Text>
+      <Text style={styles.receivedInfoValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.72}>{value}</Text>
+    </Pressable>
+  );
+}
+
 function formatReceiptDateReference(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Data indisponível";
@@ -492,8 +528,12 @@ const styles = StyleSheet.create({
   receivedTransactionSection: { marginTop: 51 },
   receivedSectionTitle: { color: colors.ink, fontSize: 17.5, lineHeight: 23, fontWeight: "700", marginBottom: 17 },
   receivedInfoRow: { minHeight: 29, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 13 },
+  receivedInstitutionRow: { minHeight: 29, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 13 },
   receivedInfoLabel: { color: "#252525", fontSize: 14, lineHeight: 20, fontWeight: "400", flexShrink: 0 },
   receivedInfoValue: { color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700", textAlign: "right", flex: 1, minWidth: 0 },
+  receivedInstitutionOptions: { alignSelf: "stretch", marginTop: -3, marginBottom: 10, borderRadius: 8, borderWidth: 1, borderColor: "#E0E0E0", backgroundColor: colors.menu, overflow: "hidden" },
+  receivedInstitutionOption: { minHeight: 40, justifyContent: "center", paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: colors.line },
+  receivedInstitutionOptionText: { color: colors.ink, fontSize: 14, lineHeight: 18 },
   receivedTransactionId: { marginTop: 1, marginBottom: 17 },
   receivedTransactionIdLine: { minHeight: 28, flexDirection: "row", alignItems: "center", gap: 8 },
   receivedCopyButton: { width: 30, height: 30, alignItems: "center", justifyContent: "center" },
