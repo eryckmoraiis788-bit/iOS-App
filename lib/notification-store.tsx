@@ -60,6 +60,8 @@ type Store = {
   refreshTemplates: () => Promise<void>;
   receipts: NotificationReceipt[];
   updateReceipt: (receiptId: string, input: Partial<Pick<NotificationReceipt, "amount" | "recipientName" | "document" | "institution" | "category" | "description">>) => Promise<void>;
+  removeReceipt: (receipt: NotificationReceipt) => Promise<void>;
+  clearReceiptHistory: () => Promise<void>;
 };
 
 const STORAGE_KEY = "notification-ios-records-v1";
@@ -503,7 +505,19 @@ export function NotificationStoreProvider({ children, storageScope, migrateLegac
     await updateReceipts((current) => current.map((receipt) => receipt.id === receiptId ? { ...receipt, ...input } : receipt));
   };
 
-  const value = useMemo(() => ({ templates, records, selectedImage, hapticsEnabled, permission, receipts, setSelectedImage, setHapticsEnabled, refreshPermission, requestPermission, emit, schedule, updateScheduled, refreshScheduled, clearScheduled, cancel, remove, clearHistory, saveTemplate, removeTemplate, refreshTemplates, updateReceipt }), [templates, records, selectedImage, hapticsEnabled, permission, receipts]);
+  const removeReceipt = async (receipt: NotificationReceipt) => {
+    await updateReceipts((current) => current.filter((item) => item.id !== receipt.id));
+    await updateRecords((current) => current.filter((record) => record.id !== receipt.recordId));
+    void cleanupCachedAttachments(recordsRef.current, selectedImageRef.current);
+  };
+
+  const clearReceiptHistory = async () => {
+    await updateReceipts(() => []);
+    await updateRecords((current) => current.filter((record) => record.status === "pending"));
+    void cleanupCachedAttachments(recordsRef.current, selectedImageRef.current);
+  };
+
+  const value = useMemo(() => ({ templates, records, selectedImage, hapticsEnabled, permission, receipts, setSelectedImage, setHapticsEnabled, refreshPermission, requestPermission, emit, schedule, updateScheduled, refreshScheduled, clearScheduled, cancel, remove, clearHistory, saveTemplate, removeTemplate, refreshTemplates, updateReceipt, removeReceipt, clearReceiptHistory }), [templates, records, selectedImage, hapticsEnabled, permission, receipts]);
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 

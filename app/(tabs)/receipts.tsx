@@ -1,6 +1,6 @@
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useMemo } from "react";
-import { FlatList, Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, FlatList, Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useNotificationStore, type NotificationRecord } from "@/lib/notification-store";
@@ -19,7 +19,7 @@ const colors = {
 
 export default function ReceiptsScreen() {
   const router = useRouter();
-  const { records, receipts, refreshScheduled } = useNotificationStore();
+  const { records, receipts, refreshScheduled, removeReceipt, clearReceiptHistory } = useNotificationStore();
 
   useFocusEffect(useCallback(() => {
     void refreshScheduled();
@@ -32,6 +32,29 @@ export default function ReceiptsScreen() {
     [records, receipts],
   );
 
+  const clearAll = () => {
+    if (receiptItems.length === 0) return;
+    Alert.alert(
+      "Excluir histórico de comprovantes?",
+      "Todos os comprovantes e as notificações correspondentes serão removidos. Agendamentos pendentes não serão cancelados.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Excluir tudo", style: "destructive", onPress: () => void clearReceiptHistory() },
+      ],
+    );
+  };
+
+  const removeOne = (item: (typeof receiptItems)[number]) => {
+    Alert.alert(
+      "Excluir comprovante?",
+      "Este comprovante será removido do histórico.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Excluir", style: "destructive", onPress: () => void removeReceipt(item.receipt) },
+      ],
+    );
+  };
+
   return (
     <ScreenContainer edges={["top", "left", "right"]} containerClassName="bg-white">
       <FlatList
@@ -39,7 +62,7 @@ export default function ReceiptsScreen() {
         keyExtractor={(item) => item.receipt.id}
         contentContainerStyle={[styles.content, receiptItems.length === 0 && styles.emptyContent]}
         showsVerticalScrollIndicator={false}
-        ListHeaderComponent={<ReceiptsHeader count={receiptItems.length} />}
+        ListHeaderComponent={<ReceiptsHeader count={receiptItems.length} onClear={clearAll} />}
         ListEmptyComponent={(
           <View style={styles.emptyCard}>
             <View style={styles.emptyIcon}><IconSymbol name="receipt" size={32} color={colors.orange} /></View>
@@ -52,6 +75,7 @@ export default function ReceiptsScreen() {
             receipt={item.receipt}
             record={item.record}
             onPress={() => router.push({ pathname: "/comprovante", params: { recordId: item.receipt.recordId } })}
+            onRemove={() => removeOne(item)}
           />
         )}
       />
@@ -59,7 +83,7 @@ export default function ReceiptsScreen() {
   );
 }
 
-function ReceiptsHeader({ count }: { count: number }) {
+function ReceiptsHeader({ count, onClear }: { count: number; onClear: () => void }) {
   return (
     <View style={styles.header}>
       <View style={styles.headerTop}>
@@ -68,14 +92,22 @@ function ReceiptsHeader({ count }: { count: number }) {
           <Text style={styles.eyebrow}>REGISTROS DO APP</Text>
           <Text style={styles.heading}>Comprovantes</Text>
         </View>
-        <View style={styles.countBadge}><Text style={styles.countText}>{count}</Text></View>
+        <View style={styles.headerActions}>
+          {count > 0 ? (
+            <Pressable onPress={onClear} style={({ pressed }) => [styles.clearButton, pressed && styles.cardPressed]} accessibilityRole="button" accessibilityLabel="Excluir todo o histórico de comprovantes">
+              <IconSymbol name="trash" size={16} color="#B44B47" />
+              <Text style={styles.clearText}>Excluir tudo</Text>
+            </Pressable>
+          ) : null}
+          <View style={styles.countBadge}><Text style={styles.countText}>{count}</Text></View>
+        </View>
       </View>
       <Text style={styles.subtitle}>Veja os comprovantes das notificações emitidas.</Text>
     </View>
   );
 }
 
-function ReceiptCard({ receipt, record, onPress }: { receipt: NotificationReceipt; record?: NotificationRecord; onPress: () => void }) {
+function ReceiptCard({ receipt, record, onPress, onRemove }: { receipt: NotificationReceipt; record?: NotificationRecord; onPress: () => void; onRemove: () => void }) {
   return (
     <Pressable
       onPress={onPress}
@@ -95,6 +127,10 @@ function ReceiptCard({ receipt, record, onPress }: { receipt: NotificationReceip
           <Text style={styles.openText}>Ver comprovante</Text>
           <IconSymbol name="chevron.right" size={19} color={colors.orange} />
         </View>
+        <Pressable onPress={onRemove} hitSlop={8} style={({ pressed }) => [styles.removeButton, pressed && styles.cardPressed]} accessibilityRole="button" accessibilityLabel="Excluir comprovante">
+          <IconSymbol name="trash" size={16} color="#B44B47" />
+          <Text style={styles.removeText}>Excluir comprovante</Text>
+        </Pressable>
       </View>
     </Pressable>
   );
@@ -112,6 +148,9 @@ const styles = StyleSheet.create({
   subtitle: { color: colors.muted, fontSize: 16, lineHeight: 22 },
   countBadge: { minWidth: 38, height: 38, paddingHorizontal: 8, borderRadius: 19, alignItems: "center", justifyContent: "center", backgroundColor: colors.orangeSoft },
   countText: { color: colors.orange, fontSize: 16, fontWeight: "900" },
+  headerActions: { flexDirection: "row", alignItems: "center", gap: 8 },
+  clearButton: { flexDirection: "row", alignItems: "center", gap: 5, borderWidth: 1, borderColor: "#E8B7B4", borderRadius: 12, paddingVertical: 8, paddingHorizontal: 9 },
+  clearText: { color: "#B44B47", fontSize: 11, fontWeight: "800" },
   card: { flexDirection: "row", gap: 13, padding: 16, borderWidth: 1, borderColor: colors.border, borderRadius: 21, backgroundColor: colors.background },
   cardPressed: { opacity: 0.72 },
   successIcon: { width: 48, height: 48, borderRadius: 24, alignItems: "center", justifyContent: "center", backgroundColor: "#E8F8EF" },
@@ -123,6 +162,8 @@ const styles = StyleSheet.create({
   cardBody: { color: colors.ink, fontSize: 14, lineHeight: 19, marginTop: 7 },
   openRow: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 3, marginTop: 9 },
   openText: { color: colors.orange, fontSize: 13, fontWeight: "900" },
+  removeButton: { flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: 5, marginTop: 8, paddingVertical: 2 },
+  removeText: { color: "#B44B47", fontSize: 12, fontWeight: "800" },
   emptyCard: { flex: 1, minHeight: 250, alignItems: "center", justifyContent: "center", padding: 30, borderWidth: 1, borderColor: colors.border, borderRadius: 24, backgroundColor: "#FCFCFC" },
   emptyIcon: { width: 64, height: 64, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: colors.orangeSoft, marginBottom: 13 },
   emptyTitle: { color: colors.ink, fontSize: 19, fontWeight: "900", textAlign: "center" },
